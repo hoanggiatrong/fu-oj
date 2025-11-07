@@ -120,7 +120,7 @@ const ExerciseCompletionList = observer(() => {
     }, [authentication.account?.data.id]);
 
     return (
-        <div className="exercises">
+        <div className={classnames('exercises', { 'p-24': globalStore.isBelow1300 })}>
             <div className="header">
                 <div className="title">Danh sách các bài đã nộp</div>
                 <div className="description">

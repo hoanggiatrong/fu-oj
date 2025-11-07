@@ -14,11 +14,13 @@ import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
 import { Steps } from 'antd';
 import authentication from '../../shared/auth/authentication';
+import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
     const [step, setStep] = useState(0);
     const [updateId, setUpdateId] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [datas, setDatas] = useState([]);
     datas;
     const [topics, setTopics] = useState([]);
@@ -188,9 +190,13 @@ const Exercises = observer(() => {
     };
 
     const getExercises = () => {
+        setLoading(true);
         http.get('/exercises').then((res) => {
             setDatas(res.data);
             setDisplayDatas(res.data);
+            setTimeout(() => {
+                setLoading(false);
+            }, 1000);
         });
     };
 
@@ -211,7 +217,7 @@ const Exercises = observer(() => {
     }, [globalStore.isDetailPopupOpen]);
 
     return (
-        <div className="exercises">
+        <div className={classnames('exercises', { 'p-24': globalStore.isBelow1300 })}>
             <Modal
                 title={`${updateId ? 'Chỉnh sửa' : 'Tạo mới'} bài tập`}
                 className="detail-modal"
@@ -412,21 +418,23 @@ const Exercises = observer(() => {
                     </ProtectedElement>
                 </div>
                 <div className="body">
-                    <Table
-                        rowKey="id"
-                        scroll={{ x: 800 }}
-                        pagination={{ pageSize: 10, showSizeChanger: false }}
-                        dataSource={displayDatas}
-                        columns={columns}
-                        onRow={(record) => {
-                            return {
-                                onClick: () => {
-                                    if (!authentication.isStudent) return;
-                                    navigate(`/${routesConfig.exercise}`.replace(':id?', record.id));
-                                }
-                            };
-                        }}
-                    />
+                    <LoadingOverlay loading={loading}>
+                        <Table
+                            rowKey="id"
+                            scroll={{ x: 800 }}
+                            pagination={{ pageSize: 10, showSizeChanger: false }}
+                            dataSource={displayDatas}
+                            columns={columns}
+                            onRow={(record) => {
+                                return {
+                                    onClick: () => {
+                                        if (!authentication.isStudent) return;
+                                        navigate(`/${routesConfig.exercise}`.replace(':id?', record.id));
+                                    }
+                                };
+                            }}
+                        />
+                    </LoadingOverlay>
                 </div>
             </div>
         </div>

@@ -4,6 +4,8 @@ import Exercises from '../pages/Exercises/Exercises';
 import Home from '../pages/Home/Home';
 import routesConfig from './routesConfig';
 import Groups from '../pages/Groups/Groups';
+import GroupDetail from '../pages/GroupDetail/GroupDetail';
+import Exams from '../pages/Exams/Exams';
 
 const router: {
     path: string;
@@ -32,6 +34,14 @@ const router: {
     {
         path: routesConfig.groups,
         element: <Groups />
+    },
+    {
+        path: routesConfig.groupDetail,
+        element: <GroupDetail />
+    },
+    {
+        path: routesConfig.exams,
+        element: <Exams />
     }
 ];
 

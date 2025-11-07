@@ -8,7 +8,10 @@ const routesConfig: IPageRoutes = {
     exercise: 'exercise/:id?',
     submissionsOfAStudent: 'submissions',
     submissionOfAStudent: 'submission/:submissionId/:exerciseId',
-    groups: 'groups'
+    groups: 'groups',
+    groupDetail: 'group/:id?',
+    exams: 'exams',
+    exam: 'exams/:id'
 };
 
 export default routesConfig;

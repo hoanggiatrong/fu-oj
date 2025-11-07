@@ -1,0 +1,66 @@
+.group-detail {
+    // padding: var(--base-size-24);
+
+    & > .header {
+        margin-bottom: var(--base-size-24);
+
+        .title {
+            font-size: var(--base-size-24);
+            font-weight: var(--base-text-weight-semibold);
+            margin-bottom: var(--base-size-16);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .description {
+            .owner {
+                border: 1px solid var(--color-border);
+                max-width: var(--base-size-320);
+                padding: var(--base-size-16);
+                border-radius: var(--borderRadius-medium);
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                gap: var(--base-size-16);
+                font-size: var(--base-size-16);
+                font-weight: var(--base-text-weight-medium);
+                box-shadow: #f9fafe 10px 10px 10px;
+                text-transform: uppercase;
+
+                & > .ant-avatar {
+                    width: var(--base-size-40);
+                    height: var(--base-size-40);
+                }
+
+                &:hover {
+                    cursor: pointer;
+                    transform: scale(1.01);
+                }
+            }
+        }
+    }
+
+    & > .actions {
+        margin-bottom: var(--base-size-16);
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: var(--base-size-8);
+
+        & > .search {
+            max-width: var(--base-size-320);
+            flex: 1;
+
+            & > .ant-input {
+                border-radius: var(--borderRadius-full);
+            }
+        }
+
+        & > .action-btns {
+            & > button {
+                border-radius: var(--borderRadius-full);
+            }
+        }
+    }
+}

@@ -1,13 +1,16 @@
-.exercise-completion-list {
+.exams {
     // padding: var(--base-size-24);
 
-    .header {
+    & > .header {
         margin-bottom: var(--base-size-24);
 
         .title {
             font-size: var(--base-size-24);
             font-weight: var(--base-text-weight-semibold);
             margin-bottom: var(--base-size-16);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .description {
@@ -75,20 +78,6 @@
         }
 
         .body {
-        }
-    }
-}
-
-.actions-row {
-    display: flex;
-    gap: var(--base-size-8);
-
-    .action-row-btn {
-        font-size: var(--base-size-16);
-
-        &:hover {
-            color: var(--color-text-primary);
-            cursor: pointer;
         }
     }
 }

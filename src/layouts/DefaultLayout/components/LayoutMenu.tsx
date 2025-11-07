@@ -13,28 +13,28 @@ const menuItems = [
         to: '/home'
     },
     {
-        id: 'exercises',
-        name: 'Bài tập',
-        icon: <ReadFilled />,
-        to: '/exercises'
-    },
-    {
         id: 'groups',
         name: 'Nhóm',
         icon: <UsergroupAddOutlined />,
         to: '/groups'
     },
     {
+        id: 'exercises',
+        name: 'Bài tập',
+        icon: <ReadFilled />,
+        to: '/exercises'
+    },
+    {
+        id: 'exams',
+        name: 'Bài thi',
+        icon: <ContainerFilled />,
+        to: '/exams'
+    },
+    {
         id: 'topics',
         name: 'Topics',
         icon: <FundFilled />,
         to: '/topics'
-    },
-    {
-        id: 'road',
-        name: 'Lộ trình',
-        icon: <ContainerFilled />,
-        to: '/road'
     }
 ];
 

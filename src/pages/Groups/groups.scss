@@ -1,5 +1,5 @@
 .groups {
-    padding: var(--base-size-24);
+    // padding: var(--base-size-24);
 
     & > .header {
         margin-bottom: var(--base-size-24);
@@ -53,10 +53,16 @@
     }
 
     & > .status {
+        font-weight: var(--base-text-weight-medium);
         padding: var(--base-size-2) var(--base-size-16);
         background: #fff3f3;
         color: #ea7897;
         border-radius: var(--borderRadius-full);
+    }
+
+    & > .status.joined {
+        background: #2cbb5d;
+        color: white;
     }
 }
 

@@ -76,6 +76,14 @@ class GlobalStore {
 
         return true;
     };
+
+    get isBelow1000() {
+        return this.windowSize.width < 1000;
+    }
+
+    get isBelow1300() {
+        return this.windowSize.width < 1300;
+    }
 }
 
 const globalStore = new GlobalStore();

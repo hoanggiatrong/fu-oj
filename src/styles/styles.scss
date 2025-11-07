@@ -144,12 +144,15 @@ body.theme-light {
 @import url('../pages/Exercise/exercise.scss');
 @import url('../pages/ExerciseCompletionList/exercise-completion-list.scss');
 @import url('../pages/Groups/groups.scss');
+@import url('../pages/GroupDetail/group-detail.scss');
+@import url('../pages/Exams/exams.scss');
 
 // components
 @import url('../components/GlobalComponent/global-component.scss');
 @import url('../components/Line/line.scss');
 @import url('../components/Switch/switch.scss');
 @import url('../components/TooltipWrapper/tooltip-wrapper-component.scss');
+@import url('../components/LoadingOverlay/loading-overlay.scss');
 
 // others
 @import url('./others/drawer-content.scss');

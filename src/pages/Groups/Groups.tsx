@@ -8,13 +8,19 @@ import * as http from '../../lib/httpRequest';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import authentication from '../../shared/auth/authentication';
 import Highlighter from 'react-highlight-words';
+import { useNavigate } from 'react-router-dom';
+import routesConfig from '../../routes/routesConfig';
+import classnames from 'classnames';
+import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 
 const { Meta } = Card;
 
 const Groups = observer(() => {
+    const navigate = useNavigate();
     const [form] = Form.useForm();
 
     const [updateId, setUpdateId]: any = useState();
+    const [loading, setLoading] = useState(false);
     const [datas, setDatas] = useState([]);
     const [displayDatas, setDisplayDatas] = useState([]);
     const [search, setSearch] = useState('');
@@ -66,6 +72,7 @@ const Groups = observer(() => {
                     globalStore.triggerNotification('error', error.response?.data?.message, '');
                 })
                 .finally(() => {
+                    getGroups(); // Always update enroll state
                     setJoinDialogOpen(false);
                 });
         }
@@ -76,9 +83,13 @@ const Groups = observer(() => {
     };
 
     const getGroups = () => {
+        setLoading(true);
         http.get('/groups').then((res) => {
             setDatas(res.data);
             setDisplayDatas(res.data);
+            setTimeout(() => {
+                setLoading(false);
+            }, 1000);
         });
     };
 
@@ -87,7 +98,6 @@ const Groups = observer(() => {
     }, []);
 
     useEffect(() => {
-        console.log('log:', datas);
         const displayDatas = search
             ? datas.filter(
                   (data: any) =>
@@ -107,13 +117,13 @@ const Groups = observer(() => {
     }, [globalStore.isDetailPopupOpen]);
 
     return (
-        <div className="groups">
+        <div className={classnames('groups', { 'p-24': globalStore.isBelow1300 })}>
             <div className="header">
                 <div className="title">
                     Nhóm
                     <ProtectedElement acceptRoles={['INSTRUCTOR']}>
                         <Button type="primary" onClick={() => globalStore.setOpenDetailPopup(true)}>
-                            Create New Group
+                            Tạo nhóm
                         </Button>
                     </ProtectedElement>
                 </div>
@@ -132,108 +142,144 @@ const Groups = observer(() => {
                     </Button>
                 </div>
             </div>
-            <div className="content">
-                <Row gutter={[16, 16]}>
-                    {displayDatas.length ? (
-                        displayDatas.map((item: any) => (
-                            <Col key={item.id} xs={24} sm={12} md={8} lg={6} xl={6}>
-                                <Card
-                                    cover={
-                                        <div className="custom-card-header">
-                                            <div className="name">
-                                                <Highlighter
-                                                    highlightClassName="highlight"
-                                                    searchWords={[search]}
-                                                    autoEscape={true}
-                                                    textToHighlight={item.name}
-                                                />
-                                            </div>
-                                            <div className="status">Inactive</div>
-                                        </div>
-                                    }
-                                    actions={
-                                        authentication.isInstructor
-                                            ? [
-                                                  <EditOutlined
-                                                      key="edit"
-                                                      onClick={() => {
-                                                          globalStore.setOpenDetailPopup(true);
-
-                                                          form.setFieldsValue({
-                                                              name: item.name,
-                                                              description: item.description,
-                                                              isPublic: item.public
-                                                          });
-
-                                                          setUpdateId(item.id);
-                                                      }}
-                                                  />,
-                                                  <Popconfirm
-                                                      // title="Are you sure you want to delete this exercise?"
-                                                      title="Bạn có chắc chắn muốn xóa nhóm này?"
-                                                      okText="Có"
-                                                      cancelText="Không"
-                                                      onConfirm={() => {
-                                                          http.deleteById('/groups', item.id).then((res) => {
-                                                              globalStore.triggerNotification(
-                                                                  'success',
-                                                                  res.message || 'Delete successfully!',
-                                                                  ''
-                                                              );
-                                                              getGroups();
-                                                          });
-                                                      }}
-                                                  >
-                                                      <DeleteOutlined key="ellipsis" />
-                                                  </Popconfirm>,
-                                                  <SettingOutlined key="setting" />
-                                              ]
-                                            : []
-                                    }
+            <LoadingOverlay loading={loading}>
+                <div className="content">
+                    <Row gutter={[16, 16]}>
+                        {displayDatas.length ? (
+                            displayDatas.map((item: any) => (
+                                <Col
+                                    key={item.id}
+                                    xs={24}
+                                    sm={12}
+                                    md={8}
+                                    lg={6}
+                                    xl={6}
+                                    onClick={() => {
+                                        navigate(`/${routesConfig.groupDetail}`.replace(':id?', item.id));
+                                    }}
                                 >
-                                    <Meta
-                                        avatar={<Avatar src={item.owner.avatar || '/sources/thaydat.jpg'} />}
-                                        title={`Creator Name`}
-                                        description={item.owner.email}
-                                    />
-                                    <div className="group-infos">
-                                        <div className="header">Mô tả</div>
-                                        <div className="topics">
-                                            <div className="topic">
-                                                <Highlighter
-                                                    highlightClassName="highlight"
-                                                    searchWords={[search]}
-                                                    autoEscape={true}
-                                                    textToHighlight={item.description}
-                                                />
+                                    <Card
+                                        cover={
+                                            <div className="custom-card-header">
+                                                <div className="name">
+                                                    <Highlighter
+                                                        highlightClassName="highlight"
+                                                        searchWords={[search]}
+                                                        autoEscape={true}
+                                                        textToHighlight={item.name}
+                                                    />
+                                                </div>
+                                                <div className={classnames('status', { joined: item.joined })}>
+                                                    {item.joined ? 'Joined' : 'Not yet'}
+                                                </div>
+                                            </div>
+                                        }
+                                        actions={
+                                            authentication.isInstructor
+                                                ? [
+                                                      <EditOutlined
+                                                          key="edit"
+                                                          onClick={() => {
+                                                              globalStore.setOpenDetailPopup(true);
+
+                                                              form.setFieldsValue({
+                                                                  name: item.name,
+                                                                  description: item.description,
+                                                                  isPublic: item.public
+                                                              });
+
+                                                              setUpdateId(item.id);
+                                                          }}
+                                                      />,
+                                                      <Popconfirm
+                                                          // title="Are you sure you want to delete this exercise?"
+                                                          title="Bạn có chắc chắn muốn xóa nhóm này?"
+                                                          okText="Có"
+                                                          cancelText="Không"
+                                                          onConfirm={() => {
+                                                              http.deleteById('/groups', item.id).then((res) => {
+                                                                  globalStore.triggerNotification(
+                                                                      'success',
+                                                                      res.message || 'Delete successfully!',
+                                                                      ''
+                                                                  );
+                                                                  getGroups();
+                                                              });
+                                                          }}
+                                                      >
+                                                          <DeleteOutlined key="ellipsis" />
+                                                      </Popconfirm>,
+                                                      <SettingOutlined key="setting" />
+                                                  ]
+                                                : [
+                                                      <div className="max-width pl-8 pr-8">
+                                                          <Button
+                                                              className="max-width"
+                                                              type="primary"
+                                                              disabled={item.joined}
+                                                              onClick={(e) => {
+                                                                  e.stopPropagation();
+                                                                  onJoin({ joinCode: item.code });
+                                                              }}
+                                                          >
+                                                              Enroll
+                                                          </Button>
+                                                      </div>
+                                                  ]
+                                        }
+                                    >
+                                        <Meta
+                                            avatar={<Avatar src={item.owner.avatar || '/sources/thaydat.jpg'} />}
+                                            title={`Creator Name`}
+                                            description={item.owner.email}
+                                        />
+                                        <div className="group-infos">
+                                            <div className="header">Mô tả</div>
+                                            <div className="topics">
+                                                <div className="topic">
+                                                    <Highlighter
+                                                        highlightClassName="highlight"
+                                                        searchWords={[search]}
+                                                        autoEscape={true}
+                                                        textToHighlight={item.description}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="members">
+                                                <div className="member">
+                                                    <Avatar
+                                                        src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
+                                                    />
+                                                </div>
+                                                <div className="member">
+                                                    <Avatar
+                                                        src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
+                                                    />
+                                                </div>
+                                                <div className="member">
+                                                    <Avatar
+                                                        src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
+                                                    />
+                                                </div>
+                                                <div className="member">
+                                                    <Avatar
+                                                        src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
+                                                    />
+                                                </div>
+                                                <div className="member">
+                                                    <Avatar src={`+4`} />
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="members">
-                                            <div className="member">
-                                                <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`} />
-                                            </div>
-                                            <div className="member">
-                                                <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`} />
-                                            </div>
-                                            <div className="member">
-                                                <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`} />
-                                            </div>
-                                            <div className="member">
-                                                <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`} />
-                                            </div>
-                                            <div className="member">
-                                                <Avatar src={`+4`} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Card>
-                            </Col>
-                        ))
-                    ) : (
-                        <Empty className="flex flex-col flex-center max-width" style={{ minHeight: 300 }} />
-                    )}
-                </Row>
-            </div>
+                                    </Card>
+                                </Col>
+                            ))
+                        ) : (
+                            <Empty className="flex flex-col flex-center max-width" style={{ minHeight: 300 }} />
+                        )}
+                    </Row>
+                </div>
+            </LoadingOverlay>
             <Modal
                 title={`Tham gia nhóm`}
                 className="detail-modal"

@@ -134,6 +134,8 @@
             margin-top: var(--base-size-20);
             width: 100%;
             padding: 0 var(--base-size-16);
+
+            overflow: hidden; // Need to check
         }
 
         .outlet.outlet-responsive {
