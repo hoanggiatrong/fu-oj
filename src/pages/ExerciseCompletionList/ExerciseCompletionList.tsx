@@ -15,6 +15,7 @@ import authentication from '../../shared/auth/authentication';
 const ExerciseCompletionList = observer(() => {
     const navigate = useNavigate();
     const [datas, setDatas] = useState([]);
+    datas;
     const [topics, setTopics] = useState([]);
     const [displayDatas, setDisplayDatas] = useState([]);
     const [search, setSearch] = useState('');

@@ -18,7 +18,7 @@ const Groups = observer(() => {
     const [datas, setDatas] = useState([]);
     const [displayDatas, setDisplayDatas] = useState([]);
     const [search, setSearch] = useState('');
-    const [groupCode, setGroupCode]: any = useState<string | null>(null);
+    // const [groupCode, setGroupCode]: any = useState<string | null>(null);
     const [isJoinDialogOpen, setJoinDialogOpen]: any = useState<boolean>(false);
 
     const onFinish: FormProps['onFinish'] = (values) => {

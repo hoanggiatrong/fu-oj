@@ -17,7 +17,7 @@ import * as FlexLayout from 'flexlayout-react';
 import 'flexlayout-react/style/light.css';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import { programmingLanguages } from '../../constants/languages';
 import * as http from '../../lib/httpRequest';
@@ -85,7 +85,7 @@ const json = {
 const Exercise = observer(() => {
     const { id, exerciseId, submissionId } = useParams();
     const navigate = useNavigate();
-    const location = useLocation();
+    // const location = useLocation();
 
     if (!id && !exerciseId && !submissionId) {
         globalStore.triggerNotification('error', 'Exercise does not exist!', '');
@@ -120,7 +120,7 @@ const Exercise = observer(() => {
     const layoutRef = useRef<FlexLayout.Layout | null>(null);
 
     const [language, setLanguage] = useState<number>(45);
-    const [theme, setTheme] = useState<'light' | 'vs-dark'>('vs-dark');
+    const [theme] = useState<'light' | 'vs-dark'>('vs-dark');
     const [exercise, setExercise] = useState<any>(null);
     const [editorValue, setEditorValue]: any = useState('');
     const [loading, setLoading] = useState<boolean>(false);

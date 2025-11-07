@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import GlobalComponent from './components/GlobalComponent/GlobalComponent';
 import globalDataStore from './components/GlobalComponent/globalDataStore';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';

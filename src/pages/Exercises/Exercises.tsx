@@ -20,6 +20,7 @@ const Exercises = observer(() => {
     const [step, setStep] = useState(0);
     const [updateId, setUpdateId] = useState(null);
     const [datas, setDatas] = useState([]);
+    datas;
     const [topics, setTopics] = useState([]);
     const [displayDatas, setDisplayDatas] = useState([]);
     const [search, setSearch] = useState('');
@@ -102,6 +103,7 @@ const Exercises = observer(() => {
             dataIndex: 'actions',
             key: 'actions',
             render: (actions: any, record: any) => {
+                actions;
                 return (
                     <div className="actions-row" onClick={(e) => e.stopPropagation()}>
                         <TooltipWrapper tooltipText="Thêm vào yêu thích" position="left">
@@ -465,6 +467,7 @@ const TestCases = ({ updateId, testCases, setTestCases }: any) => {
             dataIndex: 'actions',
             key: 'actions',
             render: (actions: any, record: any) => {
+                actions;
                 return (
                     <div className="actions-row" onClick={(e) => e.stopPropagation()}>
                         <ProtectedElement acceptRoles={['INSTRUCTOR']}>
