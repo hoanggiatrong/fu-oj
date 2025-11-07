@@ -1,0 +1,48 @@
+.independence-page {
+    .ant-select-dropdown {
+        z-index: 10000;
+        background: #323232;
+
+        // Vùng chứa danh sách option (scroll list)
+        .rc-virtual-list {
+            .rc-virtual-list-holder {
+                .rc-virtual-list-holder-inner {
+                    // Từng item (option)
+                    .ant-select-item {
+                        color: white;
+
+                        // Hover hoặc active
+                        &.ant-select-item-option-active {
+                            background-color: #3a3a3a !important;
+                        }
+
+                        // Khi được chọn
+                        &.ant-select-item-option-selected {
+                            color: #16a34a !important; // green-500
+                            background-color: rgba(22, 163, 74, 0.12) !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Phần hiển thị giá trị được chọn (bên trên dropdown)
+    .ant-select {
+        .ant-select-selector {
+            background-color: #262626 !important;
+            color: #16a34a !important;
+            border: none !important;
+
+            .ant-select-selection-item {
+                color: #16a34a !important;
+            }
+        }
+
+        &.ant-select-focused {
+            .ant-select-selection-item {
+                color: #16a34a !important;
+            }
+        }
+    }
+}

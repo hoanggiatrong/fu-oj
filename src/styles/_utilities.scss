@@ -2,6 +2,10 @@
     display: flex;
 }
 
+.flex-1 {
+    flex: 1;
+}
+
 .flex-row {
     display: flex;
     flex-direction: row;
@@ -62,7 +66,7 @@
 }
 
 .mt-16 {
-    margin-top: var(--base-size-16);
+    margin-top: var(--base-size-16) !important;
 }
 
 .mr-16 {
@@ -75,4 +79,8 @@
 
 .ml-16 {
     margin-left: var(--base-size-16);
+}
+
+.hide {
+    display: none !important;
 }

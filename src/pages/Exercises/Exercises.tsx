@@ -12,14 +12,18 @@ import ProtectedElement from '../../components/ProtectedElement/ProtectedElement
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
+import { Steps } from 'antd';
+import authentication from '../../shared/auth/authentication';
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
+    const [step, setStep] = useState(0);
     const [updateId, setUpdateId] = useState(null);
     const [datas, setDatas] = useState([]);
     const [topics, setTopics] = useState([]);
     const [displayDatas, setDisplayDatas] = useState([]);
     const [search, setSearch] = useState('');
+    const [testCases, setTestCases]: any = useState([]);
 
     const [form] = Form.useForm();
 
@@ -153,7 +157,7 @@ const Exercises = observer(() => {
         console.log('Success:', values);
 
         if (updateId) {
-            http.putaaa(updateId, '/exercises', { ...values, testCases: [] })
+            http.putaaa(updateId, '/exercises', { ...values, testCases: [], maxSubmissions: 99999 })
                 .then((res) => {
                     globalStore.triggerNotification('success', res.message, '');
                     getExercises();
@@ -163,11 +167,13 @@ const Exercises = observer(() => {
                     globalStore.triggerNotification('error', error.response?.data?.message, '');
                 });
         } else {
-            http.post('/exercises', { ...values, testCases: [] })
+            http.post('/exercises', { ...values, testCases: [], maxSubmissions: 99999 })
                 .then((res) => {
                     globalStore.triggerNotification('success', res.message, '');
                     getExercises();
-                    globalStore.setOpenDetailPopup(false);
+                    setStep(1);
+                    setUpdateId(res.data.id);
+                    // globalStore.setOpenDetailPopup(false);
                 })
                 .catch((error) => {
                     globalStore.triggerNotification('error', error.response?.data?.message, '');
@@ -196,6 +202,7 @@ const Exercises = observer(() => {
 
     useEffect(() => {
         if (!globalStore.isDetailPopupOpen) {
+            setStep(0);
             form.resetFields();
             setUpdateId(null);
         }
@@ -208,9 +215,32 @@ const Exercises = observer(() => {
                 className="detail-modal"
                 open={globalStore.isDetailPopupOpen}
                 onCancel={() => globalStore.setOpenDetailPopup(false)}
-                width={420}
+                // width={420}
+                width={800}
             >
                 <div className="exercise-form">
+                    <Steps
+                        className="ex-step mb-px"
+                        size="small"
+                        current={step}
+                        items={[
+                            {
+                                title: 'Thông tin bài tập'
+                            },
+                            {
+                                title: 'Test cases'
+                            }
+                        ]}
+                        onChange={(value: number) => {
+                            if (!updateId) {
+                                globalStore.triggerNotification('error', 'Bạn phải tạo mới bài tập trước', '');
+                                setStep(0);
+                                return;
+                            }
+
+                            setStep(value);
+                        }}
+                    />
                     <Form
                         form={form}
                         name="basic"
@@ -222,60 +252,122 @@ const Exercises = observer(() => {
                         onFinishFailed={onFinishFailed}
                         autoComplete="off"
                     >
-                        <Form.Item
-                            label="Code"
-                            name="code"
-                            rules={[{ required: true, message: 'Please input your code!' }]}
-                        >
-                            <Input />
-                        </Form.Item>
+                        <div className={classnames({ hide: step != 0 })}>
+                            <div className="flex gap">
+                                <Form.Item
+                                    className="flex-1"
+                                    label="Mã bài tập"
+                                    name="code"
+                                    rules={[{ required: true, message: 'Vui lòng nhập mã bài tập!' }]}
+                                >
+                                    <Input />
+                                </Form.Item>
 
-                        <Form.Item
-                            label="Title"
-                            name="title"
-                            rules={[{ required: true, message: 'Please input your title!' }]}
-                        >
-                            <Input />
-                        </Form.Item>
+                                <Form.Item
+                                    className="flex-1"
+                                    label="Tiêu đề"
+                                    name="title"
+                                    rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </div>
 
-                        <Form.Item
-                            label="Description"
-                            name="description"
-                            rules={[{ required: true, message: 'Please input your description!' }]}
-                        >
-                            <Input />
-                        </Form.Item>
+                            {/* <Form.Item
+                                label="Max Submissions"
+                                name="maxSubmissions"
+                                rules={[{ required: true, message: 'Please input your max submissions!' }]}
+                                style={{ display: 'none' }}
+                            >
+                                <Input type="number" value={0} />
+                            </Form.Item> */}
 
-                        <Form.Item
-                            label="Max Submissions"
-                            name="maxSubmissions"
-                            rules={[{ required: true, message: 'Please input your max submissions!' }]}
-                        >
-                            <Input type="number" />
-                        </Form.Item>
+                            <div className="flex gap">
+                                <Form.Item
+                                    className="flex-1"
+                                    label="Giới hạn thời gian"
+                                    name="timeLimit"
+                                    rules={[{ required: true, message: 'Vui lòng nhập giới hạn!' }]}
+                                >
+                                    <Input type="number" />
+                                </Form.Item>
 
-                        <Form.Item
-                            label="Topics"
-                            name="topicIds"
-                            rules={[{ required: true, message: 'Please select 1 topic at least!' }]}
-                        >
-                            <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Select topics"
-                                defaultValue={[]}
-                                onChange={handleChange}
-                                options={topics}
-                            />
-                        </Form.Item>
+                                <Form.Item
+                                    className="flex-1"
+                                    label="Bộ nhớ"
+                                    name="memory"
+                                    rules={[{ required: true, message: 'Vui lòng nhập bộ nhớ!' }]}
+                                >
+                                    <Input type="number" />
+                                </Form.Item>
 
-                        {/* <Form.Item name="remember" valuePropName="checked" label={null}>
-                            <Checkbox>Remember me</Checkbox>
-                        </Form.Item> */}
+                                <Form.Item
+                                    className="flex-1"
+                                    label="Độ khó"
+                                    name="difficulty"
+                                    rules={[{ required: true, message: 'Vui lòng chọn một!' }]}
+                                >
+                                    <Select
+                                        style={{ width: '100%' }}
+                                        placeholder="Select difficulty"
+                                        // defaultValue={['EASY']}
+                                        onChange={handleChange}
+                                        options={[
+                                            { value: 'EASY', label: 'EASY' },
+                                            { value: 'MEDIUM', label: 'MEDIUM' },
+                                            { value: 'HARD', label: 'HARD' }
+                                        ]}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    className="flex-1"
+                                    label="Khả năng hiển thị"
+                                    name="visibility"
+                                    rules={[{ required: true, message: 'Vui lòng chọn một!' }]}
+                                >
+                                    <Select
+                                        style={{ width: '100%' }}
+                                        placeholder="Select visibility"
+                                        // defaultValue={['DRAFT']}
+                                        onChange={handleChange}
+                                        options={[{ value: 'DRAFT', label: 'DRAFT' }]}
+                                    />
+                                </Form.Item>
+                            </div>
+
+                            <Form.Item
+                                className="flex-1"
+                                label="Chủ đề"
+                                name="topicIds"
+                                rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 chủ đề!' }]}
+                            >
+                                <Select
+                                    mode="multiple"
+                                    style={{ width: '100%' }}
+                                    placeholder="Select topics"
+                                    defaultValue={[]}
+                                    onChange={handleChange}
+                                    options={topics}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Mô tả"
+                                name="description"
+                                rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+                            >
+                                <Input.TextArea rows={4} />
+                            </Form.Item>
+                        </div>
+
+                        <div className={classnames({ hide: step != 1 })}>
+                            <TestCases updateId={updateId} testCases={testCases} setTestCases={setTestCases} />
+                        </div>
 
                         <Form.Item label={null}>
-                            <Button type="primary" htmlType="submit">
-                                {updateId ? 'Update' : 'Create'}
+                            <Button className={classnames({ hide: step != 0 })} type="primary" htmlType="submit">
+                                {updateId ? 'Cập nhật' : 'Tạo mới'}
                             </Button>
                         </Form.Item>
                     </Form>
@@ -327,6 +419,7 @@ const Exercises = observer(() => {
                         onRow={(record) => {
                             return {
                                 onClick: () => {
+                                    if (!authentication.isStudent) return;
                                     navigate(`/${routesConfig.exercise}`.replace(':id?', record.id));
                                 }
                             };
@@ -337,5 +430,207 @@ const Exercises = observer(() => {
         </div>
     );
 });
+
+const TestCases = ({ updateId, testCases, setTestCases }: any) => {
+    const [form] = Form.useForm();
+    const [error, setError] = useState('');
+
+    const columns = [
+        {
+            title: 'Input',
+            dataIndex: 'input',
+            key: 'input'
+        },
+        {
+            title: 'Output',
+            dataIndex: 'output',
+            key: 'output'
+        },
+        {
+            title: 'Note',
+            dataIndex: 'note',
+            key: 'note'
+        },
+        {
+            title: 'State',
+            dataIndex: 'isPublic',
+            key: 'isPublic',
+            render: (isPublic: string) => {
+                console.log('log:', isPublic);
+                return isPublic ? <Tag color="green">Public</Tag> : <Tag color="red">Hidden</Tag>;
+            }
+        },
+        {
+            title: '',
+            dataIndex: 'actions',
+            key: 'actions',
+            render: (actions: any, record: any) => {
+                return (
+                    <div className="actions-row" onClick={(e) => e.stopPropagation()}>
+                        <ProtectedElement acceptRoles={['INSTRUCTOR']}>
+                            {/* <TooltipWrapper tooltipText="Chỉnh sửa" position="left">
+                                <SettingOutlined
+                                    className="action-row-btn"
+                                    onClick={() => {
+                                        setUpdateId(record.id);
+                                        globalStore.setOpenDetailPopup(true);
+                                        form.setFieldsValue({
+                                            ...record,
+                                            topicIds: record.topics.map((topic: any) => topic.id)
+                                        });
+                                    }}
+                                />
+                            </TooltipWrapper> */}
+                            <TooltipWrapper tooltipText="Xóa" position="left">
+                                <Popconfirm
+                                    // title="Are you sure you want to delete this exercise?"
+                                    title="Bạn có chắc chắn muốn xóa bài tập này?"
+                                    okText="Có"
+                                    cancelText="Không"
+                                    onConfirm={() => {
+                                        console.log('log:', record.id);
+                                        http.deleteById(`/exercises/${updateId}/test-cases`, record.id).then((res) => {
+                                            globalStore.triggerNotification(
+                                                'success',
+                                                res.message || 'Delete successfully!',
+                                                ''
+                                            );
+                                            getTestCasesById();
+                                        });
+                                    }}
+                                >
+                                    <DeleteOutlined className="action-row-btn" />
+                                </Popconfirm>
+                            </TooltipWrapper>
+                        </ProtectedElement>
+                    </div>
+                );
+            }
+        }
+    ];
+
+    const add = () => {
+        const payload = form.getFieldsValue();
+
+        if (!payload.input) {
+            setError('Input là bắt buộc');
+            return;
+        }
+
+        if (!payload.output) {
+            setError('Output là bắt buộc');
+            return;
+        }
+
+        if (payload.isPublic == undefined) {
+            setError('Độ khó là bắt buộc');
+            return;
+        }
+
+        http.post(`/exercises/${updateId}/test-cases`, payload)
+            .then((res) => {
+                globalStore.triggerNotification('success', res.message, '');
+                form.resetFields();
+                setError('');
+                getTestCasesById();
+            })
+            .catch((error) => {
+                globalStore.triggerNotification('error', error.response?.data?.message, '');
+            });
+    };
+
+    const getTestCasesById = () => {
+        http.get(`exercises/${updateId}`).then((res) => {
+            setTestCases(res.data.testCases);
+        });
+    };
+
+    useEffect(() => {
+        setTestCases([]);
+
+        if (updateId) {
+            // Get exercise by updateId
+            getTestCasesById();
+        }
+    }, [updateId]);
+
+    return (
+        <div className="test-cases-component">
+            <div className="add-new">
+                <div className="header">
+                    <div className="left">
+                        <img src="/sources/icons/code-ico.svg" alt="" />
+                        Tạo mới Test Case
+                    </div>
+
+                    <div className="right">
+                        <Button type="primary" onClick={add}>
+                            Thêm
+                        </Button>
+                    </div>
+                </div>
+                {error && <div className="error">{error}</div>}
+                <div className="content">
+                    <Form
+                        form={form}
+                        labelCol={{ span: 24 }}
+                        wrapperCol={{ span: 24 }}
+                        labelAlign="left"
+                        initialValues={{ remember: true }}
+                        autoComplete="off"
+                    >
+                        <div className="flex gap">
+                            <Form.Item
+                                className="flex-1"
+                                label="Input"
+                                name="input"
+                                rules={[{ required: true, message: 'Please input input!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+
+                            <Form.Item
+                                className="flex-1"
+                                label="Output"
+                                name="output"
+                                rules={[{ required: true, message: 'Please input output!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </div>
+
+                        <Form.Item
+                            className="flex-1"
+                            label="State"
+                            name="isPublic"
+                            rules={[{ required: true, message: 'Please select state!' }]}
+                        >
+                            <Select
+                                style={{ width: '100%' }}
+                                placeholder="Select state"
+                                options={[
+                                    { value: true, label: 'Public' },
+                                    { value: false, label: 'Hide' }
+                                ]}
+                            />
+                        </Form.Item>
+
+                        <Form.Item className="flex-1" label="Note" name="note">
+                            <Input.TextArea rows={2} />
+                        </Form.Item>
+                    </Form>
+                </div>
+            </div>
+
+            <div className="header">
+                <div className="left">
+                    <img src="/sources/icons/code-ico.svg" alt="" />
+                    Test Cases
+                </div>
+            </div>
+            <Table dataSource={testCases} columns={columns} />
+        </div>
+    );
+};
 
 export default Exercises;

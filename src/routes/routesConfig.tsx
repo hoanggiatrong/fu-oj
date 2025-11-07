@@ -5,7 +5,10 @@ interface IPageRoutes {
 const routesConfig: IPageRoutes = {
     home: 'home',
     exercises: 'exercises',
-    exercise: 'exercise/:id?'
+    exercise: 'exercise/:id?',
+    submissionsOfAStudent: 'submissions',
+    submissionOfAStudent: 'submission/:submissionId/:exerciseId',
+    groups: 'groups'
 };
 
 export default routesConfig;

@@ -109,6 +109,18 @@ class Authentication {
             globalStore.setDrawerKey('');
         });
     }
+
+    get isStudent() {
+        return this.account?.data?.role == 'STUDENT';
+    }
+
+    get isInstructor() {
+        return this.account?.data?.role == 'INSTRUCTOR';
+    }
+
+    get isAdmin() {
+        return this.account?.data?.role == 'ADMIN';
+    }
 }
 
 export default new Authentication();

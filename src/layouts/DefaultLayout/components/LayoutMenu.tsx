@@ -1,4 +1,4 @@
-import { ContainerFilled, FundFilled, HomeFilled, ReadFilled } from '@ant-design/icons';
+import { ContainerFilled, FundFilled, HomeFilled, ReadFilled, UsergroupAddOutlined } from '@ant-design/icons';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
@@ -17,6 +17,12 @@ const menuItems = [
         name: 'Bài tập',
         icon: <ReadFilled />,
         to: '/exercises'
+    },
+    {
+        id: 'groups',
+        name: 'Nhóm',
+        icon: <UsergroupAddOutlined />,
+        to: '/groups'
     },
     {
         id: 'topics',

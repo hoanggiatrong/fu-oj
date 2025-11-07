@@ -1,42 +1,132 @@
 import {
-    CodeSandboxOutlined,
-    FileTextOutlined,
-    CompressOutlined,
-    ExpandAltOutlined,
-    SendOutlined
+    AppstoreAddOutlined,
+    BellOutlined,
+    BugOutlined,
+    CloudUploadOutlined,
+    GithubOutlined,
+    LeftOutlined,
+    LoadingOutlined,
+    RightOutlined,
+    SettingOutlined,
+    WechatOutlined
 } from '@ant-design/icons';
 import Editor from '@monaco-editor/react';
-import { Button, Select } from 'antd';
+import { Select, Skeleton } from 'antd';
+import classnames from 'classnames';
+import * as FlexLayout from 'flexlayout-react';
+import 'flexlayout-react/style/light.css';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
-import GridLayout from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import { programmingLanguages } from '../../constants/languages';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
+import utils from '../../utils/utils';
+
+const json = {
+    global: { tabSetEnableClose: false },
+    layout: {
+        type: 'row',
+        weight: 100,
+        children: [
+            {
+                type: 'tabset',
+                weight: 35,
+                children: [
+                    {
+                        type: 'tab',
+                        name: 'Mô tả',
+                        component: 'desc',
+                        icon: '/sources/icons/description-ico.svg'
+                    }
+                ]
+            },
+            {
+                type: 'column',
+                weight: 65,
+                children: [
+                    {
+                        type: 'tabset',
+                        weight: 50,
+                        children: [
+                            {
+                                type: 'tab',
+                                name: 'Code',
+                                component: 'editor',
+                                icon: '/sources/icons/code-ico.svg'
+                            }
+                        ]
+                    },
+                    {
+                        type: 'tabset',
+                        weight: 50,
+                        children: [
+                            {
+                                type: 'tab',
+                                name: 'TestResult',
+                                component: 'testResult',
+                                icon: '/sources/icons/test-result-ico.svg'
+                            },
+                            {
+                                type: 'tab',
+                                name: 'Testcase',
+                                component: 'testcase',
+                                icon: '/sources/icons/testcase-ico.svg'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+};
 
 const Exercise = observer(() => {
-    const { id } = useParams();
+    const { id, exerciseId, submissionId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
 
-    if (!id) {
+    if (!id && !exerciseId && !submissionId) {
         globalStore.triggerNotification('error', 'Exercise does not exist!', '');
         navigate(`/${routesConfig.exercises}`);
         return <></>;
     }
 
-    const [language, setLanguage] = useState<number>(45); // ID trong programmingLanguages
-    const [theme, setTheme] = useState<'light' | 'vs-dark'>('light');
-    const [layout, setLayout] = useState([
-        { i: 'desc', x: 0, y: 0, w: 4, h: 12 },
-        { i: 'editor', x: 4, y: 0, w: 8, h: 12 }
-    ]);
-    const containerRef = useRef<any>(null);
-    const [width, setWidth] = useState(0);
-    const [rowHeight, setRowHeight] = useState(0);
+    /**
+     * For submitted only
+     */
+
+    const [submittedData, setSubmittedData]: any = useState(null);
+
+    useEffect(() => {
+        if (submissionId) {
+            http.get(`/submissions/${submissionId}/result`).then((res) => {
+                setSubmittedData(res);
+            });
+        }
+    }, []);
+
+    useEffect(() => {
+        if (submittedData) {
+            console.log('log:', submittedData);
+            setResponse(submittedData);
+            setEditorValue(submittedData.data.sourceCode);
+        }
+        // setEditorValue();
+    }, [submittedData]);
+
+    const [model] = useState(FlexLayout.Model.fromJson(json));
+    const layoutRef = useRef<FlexLayout.Layout | null>(null);
+
+    const [language, setLanguage] = useState<number>(45);
+    const [theme, setTheme] = useState<'light' | 'vs-dark'>('vs-dark');
+    const [exercise, setExercise] = useState<any>(null);
+    const [editorValue, setEditorValue]: any = useState('');
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
+    const [response, setResponse] = useState<any>(null);
+    const [selectedCaseResult, setSelectedCaseResult] = useState<any>(1);
 
     const getDefaultTemplate = (lang: string): string => {
         switch (lang) {
@@ -51,11 +141,11 @@ const Exercise = observer(() => {
             case 'typescript':
                 return 'console.log("Hello from TypeScript!");';
             case 'c':
-                return '#include <stdio.h>\nint main() {\n    printf("Hello, world!");\n    return 0;\n}';
+                return '#include <stdio.h>\nint main() {\n    int a, b;\n    scanf("%d %d", &a, &b);\n    printf("%d\\n", a + b);\n    return 0;\n}';
             case 'csharp':
                 return 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, world!");\n    }\n}';
             case 'go':
-                return 'package main\nimport "fmt"\nfunc main() {\n    fmt.Println("Hello, world!")\n}';
+                return 'package main\nimport "fmt"\nfunc main() {\n    fmt.Println("Hello, world!");\n}';
             case 'rust':
                 return 'fn main() {\n    println!("Hello, world!");\n}';
             case 'kotlin':
@@ -69,150 +159,103 @@ const Exercise = observer(() => {
         }
     };
 
-    // Lấy thông tin ngôn ngữ hiện tại từ constants
     const selectedLang = programmingLanguages.find((lang) => lang.id === language);
     const editorLanguage = selectedLang?.editorValue || 'javascript';
-    const editorValue = getDefaultTemplate(editorLanguage);
 
     const testRun = () => {
+        setError('');
+        setLoading(true);
+
         const payload = { exerciseId: id, languageCode: language, sourceCode: editorValue };
         http.post('/submissions/run', payload)
             .then((res) => {
+                // Do something
                 console.log('log:', res);
+                setResponse(res);
             })
             .catch((error) => {
-                console.log('log:', error);
+                setError(error.response.data.message);
+                // Do something
+            })
+            .finally(() => {
+                setLoading(false);
             });
     };
 
     const submit = () => {
+        setError('');
+        setLoading(true);
+
         const payload = { exerciseId: id, languageCode: language, sourceCode: editorValue };
-        console.log('log:', payload);
+        http.post('/submissions', payload)
+            .then((res) => {
+                // Do something
+                console.log('log:', res);
+                setResponse(res);
+            })
+            .catch((error) => {
+                setError(error.response.data.message);
+                // Do something
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
-    useEffect(() => {
-        const handleResize = () => {
-            const width = window.innerWidth;
-
-            if (width < 1300) {
-                // Chuyển sang 1 cột dọc
-                setLayout([
-                    { i: 'desc', x: 0, y: 0, w: 12, h: 6 },
-                    { i: 'editor', x: 0, y: 6, w: 12, h: 12 }
-                ]);
-            } else {
-                // Layout ngang như cũ
-                setLayout([
-                    { i: 'desc', x: 0, y: 0, w: 4, h: 12 },
-                    { i: 'editor', x: 4, y: 0, w: 8, h: 12 }
-                ]);
-            }
-        };
-
-        handleResize(); // Gọi 1 lần khi mount
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const observer = new ResizeObserver((entries) => {
-            if (entries[0]) {
-                const totalHeight = globalStore.windowSize.height - 350;
-                const maxH = Math.max(...layout.map((item) => item.h));
-                const rowHeight = totalHeight / maxH;
-                setRowHeight(rowHeight);
-
-                setWidth(entries[0].contentRect.width);
-            }
-        });
-        observer.observe(containerRef.current);
-        return () => observer.disconnect();
-    }, [globalStore.windowSize]);
-
-    return (
-        <div ref={containerRef} className="widget-layout">
-            <GridLayout
-                className="layout"
-                layout={layout}
-                cols={12}
-                width={width}
-                rowHeight={rowHeight}
-                draggableHandle=".drag-handle"
-                onDragStop={(newLayout) => {
-                    const desc = newLayout.find((item) => item.i === 'desc')!;
-                    const editor = newLayout.find((item) => item.i === 'editor')!;
-
-                    if (desc.x == 0) {
-                        setLayout([
-                            { ...desc, x: editor.w },
-                            { ...editor, x: 0 }
-                        ]);
-                    } else if (editor.x == 0) {
-                        setLayout([
-                            { ...desc, x: 0 },
-                            { ...editor, x: desc.w }
-                        ]);
-                    } else {
-                        setLayout([
-                            { ...desc, x: editor.w },
-                            { ...editor, x: 0 }
-                        ]);
-                    }
-                }}
-                onResizeStop={(layout, oldItem, newItem) => {
-                    if (globalStore.windowSize.width < 1300) return;
-
-                    console.log('log:', newItem.h);
-
-                    if (newItem.i === 'desc') {
-                        const newWidth = newItem.w == 12 ? 11 : newItem.w;
-                        const newHeight = newItem.h;
-                        setLayout([
-                            { i: 'desc', x: 0, y: 0, w: newWidth, h: newHeight },
-                            { i: 'editor', x: newWidth, y: 0, w: 12 - newWidth, h: newHeight }
-                        ]);
-                    } else if (newItem.i === 'editor') {
-                        const newWidth = newItem.w == 12 ? 11 : newItem.w;
-                        const newHeight = newItem.h == 0 ? 1 : newItem.h;
-                        setLayout([
-                            { i: 'desc', x: 0, y: 0, w: 12 - newWidth, h: newHeight },
-                            { i: 'editor', x: 12 - newWidth, y: 0, w: newWidth, h: newHeight }
-                        ]);
-                    }
-                }}
-            >
-                <div className="exercise-description" key="desc">
-                    <div className="header drag-handle">
-                        <div className="item">
-                            <FileTextOutlined />
-                            Mô tả
+    const factory = (node: any) => {
+        const component = node.getComponent();
+        if (component === 'desc') {
+            return (
+                <div className="exercise-description">
+                    <h2 className="header">{exercise?.title || 'Title'}</h2>
+                    <div className="tags">
+                        <div className="tag difficulty">
+                            {utils.capitalizeFirstLetter(exercise?.difficulty) || 'Difficulty'}
+                        </div>
+                        <div className="topics">
+                            {exercise?.topics.map((topic: any) => {
+                                return (
+                                    <div key={topic.id} className="tag topic">
+                                        {topic.name}
+                                    </div>
+                                );
+                            }) || 'Topics'}
                         </div>
                     </div>
-                    <div className="content">
-                        <div className="content-header">Mô tả bài tập</div>
-                        <p>
-                            Đây là phần mô tả hoặc hướng dẫn bài tập. Bạn có thể đặt nội dung markdown, ví dụ đề bài,
-                            yêu cầu đầu vào / đầu ra, ví dụ test case…
-                        </p>
+                    <p className="description">{exercise?.description || 'Description'}</p>
+                    <div className="test-cases">
+                        {exercise?.testCases.map((testCase: any, index: any) => {
+                            return testCase.isPublic ? (
+                                <div key={testCase.id} className="test-case">
+                                    <strong className="header">Example {index + 1}:</strong>
+                                    <div className="io">
+                                        <div className="input">
+                                            <strong>Input:</strong> {testCase.input}
+                                        </div>
+                                        <div className="input">
+                                            <strong>Output:</strong> {testCase.output}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <></>
+                            );
+                        }) || 'Test Cases'}
                     </div>
                 </div>
-
-                <div className="exercise" key="editor">
-                    <div className="header drag-handle">
-                        <div className="item">
-                            <CodeSandboxOutlined />
-                            Code
-                        </div>
-                    </div>
-
+            );
+        } else if (component === 'editor') {
+            return (
+                <div className="code">
                     <div className="actions">
-                        <Select value={language} onChange={(val) => setLanguage(val)} options={programmingLanguages} />
-                        <Button onClick={testRun}>Chạy thử code</Button>
-                        <Button onClick={submit}>Nộp code</Button>
+                        <Select
+                            value={language}
+                            onChange={(val) => setLanguage(val)}
+                            options={programmingLanguages}
+                            style={{ width: 200 }}
+                        />
                     </div>
-
-                    <div className="content">
+                    <div className="code-container">
                         <Editor
                             height="100%"
                             theme={theme}
@@ -221,12 +264,188 @@ const Exercise = observer(() => {
                             options={{
                                 fontSize: 14,
                                 minimap: { enabled: false },
-                                automaticLayout: true
+                                automaticLayout: true,
+                                readOnly: submittedData
                             }}
+                            onChange={(value) => setEditorValue(value)}
                         />
                     </div>
                 </div>
-            </GridLayout>
+            );
+        } else if (component === 'testResult') {
+            return (
+                <div className="testResult">
+                    {loading && (
+                        <>
+                            <LoadingOutlined className="mb-px" style={{ color: '#555555', fontSize: 20 }} />
+                            <Skeleton active />
+                        </>
+                    )}
+                    {error && (
+                        <div className="error">
+                            <div className="error-header">Error</div>
+                            <div className="error-content">{error}</div>
+                        </div>
+                    )}
+                    {response && !loading && !response?.data?.verdict && (
+                        <div className="response">
+                            <div
+                                className={classnames(
+                                    'response-header',
+                                    response?.data?.allPassed ? 'accepted' : 'wrong'
+                                )}
+                            >
+                                <div className="header">{response?.data?.allPassed ? 'Accepted' : 'Wrong Answer'}</div>
+                            </div>
+                            <div className="response-content">
+                                <div className="group-testcases">
+                                    <div className="btns">
+                                        {response?.data?.results?.map((item: any, index: any) => {
+                                            return (
+                                                <div
+                                                    className={classnames('btn', {
+                                                        selected: index + 1 == selectedCaseResult
+                                                    })}
+                                                    onClick={() => setSelectedCaseResult(index + 1)}
+                                                >
+                                                    <img
+                                                        src={
+                                                            item.passed
+                                                                ? '/sources/icons/green-check.svg'
+                                                                : '/sources/icons/red-xmark.svg'
+                                                        }
+                                                    />
+                                                    {`Case ${index + 1}`}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="testcase">
+                                        {response?.data?.results?.map((item: any, index: any) => {
+                                            return (
+                                                <div
+                                                    className={classnames('io', {
+                                                        hide: index + 1 != selectedCaseResult
+                                                    })}
+                                                >
+                                                    <div className="input wrapper">
+                                                        <div className="label">Input</div>
+                                                        <div className="content">{item.input}</div>
+                                                    </div>
+                                                    <div className="expected-output wrapper">
+                                                        <div className="label">Expected Output</div>
+                                                        <div className="content">{item.expectedOutput}</div>
+                                                    </div>
+                                                    <div
+                                                        className={classnames('actual-output wrapper', {
+                                                            match: item.passed
+                                                        })}
+                                                    >
+                                                        <div className="label">Actual Output</div>
+                                                        <div className="content">{item.actualOutput}</div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {response && !loading && response?.data?.verdict && (
+                        <div className="response">
+                            <div
+                                className={classnames('response-header', {
+                                    accepted: response?.data?.verdict == 'ACCEPTED',
+                                    wrong: response?.data?.verdict != 'ACCEPTED'
+                                })}
+                            >
+                                <div className="header">{utils.capitalizeFirstLetter(response?.data?.verdict)}</div>
+                            </div>
+                            <div className="solution">
+                                <div className="header">Gợi ý lời giải</div>
+                                <div className="content">{response?.data?.exercise?.solution}</div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        return null;
+    };
+
+    useEffect(() => {
+        document.body.classList.add('independence-page');
+
+        const handleResize = () => {
+            layoutRef.current?.forceUpdate();
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Get exercise
+        http.get(`exercises/${id || exerciseId}`).then((res) => {
+            setExercise(res.data);
+        });
+
+        return () => {
+            document.body.classList.remove('independence-page');
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+    useEffect(() => {
+        const newEditorValue = getDefaultTemplate(editorLanguage);
+
+        setEditorValue(newEditorValue);
+    }, [language]);
+
+    return (
+        <div className="exercise">
+            <div className="container">
+                <div className="header">
+                    <div className="left">
+                        <div className="group-btn">
+                            <GithubOutlined className="icon" />
+                            <LeftOutlined className="icon" />
+                            <RightOutlined className="icon" />
+                        </div>
+                    </div>
+                    <div className="center">
+                        <div className={classnames('group-btn', { disabled: loading })}>
+                            <BugOutlined className="icon" style={{ color: '#FFA118' }} />
+                            {loading ? (
+                                <div className="icon">
+                                    <LoadingOutlined />
+                                </div>
+                            ) : (
+                                <div className="icon" onClick={testRun}>
+                                    <img src="/sources/icons/play-ico.svg" alt="" />
+                                </div>
+                            )}
+                            <div className="icon submit-btn" onClick={submit}>
+                                {loading ? (
+                                    <LoadingOutlined style={{ fontSize: 18 }} />
+                                ) : (
+                                    <CloudUploadOutlined style={{ fontSize: 18 }} />
+                                )}
+                                Nộp bài
+                            </div>
+                        </div>
+                    </div>
+                    <div className="right">
+                        <div className="group-btn">
+                            <SettingOutlined className="icon" />
+                            <BellOutlined className="icon" />
+                            <WechatOutlined className="icon" />
+                            <AppstoreAddOutlined className="icon" />
+                        </div>
+                    </div>
+                </div>
+                <div className="flex-layout">
+                    <FlexLayout.Layout ref={layoutRef} model={model} factory={factory} />
+                </div>
+            </div>
         </div>
     );
 });

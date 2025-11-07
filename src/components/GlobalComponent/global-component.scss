@@ -4,8 +4,8 @@
 
         & > .ant-modal-content {
             height: 100%;
-            // border: 8px solid var(--color-border);
-            border-radius: var(--borderRadius-large);
+            border: 8px solid var(--color-border);
+            // border-radius: var(--borderRadius-large);
 
             & > .ant-modal-header {
                 & > .ant-modal-title {
@@ -18,8 +18,9 @@
                 z-index: 1;
                 width: 100%;
                 height: 100%;
-                padding: var(--base-size-16);
-                padding-top: var(--base-size-24);
+                // padding: var(--base-size-16);
+                // padding-top: var(--base-size-24);
+                padding: var(--base-size-8);
 
                 & > .content {
                 }
@@ -45,13 +46,13 @@
                                             & > input {
                                                 // padding: var(--base-size-12) var(--base-size-42) var(--base-size-12)
                                                 //     var(--base-size-20);
-                                                border-radius: var(--borderRadius-full);
+                                                // border-radius: var(--borderRadius-full);
                                                 font-size: var(--base-size-14) !important;
                                             }
 
                                             & > .ant-select {
                                                 & > .ant-select-selector {
-                                                    border-radius: var(--borderRadius-full);
+                                                    // border-radius: var(--borderRadius-full);
                                                     font-size: var(--base-size-14) !important;
 
                                                     & > .ant-select-selection-wrap {
@@ -74,10 +75,78 @@
                                                 border-radius: var(--borderRadius-full);
                                                 font-size: var(--base-size-16);
                                                 padding: var(--base-size-20) 0;
-                                                margin-top: var(--base-size-48);
+                                                // margin-top: var(--base-size-48);
+                                                margin-top: var(--base-size-24);
 
                                                 &:hover {
                                                     opacity: 0.8;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        .flex {
+                            & > .ant-form-item {
+                                margin: 0;
+                                padding: 0;
+
+                                & > .ant-row {
+                                    & > .ant-col {
+                                        margin: 0;
+                                        padding: 0;
+
+                                        & > label {
+                                            font-weight: var(--base-text-weight-medium);
+                                            margin-left: var(--base-size-4);
+                                        }
+
+                                        & > .ant-form-item-control-input {
+                                            & > .ant-form-item-control-input-content {
+                                                & > input {
+                                                    // padding: var(--base-size-12) var(--base-size-42) var(--base-size-12)
+                                                    //     var(--base-size-20);
+                                                    // border-radius: var(--borderRadius-full);
+                                                    font-size: var(--base-size-14) !important;
+                                                }
+
+                                                & > .ant-select {
+                                                    & > .ant-select-selector {
+                                                        // border-radius: var(--borderRadius-full);
+                                                        font-size: var(--base-size-14) !important;
+
+                                                        & > .ant-select-selection-wrap {
+                                                            // padding: var(--base-size-12) var(--base-size-42)
+                                                            //     var(--base-size-12) var(--base-size-12);
+                                                            margin-left: var(--base-size-8);
+
+                                                            & > .ant-select-selection-placeholder {
+                                                                // padding: var(--base-size-12) var(--base-size-42)
+                                                                //     var(--base-size-12) var(--base-size-12);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                & > button {
+                                                    width: 100%;
+                                                    background: #1dbfaf;
+                                                    background-image: linear-gradient(
+                                                        70.06deg,
+                                                        #2cccff -5%,
+                                                        #22dfbf 106%
+                                                    );
+                                                    border-radius: var(--borderRadius-full);
+                                                    font-size: var(--base-size-16);
+                                                    padding: var(--base-size-20) 0;
+                                                    // margin-top: var(--base-size-48);
+                                                    margin-top: var(--base-size-24);
+
+                                                    &:hover {
+                                                        opacity: 0.8;
+                                                    }
                                                 }
                                             }
                                         }
@@ -89,28 +158,28 @@
                 }
             }
 
-            &::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                z-index: 0;
-                opacity: 0.08;
-                background-image: radial-gradient(#ffffff40, #fff0 40%),
-                    radial-gradient(
-                        hsl(44, 100%, 66%) 30%,
-                        hsl(338, 68%, 65%),
-                        hsla(338, 68%, 65%, 0.4) 41%,
-                        transparent 52%
-                    ),
-                    radial-gradient(hsl(272, 100%, 60%) 37%, transparent 46%),
-                    linear-gradient(155deg, transparent 65%, hsl(142, 70%, 49%) 95%),
-                    linear-gradient(45deg, #0065e0, #0f8bff);
-                background-size: 200% 200%, 285% 500%, 285% 500%, cover, cover;
-                background-position: bottom left, 109% 68%, 109% 68%, center, center;
-            }
+            // &::after {
+            //     content: '';
+            //     position: absolute;
+            //     top: 0;
+            //     right: 0;
+            //     bottom: 0;
+            //     left: 0;
+            //     z-index: 0;
+            //     opacity: 0.08;
+            //     background-image: radial-gradient(#ffffff40, #fff0 40%),
+            //         radial-gradient(
+            //             hsl(44, 100%, 66%) 30%,
+            //             hsl(338, 68%, 65%),
+            //             hsla(338, 68%, 65%, 0.4) 41%,
+            //             transparent 52%
+            //         ),
+            //         radial-gradient(hsl(272, 100%, 60%) 37%, transparent 46%),
+            //         linear-gradient(155deg, transparent 65%, hsl(142, 70%, 49%) 95%),
+            //         linear-gradient(45deg, #0065e0, #0f8bff);
+            //     background-size: 200% 200%, 285% 500%, 285% 500%, cover, cover;
+            //     background-position: bottom left, 109% 68%, 109% 68%, center, center;
+            // }
         }
     }
 }

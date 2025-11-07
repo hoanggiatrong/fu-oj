@@ -6,29 +6,35 @@ import LayoutHeader from './components/LayoutHeader';
 import LayoutMenu from './components/LayoutMenu';
 import classnames from 'classnames';
 import globalStore from '../../components/GlobalComponent/globalStore';
+import { useLocation } from 'react-router-dom';
 
 const DefaultLayout = observer(() => {
+    const location = useLocation();
+    const isOnExercisePage = location.pathname.includes('/exercise/') || location.pathname.includes('/submission/');
+
     useEffect(() => {}, []);
 
     return (
         <div className="default-layout">
-            <LayoutHeader />
+            {!isOnExercisePage && <LayoutHeader />}
+
             <div
                 className={classnames('layout-content flex', {
                     'flex-col': globalStore.windowSize.width < 1300
                 })}
             >
-                <LayoutMenu />
+                {!isOnExercisePage && <LayoutMenu />}
                 <div
                     className={classnames('outlet', {
                         'outlet-responsive': globalStore.windowSize.width < 1300,
-                        'outlet-min': globalStore.windowSize.width < 675
+                        'outlet-min': globalStore.windowSize.width < 675,
+                        'outlet-exercise': isOnExercisePage
                     })}
                 >
                     <Outlet />
                 </div>
             </div>
-            <LayoutFooter />
+            {!isOnExercisePage && <LayoutFooter />}
         </div>
     );
 });

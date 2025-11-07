@@ -171,11 +171,14 @@
     }
 }
 
-.ant-modal-close-x {
-    display: none;
+.ant-modal-close {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: var(--base-size-4) !important;
+    right: var(--base-size-4) !important;
+
+    .ant-modal-close-x {
+        // display: none;
+    }
 }
 
 .ant-modal-footer {

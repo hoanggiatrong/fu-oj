@@ -1,0 +1,94 @@
+.exercise-completion-list {
+    padding: var(--base-size-24);
+
+    .header {
+        margin-bottom: var(--base-size-24);
+
+        .title {
+            font-size: var(--base-size-24);
+            font-weight: var(--base-text-weight-semibold);
+            margin-bottom: var(--base-size-16);
+        }
+
+        .description {
+        }
+    }
+
+    .wrapper {
+        gap: var(--base-size-16);
+
+        .search {
+            width: 25%;
+            border: 1px solid var(--color-border);
+            border-radius: var(--borderRadius-medium);
+            padding: var(--base-size-16);
+            display: flex;
+            flex-direction: column;
+            gap: var(--base-size-8);
+
+            .title {
+                display: flex;
+                gap: var(--base-size-4);
+                font-size: var(--base-size-16);
+                font-weight: var(--base-text-weight-medium);
+            }
+
+            .line {
+                margin: var(--base-size-4) 0;
+
+                div {
+                    font-size: var(--base-size-14) !important;
+                    font-weight: var(--base-text-weight-medium) !important;
+                    color: var(--color-text-primary);
+                }
+            }
+
+            .sub-title {
+                text-align: center;
+            }
+
+            input {
+                border-radius: var(--borderRadius-medium);
+            }
+
+            & > button {
+                background: var(--color-text-primary);
+                border: none;
+                color: #fff !important;
+                height: var(--base-size-40);
+
+                &:hover {
+                    transform: scale(0.98);
+                    background: var(--color-text-primary);
+                }
+            }
+        }
+
+        .body {
+            flex: 1;
+        }
+    }
+
+    .wrapper.wrapper-responsive {
+        .search {
+            width: 100%;
+        }
+
+        .body {
+        }
+    }
+}
+
+.actions-row {
+    display: flex;
+    gap: var(--base-size-8);
+
+    .action-row-btn {
+        font-size: var(--base-size-16);
+
+        &:hover {
+            color: var(--color-text-primary);
+            cursor: pointer;
+        }
+    }
+}

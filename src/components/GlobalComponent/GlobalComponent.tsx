@@ -1,12 +1,13 @@
 import type { WindowSizeType } from './globalStore';
 
-import { LogoutOutlined, UserOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { LogoutOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { Drawer, notification } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useWindowSize } from '../../hooks';
 import authentication from '../../shared/auth/authentication';
 import globalStore from './globalStore';
+import ProtectedElement from '../ProtectedElement/ProtectedElement';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -105,10 +106,12 @@ const UserDrawer = observer(() => {
                     <UserOutlined />
                     Thông tin cá nhân
                 </div>
-                <div className="info action">
-                    <UnorderedListOutlined />
-                    Danh sách bài tập đã hoàn thành
-                </div>
+                <ProtectedElement acceptRoles={['STUDENT']}>
+                    <div className="info action" onClick={() => (window.location.href = '/submissions')}>
+                        <UnorderedListOutlined />
+                        Danh sách bài tập đã hoàn thành
+                    </div>
+                </ProtectedElement>
                 <div className="logout action" onClick={() => authentication.logout()}>
                     <LogoutOutlined />
                     Đăng xuất

@@ -130,6 +130,7 @@
         }
 
         .outlet {
+            position: relative;
             margin-top: var(--base-size-20);
             width: 100%;
             padding: 0 var(--base-size-16);
@@ -140,6 +141,11 @@
         }
 
         .outlet.outlet-min {
+            margin-top: 0;
+            padding: 0;
+        }
+
+        .outlet-exercise {
             margin-top: 0;
             padding: 0;
         }

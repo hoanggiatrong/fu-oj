@@ -142,6 +142,8 @@ body.theme-light {
 @import url('../pages/Login/login.scss');
 @import url('../pages/Exercises/exercises.scss');
 @import url('../pages/Exercise/exercise.scss');
+@import url('../pages/ExerciseCompletionList/exercise-completion-list.scss');
+@import url('../pages/Groups/groups.scss');
 
 // components
 @import url('../components/GlobalComponent/global-component.scss');
@@ -152,6 +154,7 @@ body.theme-light {
 // others
 @import url('./others/drawer-content.scss');
 @import url('./others/widget-layout.scss');
+@import url('./others/independence.scss');
 
 .highlight {
     background: var(--color-text-primary);
