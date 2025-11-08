@@ -102,8 +102,7 @@ const ExerciseCompletionList = observer(() => {
     };
 
     const getExerciseCompletionList = () => {
-        http.get(`/submissions?student=${authentication.account?.data.id}`).then((res) => {
-            console.log('res.data:', res.data);
+        http.get(`/submissions?student=${authentication.account?.data.id}&pageSize=99999`).then((res) => {
             setDatas(res.data);
             setDisplayDatas(res.data);
         });

@@ -143,7 +143,7 @@ const Groups = observer(() => {
                 </div>
             </div>
             <LoadingOverlay loading={loading}>
-                <div className="content">
+                <div className="content mb-36">
                     <Row gutter={[16, 16]}>
                         {displayDatas.length ? (
                             displayDatas.map((item: any) => (

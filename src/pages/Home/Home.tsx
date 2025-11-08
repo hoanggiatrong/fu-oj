@@ -52,7 +52,7 @@ const Home = observer(() => {
                                     <Avatar src={'/sources/thaydat.jpg'} />
                                 </div>
                                 <div className="right">
-                                    <div className="name">Nguyễn Đức Đạt</div>
+                                    <div className="name">Lê Đức Đạt</div>
                                     <div className="roll-number">
                                         <b>Cosc Vương</b> | HE696969
                                     </div>
