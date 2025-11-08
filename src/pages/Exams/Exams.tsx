@@ -18,6 +18,7 @@ const Exams = observer(() => {
     const navigate = useNavigate();
     const [search, setSearch]: any = useState();
     const [updateId, setUpdateId] = useState(null);
+    updateId;
     const [loading, setLoading] = useState(false);
     const [datas, setDatas] = useState([]);
     datas;

@@ -1,5 +1,6 @@
 import { DeleteOutlined } from '@ant-design/icons';
-import { Avatar, Button, Input, Popconfirm, Table, Tag, Modal, Form } from 'antd';
+import type { FormProps } from 'antd';
+import { Avatar, Button, Form, Input, Modal, Popconfirm, Table } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import Highlighter from 'react-highlight-words';
@@ -8,7 +9,6 @@ import globalStore from '../../components/GlobalComponent/globalStore';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
-import type { FormProps } from 'antd';
 
 const GroupDetail = observer(() => {
     const { id } = useParams();
@@ -19,6 +19,7 @@ const GroupDetail = observer(() => {
     datas;
     const [displayDatas, setDisplayDatas]: any = useState([]);
     const [search, setSearch]: any = useState('');
+    setSearch;
     const [isAddMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
 
     const columns = [
@@ -89,7 +90,7 @@ const GroupDetail = observer(() => {
             title: '',
             dataIndex: 'actions',
             key: 'actions',
-            render: (actions: any, record: any) => {
+            render: (actions: any) => {
                 actions;
                 return (
                     <div className="actions-row" onClick={(e) => e.stopPropagation()}>
@@ -200,6 +201,7 @@ const GroupDetail = observer(() => {
                     onRow={(record) => {
                         return {
                             onClick: () => {
+                                record;
                                 // navigate(`/${routesConfig.exercise}`.replace(':id?', record.id));
                             }
                         };
