@@ -2,64 +2,99 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import * as http from '../../lib/httpRequest';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
-import { Button, Input, Select, Table, Tag, Popconfirm, Form } from 'antd';
+import { Button, Input, Select, Table, Tag, Popconfirm, Form, Modal, DatePicker } from 'antd';
+import type { FormProps } from 'antd';
 import Line from '../../components/Line/Line';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import classnames from 'classnames';
-import { DeleteOutlined, HeartOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import authentication from '../../shared/auth/authentication';
-import routesConfig from '../../routes/routesConfig';
+import { DeleteOutlined, SearchOutlined, EditOutlined, CopyOutlined } from '@ant-design/icons';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import Highlighter from 'react-highlight-words';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+interface ExamData {
+    id: string;
+    title: string;
+    description: string;
+    startTime: string;
+    endTime: string;
+    status: string;
+    groups?: Array<{ id: string; name: string }>;
+    exercises?: Array<{ id: string; title: string }>;
+}
 
 const Exams = observer(() => {
-    const navigate = useNavigate();
-    const [search, setSearch]: any = useState();
-    const [updateId, setUpdateId] = useState(null);
-    updateId;
+    const [search, setSearch] = useState<string>('');
     const [loading, setLoading] = useState(false);
-    const [datas, setDatas] = useState([]);
-    datas;
-    const [topics, setTopics] = useState([]);
-    const [displayDatas, setDisplayDatas] = useState([]);
+    const [datas, setDatas] = useState<ExamData[]>([]);
+    const [displayDatas, setDisplayDatas] = useState<ExamData[]>([]);
+    const [groups, setGroups] = useState<Array<{ value: string; label: string }>>([]);
+    const [exercises, setExercises] = useState<Array<{ value: string; label: string }>>([]);
+    const [updateId, setUpdateId] = useState<string | null>(null);
+    const [editingRecord, setEditingRecord] = useState<ExamData | null>(null);
 
     const [form] = Form.useForm();
 
-    const handleChange = (value: string[]) => {
-        console.log(`selected ${value}`);
+    const onFinish: FormProps['onFinish'] = (values) => {
+        const payload = {
+            title: values.title,
+            description: values.description,
+            startTime: values.startTime ? dayjs(values.startTime).utc().format('YYYY-MM-DDTHH:mm:ss[Z]') : null,
+            endTime: values.endTime ? dayjs(values.endTime).utc().format('YYYY-MM-DDTHH:mm:ss[Z]') : null,
+            status: values.status || 'DRAFT',
+            groupIds: values.groupIds || [],
+            exerciseIds: values.exerciseIds || []
+        };
+
+        if (updateId) {
+            http.putaaa(updateId, '/exams', payload)
+                .then((res) => {
+                    globalStore.triggerNotification('success', res.message || 'Cập nhật bài thi thành công!', '');
+                    getExams();
+                    globalStore.setOpenDetailPopup(false);
+                    form.resetFields();
+                    setUpdateId(null);
+                })
+                .catch((error) => {
+                    globalStore.triggerNotification('error', error.response?.data?.message || 'Có lỗi xảy ra!', '');
+                });
+        } else {
+            http.post('/exams', payload)
+                .then((res) => {
+                    globalStore.triggerNotification('success', res.message || 'Tạo bài thi thành công!', '');
+                    getExams();
+                    globalStore.setOpenDetailPopup(false);
+                    form.resetFields();
+                })
+                .catch((error) => {
+                    globalStore.triggerNotification('error', error.response?.data?.message || 'Có lỗi xảy ra!', '');
+                });
+        }
+    };
+
+    const onFinishFailed: FormProps['onFinishFailed'] = (errorInfo) => {
+        console.log('Failed:', errorInfo);
     };
 
     const columns = [
         {
-            title: 'Mã bài tập',
-            dataIndex: 'code',
-            key: 'code',
-            sorter: (a: any, b: any) => (a.code || '').localeCompare(b.code || ''),
-            render: (code: string) => {
-                return (
-                    <Highlighter
-                        highlightClassName="highlight"
-                        searchWords={[search]}
-                        autoEscape={true}
-                        textToHighlight={code}
-                    />
-                );
-            }
-        },
-        {
             title: 'Tiêu đề',
             dataIndex: 'title',
             key: 'title',
-            sorter: (a: any, b: any) => (a.title || '').localeCompare(b.title || ''),
+            sorter: (a: ExamData, b: ExamData) => (a.title || '').localeCompare(b.title || ''),
             render: (title: string) => {
                 return (
                     <Highlighter
                         highlightClassName="highlight"
                         searchWords={[search]}
                         autoEscape={true}
-                        textToHighlight={title}
+                        textToHighlight={title || ''}
                     />
                 );
             }
@@ -67,85 +102,113 @@ const Exams = observer(() => {
         {
             title: 'Mô tả',
             dataIndex: 'description',
-            key: 'description'
+            key: 'description',
+            render: (description: string) => {
+                return (
+                    <Highlighter
+                        highlightClassName="highlight"
+                        searchWords={[search]}
+                        autoEscape={true}
+                        textToHighlight={description || ''}
+                    />
+                );
+            }
         },
         {
-            title: 'Chủ đề',
-            dataIndex: 'topics',
-            key: 'topics',
-            render: (topics: any[]) => {
-                if (!topics) return null;
-
-                return topics.map((topic, index) => {
-                    const text = topic.name.trim().toUpperCase();
-                    const colors = [
-                        'magenta',
-                        'red',
-                        'volcano',
-                        'orange',
-                        'gold',
-                        'lime',
-                        'green',
-                        'cyan',
-                        'blue',
-                        'geekblue',
-                        'purple'
-                    ];
-                    const color = colors[index];
-
-                    return (
-                        <Tag color={color} key={text} style={{ marginBottom: 8 }}>
-                            {text}
-                        </Tag>
-                    );
-                });
+            title: 'Thời gian bắt đầu',
+            dataIndex: 'startTime',
+            key: 'startTime',
+            render: (startTime: string) => {
+                return startTime ? dayjs(startTime).format('DD/MM/YYYY HH:mm') : '-';
+            }
+        },
+        {
+            title: 'Thời gian kết thúc',
+            dataIndex: 'endTime',
+            key: 'endTime',
+            render: (endTime: string) => {
+                return endTime ? dayjs(endTime).format('DD/MM/YYYY HH:mm') : '-';
+            }
+        },
+        {
+            title: 'Số nhóm',
+            dataIndex: 'groups',
+            key: 'groups',
+            render: (groups: Array<{ id: string; name: string }> | undefined) => {
+                return groups ? groups.length : 0;
+            }
+        },
+        {
+            title: 'Số bài tập',
+            dataIndex: 'exercises',
+            key: 'exercises',
+            render: (exercises: Array<{ id: string; title: string }> | undefined) => {
+                return exercises ? exercises.length : 0;
             }
         },
         {
             title: '',
             dataIndex: 'actions',
             key: 'actions',
-            render: (actions: any, record: any) => {
-                actions;
+            render: (_: unknown, record: ExamData) => {
+                const now = dayjs();
+                const startTime = record.startTime ? dayjs(record.startTime) : null;
+                const isDisabled = startTime && (startTime.isAfter(now) || startTime.isSame(now));
+                const disabledStyle = isDisabled ? { opacity: 0.7, cursor: 'not-allowed' } : {};
+
+                const handleEdit = () => {
+                    if (isDisabled) return;
+                    setUpdateId(record.id);
+                    setEditingRecord(record);
+                    globalStore.setOpenDetailPopup(true);
+                };
+
+                const handleCopy = () => {
+                    form.setFieldsValue({
+                        title: `${record.title} (Copy)`,
+                        description: record.description,
+                        startTime: null,
+                        endTime: null,
+                        groupIds: record.groups?.map((g) => g.id) || [],
+                        exerciseIds: record.exercises?.map((e) => e.id) || []
+                    });
+                    globalStore.setOpenDetailPopup(true);
+                };
+
+                const handleDelete = () => {
+                    if (isDisabled) return;
+                    http.deleteById('/exams', record.id as unknown as number).then((res) => {
+                        globalStore.triggerNotification('success', res.message || 'Xóa thành công!', '');
+                        getExams();
+                    });
+                };
+
                 return (
                     <div className="actions-row" onClick={(e) => e.stopPropagation()}>
-                        <TooltipWrapper tooltipText="Thêm vào yêu thích" position="left">
-                            <HeartOutlined className="action-row-btn" />
-                        </TooltipWrapper>
-
                         <ProtectedElement acceptRoles={['INSTRUCTOR']}>
                             <TooltipWrapper tooltipText="Chỉnh sửa" position="left">
-                                <SettingOutlined
+                                <EditOutlined
                                     className="action-row-btn"
-                                    onClick={() => {
-                                        setUpdateId(record.id);
-                                        globalStore.setOpenDetailPopup(true);
-                                        form.setFieldsValue({
-                                            ...record,
-                                            topicIds: record.topics.map((topic: any) => topic.id)
-                                        });
-                                    }}
+                                    style={disabledStyle}
+                                    onClick={handleEdit}
                                 />
                             </TooltipWrapper>
+                            <TooltipWrapper tooltipText="Sao chép" position="left">
+                                <CopyOutlined className="action-row-btn" onClick={handleCopy} />
+                            </TooltipWrapper>
                             <TooltipWrapper tooltipText="Xóa" position="left">
-                                <Popconfirm
-                                    // title="Are you sure you want to delete this exercise?"
-                                    title="Bạn có chắc chắn muốn xóa bài tập này?"
-                                    okText="Có"
-                                    cancelText="Không"
-                                    onConfirm={() => {
-                                        http.deleteById('/exercises', record.id).then((res) => {
-                                            globalStore.triggerNotification(
-                                                'success',
-                                                res.message || 'Delete successfully!',
-                                                ''
-                                            );
-                                            getExams();
-                                        });
-                                    }}
-                                >
-                                    <DeleteOutlined className="action-row-btn" />
-                                </Popconfirm>
+                                {isDisabled ? (
+                                    <DeleteOutlined className="action-row-btn" style={disabledStyle} />
+                                ) : (
+                                    <Popconfirm
+                                        title="Bạn có chắc chắn muốn xóa bài thi này?"
+                                        okText="Có"
+                                        cancelText="Không"
+                                        onConfirm={handleDelete}
+                                    >
+                                        <DeleteOutlined className="action-row-btn" />
+                                    </Popconfirm>
+                                )}
                             </TooltipWrapper>
                         </ProtectedElement>
                     </div>
@@ -156,22 +219,86 @@ const Exams = observer(() => {
 
     const getExams = () => {
         setLoading(true);
-        http.get('/exercises').then((res) => {
-            setDatas(res.data);
-            setDisplayDatas(res.data);
-            setTimeout(() => {
-                setLoading(false);
-            }, 1000);
-        });
+        http.get('/exams')
+            .then((res) => {
+                setDatas(res.data || []);
+                setDisplayDatas(res.data || []);
+            })
+            .catch((error) => {
+                console.error('Error fetching exams:', error);
+                setDatas([]);
+                setDisplayDatas([]);
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    setLoading(false);
+                }, 1000);
+            });
     };
 
     useEffect(() => {
         getExams();
 
-        http.get('/topics').then((res) => {
-            setTopics(res.data.map((topic: any) => ({ ...topic, value: topic.id, label: topic.name })));
-        });
+        // Lấy danh sách groups
+        http.get('/groups')
+            .then((res) => {
+                setGroups(
+                    res.data.map((group: { id: string; name: string }) => ({
+                        value: group.id,
+                        label: group.name
+                    }))
+                );
+            })
+            .catch((error) => {
+                console.error('Error fetching groups:', error);
+            });
+
+        // Lấy danh sách exercises
+        http.get('/exercises')
+            .then((res) => {
+                setExercises(
+                    res.data.map((exercise: { id: string; title?: string; code?: string }) => ({
+                        value: exercise.id,
+                        label: exercise.title || exercise.code || ''
+                    }))
+                );
+            })
+            .catch((error) => {
+                console.error('Error fetching exercises:', error);
+            });
     }, []);
+
+    useEffect(() => {
+        if (!globalStore.isDetailPopupOpen) {
+            form.resetFields();
+            setUpdateId(null);
+            setEditingRecord(null);
+        } else if (editingRecord && updateId) {
+            // Set giá trị form khi modal mở và có record cần edit
+            setTimeout(() => {
+                form.setFieldsValue({
+                    title: editingRecord.title,
+                    description: editingRecord.description,
+                    startTime: editingRecord.startTime ? dayjs(editingRecord.startTime) : null,
+                    endTime: editingRecord.endTime ? dayjs(editingRecord.endTime) : null,
+                    groupIds: editingRecord.groups?.map((g) => g.id) || [],
+                    exerciseIds: editingRecord.exercises?.map((e) => e.id) || []
+                });
+            }, 100);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [globalStore.isDetailPopupOpen, editingRecord, updateId]);
+
+    useEffect(() => {
+        const filtered = search
+            ? datas.filter(
+                  (data: ExamData) =>
+                      (data?.title || '').toLowerCase().includes(search.toLowerCase()) ||
+                      (data?.description || '').toLowerCase().includes(search.toLowerCase())
+              )
+            : datas;
+        setDisplayDatas(filtered);
+    }, [search, datas]);
 
     return (
         <div className={classnames('exams', { 'p-24': globalStore.isBelow1300 })}>
@@ -201,17 +328,8 @@ const Exams = observer(() => {
                     </div>
                     <Input
                         value={search}
-                        placeholder="Tìm kiếm theo Mã, Tên, Mô tả, Chủ đề"
+                        placeholder="Tìm kiếm theo Tiêu đề, Mô tả"
                         onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <Line width={0} height={0} text="Chủ đề" center />
-                    <Select
-                        mode="multiple"
-                        style={{ width: '100%' }}
-                        placeholder="Select topics"
-                        defaultValue={[]}
-                        onChange={handleChange}
-                        options={topics}
                     />
                     <ProtectedElement acceptRoles={['INSTRUCTOR']}>
                         <Line width={0} height={0} text="Quản lý" center />
@@ -226,18 +344,118 @@ const Exams = observer(() => {
                             pagination={{ pageSize: 10, showSizeChanger: false }}
                             dataSource={displayDatas}
                             columns={columns}
-                            onRow={(record) => {
-                                return {
-                                    onClick: () => {
-                                        if (!authentication.isStudent) return;
-                                        navigate(`/${routesConfig.exercise}`.replace(':id?', record.id));
-                                    }
-                                };
-                            }}
                         />
                     </LoadingOverlay>
                 </div>
             </div>
+            <Modal
+                title={updateId ? 'Chỉnh sửa bài thi' : 'Tạo bài thi mới'}
+                className="detail-modal"
+                open={globalStore.isDetailPopupOpen}
+                onCancel={() => globalStore.setOpenDetailPopup(false)}
+                width={600}
+                footer={null}
+            >
+                <div className="groups-form-content">
+                    <Form
+                        form={form}
+                        name="exam-form"
+                        labelCol={{ span: 24 }}
+                        wrapperCol={{ span: 24 }}
+                        labelAlign="left"
+                        initialValues={{ remember: true }}
+                        onFinish={onFinish}
+                        onFinishFailed={onFinishFailed}
+                        autoComplete="off"
+                    >
+                        <Form.Item
+                            label="Tiêu đề"
+                            name="title"
+                            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
+                        >
+                            <Input />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Mô tả"
+                            name="description"
+                            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+                        >
+                            <Input.TextArea rows={4} />
+                        </Form.Item>
+
+                        <div className="flex gap">
+                            <Form.Item
+                                className="flex-1"
+                                label="Thời gian bắt đầu"
+                                name="startTime"
+                                rules={[{ required: true, message: 'Vui lòng chọn thời gian bắt đầu!' }]}
+                            >
+                                <DatePicker
+                                    showTime
+                                    format="YYYY-MM-DD HH:mm"
+                                    style={{ width: '100%' }}
+                                    placeholder="Chọn thời gian bắt đầu"
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                className="flex-1"
+                                label="Thời gian kết thúc"
+                                name="endTime"
+                                rules={[{ required: true, message: 'Vui lòng chọn thời gian kết thúc!' }]}
+                            >
+                                <DatePicker
+                                    showTime
+                                    format="YYYY-MM-DD HH:mm"
+                                    style={{ width: '100%' }}
+                                    placeholder="Chọn thời gian kết thúc"
+                                />
+                            </Form.Item>
+                        </div>
+
+                        <Form.Item
+                            label="Nhóm"
+                            name="groupIds"
+                            rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 nhóm!' }]}
+                        >
+                            <Select
+                                mode="multiple"
+                                showSearch
+                                style={{ width: '100%' }}
+                                placeholder="Chọn nhóm"
+                                options={groups}
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                }
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Bài tập"
+                            name="exerciseIds"
+                            rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 bài tập!' }]}
+                        >
+                            <Select
+                                mode="multiple"
+                                showSearch
+                                style={{ width: '100%' }}
+                                placeholder="Chọn bài tập"
+                                options={exercises}
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                }
+                            />
+                        </Form.Item>
+
+                        <Form.Item label={null}>
+                            <Button type="primary" htmlType="submit">
+                                Tạo mới
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </div>
+            </Modal>
         </div>
     );
 });
