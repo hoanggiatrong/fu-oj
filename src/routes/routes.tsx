@@ -6,6 +6,8 @@ import routesConfig from './routesConfig';
 import Groups from '../pages/Groups/Groups';
 import GroupDetail from '../pages/GroupDetail/GroupDetail';
 import Exams from '../pages/Exams/Exams';
+import Topics from '../pages/Topics/Topics';
+import ProtectedElementRoute from '../components/ProtectedElementRoute/ProtectedElementRoute';
 
 const router: {
     path: string;
@@ -13,35 +15,75 @@ const router: {
 }[] = [
     {
         path: routesConfig.home,
-        element: <Home />
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
+                <Home />
+            </ProtectedElementRoute>
+        )
     },
     {
         path: routesConfig.exercises,
-        element: <Exercises />
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Exercises />
+            </ProtectedElementRoute>
+        )
     },
     {
         path: routesConfig.exercise,
-        element: <Exercise />
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Exercise />
+            </ProtectedElementRoute>
+        )
     },
     {
         path: routesConfig.submissionsOfAStudent,
-        element: <ExerciseCompletionList />
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <ExerciseCompletionList />
+            </ProtectedElementRoute>
+        )
     },
     {
         path: routesConfig.submissionOfAStudent,
-        element: <Exercise />
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Exercise />
+            </ProtectedElementRoute>
+        )
     },
     {
         path: routesConfig.groups,
-        element: <Groups />
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Groups />
+            </ProtectedElementRoute>
+        )
     },
     {
         path: routesConfig.groupDetail,
-        element: <GroupDetail />
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <GroupDetail />
+            </ProtectedElementRoute>
+        )
     },
     {
         path: routesConfig.exams,
-        element: <Exams />
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Exams />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.topics,
+        element: (
+            <ProtectedElementRoute allowedRoles={['ADMIN']} allowedPermissions={[]}>
+                <Topics />
+            </ProtectedElementRoute>
+        )
     }
 ];
 

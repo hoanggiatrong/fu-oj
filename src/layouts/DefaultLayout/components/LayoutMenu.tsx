@@ -1,40 +1,46 @@
 import { ContainerFilled, FundFilled, HomeFilled, ReadFilled, UsergroupAddOutlined } from '@ant-design/icons';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import globalStore from '../../../components/GlobalComponent/globalStore';
+import authentication from '../../../shared/auth/authentication';
 
 const menuItems = [
     {
         id: 'home',
         name: 'Trang chủ',
         icon: <HomeFilled />,
-        to: '/home'
+        to: '/home',
+        allowedRoles: ['STUDENT', 'INSTRUCTOR', 'ADMIN']
     },
     {
         id: 'groups',
         name: 'Nhóm',
         icon: <UsergroupAddOutlined />,
-        to: '/groups'
+        to: '/groups',
+        allowedRoles: ['STUDENT', 'INSTRUCTOR']
     },
     {
         id: 'exercises',
         name: 'Bài tập',
         icon: <ReadFilled />,
-        to: '/exercises'
+        to: '/exercises',
+        allowedRoles: ['STUDENT', 'INSTRUCTOR']
     },
     {
         id: 'exams',
         name: 'Bài thi',
         icon: <ContainerFilled />,
-        to: '/exams'
+        to: '/exams',
+        allowedRoles: ['STUDENT', 'INSTRUCTOR']
     },
     {
         id: 'topics',
         name: 'Topics',
         icon: <FundFilled />,
-        to: '/topics'
+        to: '/topics',
+        allowedRoles: ['ADMIN']
     }
 ];
 
@@ -50,6 +56,21 @@ const LayoutMenu = observer(() => {
         }
     }, []);
 
+    // Filter menu items based on user role
+    const filteredMenuItems = useMemo(() => {
+        if (!authentication.account) return [];
+
+        let userRoles: string[] = authentication.account?.authorities ?? [];
+        const userRole = authentication.account?.data?.role;
+        if (userRole && !userRoles.includes(userRole)) {
+            userRoles = [...userRoles, userRole];
+        }
+
+        return menuItems.filter((item) => {
+            return item.allowedRoles.some((role) => userRoles.includes(role));
+        });
+    }, [authentication.account]);
+
     return (
         <div className="layout-menu">
             <div
@@ -58,7 +79,7 @@ const LayoutMenu = observer(() => {
                     'wrapper-min': globalStore.windowSize.width < 675
                 })}
             >
-                {menuItems.map((item) => (
+                {filteredMenuItems.map((item) => (
                     <div
                         key={item.id}
                         className={classnames('menu-item', { selected: selected == item.id })}

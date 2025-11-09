@@ -15,7 +15,12 @@ const ProtectedElementRoute: React.FC<ProtectedElementRouteProps> = observer(
     ({ allowedRoles, allowedPermissions, isAComponent, children }) => {
         if (!authentication.account) return <></>;
 
-        const userRoles = authentication.account?.authorities ?? [];
+        let userRoles = authentication.account?.authorities ?? [];
+        // Nếu không có authorities, lấy role từ account.data.role
+        const userRole = authentication.account?.data?.role;
+        if (userRole && !userRoles.includes(userRole)) {
+            userRoles = [...userRoles, userRole];
+        }
 
         const userPermissions = authentication.account?.permissions ?? [];
 

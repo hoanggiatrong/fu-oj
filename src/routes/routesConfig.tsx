@@ -11,7 +11,8 @@ const routesConfig: IPageRoutes = {
     groups: 'groups',
     groupDetail: 'group/:id?',
     exams: 'exams',
-    exam: 'exams/:id'
+    exam: 'exams/:id',
+    topics: 'topics'
 };
 
 export default routesConfig;

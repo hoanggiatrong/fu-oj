@@ -1,6 +1,6 @@
 import { DeleteOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Avatar, Button, Form, Input, Modal, Popconfirm, Table } from 'antd';
+import { Avatar, Button, Form, Input, Modal, Popconfirm, Table, Select } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import Highlighter from 'react-highlight-words';
@@ -14,6 +14,7 @@ const GroupDetail = observer(() => {
     const { id } = useParams();
 
     const [form] = Form.useForm();
+    const [formAddExercise] = Form.useForm();
     const [searchName, setSearchName]: any = useState();
     const [datas, setDatas]: any = useState([]);
     datas;
@@ -21,6 +22,16 @@ const GroupDetail = observer(() => {
     const [search, setSearch]: any = useState('');
     setSearch;
     const [isAddMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
+    const [exams, setExams] = useState<any[]>([]);
+    const [exercises, setExercises] = useState<any[]>([]);
+    const [allExercises, setAllExercises] = useState<any[]>([]);
+    const [isViewExamsOpen, setIsViewExamsOpen] = useState(false);
+    const [isViewSubmissionsOpen, setIsViewSubmissionsOpen] = useState(false);
+    const [isViewExercisesOpen, setIsViewExercisesOpen] = useState(false);
+    const [isGroupExercisesOpen, setIsGroupExercisesOpen] = useState(false);
+    const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
+    const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
+    const [examRankings, setExamRankings] = useState<any[]>([]);
 
     const columns = [
         {
@@ -129,6 +140,52 @@ const GroupDetail = observer(() => {
         });
     };
 
+    const getExamsByGroupId = () => {
+        if (!id) return;
+        http.get(`/exams?page=1&size=10&sort=createdTimestamp,desc&groupId=${id}`)
+            .then((res) => {
+                setExams(res.data?.content || res.data || []);
+            })
+            .catch((error) => {
+                console.error('Error fetching exams:', error);
+                setExams([]);
+            });
+    };
+
+    const getExercisesByGroupId = () => {
+        if (!id) return;
+        http.get(`/groups/${id}/exercises`)
+            .then((res) => {
+                setExercises(res.data || []);
+            })
+            .catch((error) => {
+                console.error('Error fetching exercises:', error);
+                setExercises([]);
+            });
+    };
+
+    const getAllExercises = () => {
+        http.get('/exercises')
+            .then((res) => {
+                setAllExercises(res.data || []);
+            })
+            .catch((error) => {
+                console.error('Error fetching all exercises:', error);
+                setAllExercises([]);
+            });
+    };
+
+    const getExamRankings = (examId: string) => {
+        http.get(`/exam-rankings?examId=${examId}`)
+            .then((res) => {
+                setExamRankings(res.data || []);
+            })
+            .catch((error) => {
+                console.error('Error fetching exam rankings:', error);
+                setExamRankings([]);
+            });
+    };
+
     const onAdd: FormProps['onFinish'] = (values) => {
         console.log('Success:', values);
 
@@ -153,16 +210,37 @@ const GroupDetail = observer(() => {
         console.log('Failed:', errorInfo);
     };
 
+    const onAddExercise: FormProps['onFinish'] = (values) => {
+        if (!id) return;
+        const exerciseIds = values.exerciseIds || [];
+        http.post(`/groups/${id}/exercises`, { exerciseIds })
+            .then((res) => {
+                globalStore.triggerNotification('success', res.message || 'Thêm bài tập thành công!', '');
+                getExercisesByGroupId();
+                setIsAddExerciseOpen(false);
+                formAddExercise.resetFields();
+            })
+            .catch((error) => {
+                globalStore.triggerNotification('error', error.response?.data?.message || 'Có lỗi xảy ra!', '');
+            });
+    };
+
     useEffect(() => {
-        getStudentByGroupId();
-    }, []);
+        if (id) {
+            getStudentByGroupId();
+            getExamsByGroupId();
+            getExercisesByGroupId();
+            getAllExercises();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id]);
 
     return (
         <div className="group-detail">
             <div className="header">
                 <div className="title">
                     Nhóm
-                    <ProtectedElement acceptRoles={['INSTRUCTOR']}>
+                    <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
                         <Button type="primary" onClick={() => globalStore.setOpenDetailPopup(true)}>
                             Thêm thành viên
                         </Button>
@@ -185,10 +263,33 @@ const GroupDetail = observer(() => {
                         onChange={(e) => setSearchName(e.target.value)}
                     />
                 </div>
-                <div className="action-btns">
-                    <Button type="primary" onClick={() => setAddMemberDialogOpen(true)}>
-                        Thêm thành viên
+                <div className="action-btns" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
+                        <Button type="primary" onClick={() => setIsViewExamsOpen(true)}>
+                            Xem bài kiểm tra
+                        </Button>
+                    </ProtectedElement>
+                    <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
+                        <Button type="primary" onClick={() => setIsViewSubmissionsOpen(true)}>
+                            Xem bài nộp
+                        </Button>
+                    </ProtectedElement>
+                    <Button type="primary" onClick={() => setIsViewExercisesOpen(true)}>
+                        Xem bài tập
                     </Button>
+                    <Button type="primary" onClick={() => setIsGroupExercisesOpen(true)}>
+                        Bài tập cho nhóm
+                    </Button>
+                    <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
+                        <Button type="primary" onClick={() => setIsAddExerciseOpen(true)}>
+                            Thêm bài tập cho nhóm
+                        </Button>
+                    </ProtectedElement>
+                    <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
+                        <Button type="primary" onClick={() => setAddMemberDialogOpen(true)}>
+                            Thêm thành viên
+                        </Button>
+                    </ProtectedElement>
                 </div>
             </div>
             <div className="body">
@@ -242,6 +343,155 @@ const GroupDetail = observer(() => {
                         </Form.Item>
                     </Form>
                 </div>
+            </Modal>
+
+            {/* Modal Xem bài kiểm tra */}
+            <Modal
+                title="Danh sách bài kiểm tra"
+                open={isViewExamsOpen}
+                onCancel={() => setIsViewExamsOpen(false)}
+                footer={null}
+                width={800}
+            >
+                <Table
+                    rowKey="id"
+                    dataSource={exams}
+                    pagination={{ pageSize: 10 }}
+                    columns={[
+                        { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
+                        { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+                        { title: 'Thời gian bắt đầu', dataIndex: 'startTime', key: 'startTime' },
+                        { title: 'Thời gian kết thúc', dataIndex: 'endTime', key: 'endTime' },
+                        { title: 'Trạng thái', dataIndex: 'status', key: 'status' }
+                    ]}
+                />
+            </Modal>
+
+            {/* Modal Xem bài nộp */}
+            <Modal
+                title="Danh sách bài nộp"
+                open={isViewSubmissionsOpen}
+                onCancel={() => {
+                    setIsViewSubmissionsOpen(false);
+                    setSelectedExamId(null);
+                    setExamRankings([]);
+                }}
+                footer={null}
+                width={800}
+            >
+                <div style={{ marginBottom: 16 }}>
+                    <Select
+                        placeholder="Chọn bài kiểm tra"
+                        style={{ width: '100%' }}
+                        onChange={(value) => {
+                            setSelectedExamId(value);
+                            getExamRankings(value);
+                        }}
+                        value={selectedExamId}
+                    >
+                        {exams.map((exam) => (
+                            <Select.Option key={exam.id} value={exam.id}>
+                                {exam.title}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </div>
+                {selectedExamId && (
+                    <Table
+                        rowKey="id"
+                        dataSource={examRankings}
+                        pagination={{ pageSize: 10 }}
+                        columns={[
+                            { title: 'Tên sinh viên', dataIndex: 'studentName', key: 'studentName' },
+                            { title: 'Điểm', dataIndex: 'score', key: 'score' },
+                            { title: 'Thời gian nộp', dataIndex: 'submittedAt', key: 'submittedAt' }
+                        ]}
+                    />
+                )}
+            </Modal>
+
+            {/* Modal Xem bài tập */}
+            <Modal
+                title="Danh sách bài tập"
+                open={isViewExercisesOpen}
+                onCancel={() => setIsViewExercisesOpen(false)}
+                footer={null}
+                width={800}
+            >
+                <Table
+                    rowKey="id"
+                    dataSource={exercises}
+                    pagination={{ pageSize: 10 }}
+                    columns={[
+                        { title: 'Mã bài tập', dataIndex: 'code', key: 'code' },
+                        { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
+                        { title: 'Mô tả', dataIndex: 'description', key: 'description' }
+                    ]}
+                />
+            </Modal>
+
+            {/* Modal Bài tập cho nhóm */}
+            <Modal
+                title="Bài tập cho nhóm"
+                open={isGroupExercisesOpen}
+                onCancel={() => setIsGroupExercisesOpen(false)}
+                footer={null}
+                width={800}
+            >
+                <Table
+                    rowKey="id"
+                    dataSource={exercises}
+                    pagination={{ pageSize: 10 }}
+                    columns={[
+                        { title: 'Mã bài tập', dataIndex: 'code', key: 'code' },
+                        { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
+                        { title: 'Mô tả', dataIndex: 'description', key: 'description' }
+                    ]}
+                />
+            </Modal>
+
+            {/* Modal Thêm bài tập cho nhóm */}
+            <Modal
+                title="Thêm bài tập cho nhóm"
+                open={isAddExerciseOpen}
+                onCancel={() => {
+                    setIsAddExerciseOpen(false);
+                    formAddExercise.resetFields();
+                }}
+                footer={null}
+                width={600}
+            >
+                <Form
+                    form={formAddExercise}
+                    name="addExercise"
+                    labelCol={{ span: 24 }}
+                    wrapperCol={{ span: 24 }}
+                    labelAlign="left"
+                    onFinish={onAddExercise}
+                    autoComplete="off"
+                >
+                    <Form.Item
+                        label="Chọn bài tập"
+                        name="exerciseIds"
+                        rules={[{ required: true, message: 'Vui lòng chọn ít nhất một bài tập!' }]}
+                    >
+                        <Select
+                            mode="multiple"
+                            placeholder="Chọn bài tập"
+                            style={{ width: '100%' }}
+                            options={allExercises.map((exercise) => ({
+                                value: exercise.id,
+                                label: `${exercise.code} - ${exercise.title}`
+                            }))}
+                        />
+                    </Form.Item>
+
+                    <Form.Item label={null}>
+                        <Button type="primary" htmlType="submit">
+                            Thêm bài tập
+                        </Button>
+                    </Form.Item>
+                </Form>
             </Modal>
         </div>
     );
