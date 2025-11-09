@@ -3,33 +3,26 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as http from '../../lib/httpRequest';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
-import { Button, Input, Select, Table, Popconfirm, Form, Modal, DatePicker, Tabs, Tag } from 'antd';
+import { Button, Input, Form, Tabs, Tag } from 'antd';
 import type { FormProps } from 'antd';
 import Line from '../../components/Line/Line';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import classnames from 'classnames';
-import { DeleteOutlined, SearchOutlined, EditOutlined, CopyOutlined } from '@ant-design/icons';
-import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
+import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
-import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import routesConfig from '../../routes/routesConfig';
+import authentication from '../../shared/auth/authentication';
+import type { ExamData, SelectOption } from './types';
+import { getExamStatus, filterDataByTab } from './utils';
+import ExamTable from './components/ExamTable';
+import ExamFormModal from './components/ExamFormModal';
+import ConfirmStartExamModal from './components/ConfirmStartExamModal';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
-interface ExamData {
-    id: string;
-    title: string;
-    description: string;
-    startTime: string;
-    endTime: string;
-    status: string;
-    groups?: Array<{ id: string; name: string }>;
-    exercises?: Array<{ id: string; title: string }>;
-}
 
 const Exams = observer(() => {
     const navigate = useNavigate();
@@ -37,34 +30,42 @@ const Exams = observer(() => {
     const [loading, setLoading] = useState(false);
     const [datas, setDatas] = useState<ExamData[]>([]);
     const [displayDatas, setDisplayDatas] = useState<ExamData[]>([]);
-    const [groups, setGroups] = useState<Array<{ value: string; label: string }>>([]);
-    const [exercises, setExercises] = useState<Array<{ value: string; label: string }>>([]);
+    const [groups, setGroups] = useState<SelectOption[]>([]);
+    const [exercises, setExercises] = useState<SelectOption[]>([]);
     const [updateId, setUpdateId] = useState<string | null>(null);
     const [editingRecord, setEditingRecord] = useState<ExamData | null>(null);
     const [activeTab, setActiveTab] = useState<string>('all');
+    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
 
     const [form] = Form.useForm();
 
-    const getExamStatus = (startTime: string | null, endTime: string | null) => {
-        const now = dayjs();
-        if (!startTime || !endTime) {
-            return { status: 'draft', label: 'Chưa có lịch', color: 'default' };
-        }
+    const handleConfirmStartExam = async () => {
+        if (!selectedExamId) return;
         
-        const start = dayjs(startTime);
-        const end = dayjs(endTime);
-        
-        if (start.isAfter(now)) {
-            return { status: 'upcoming', label: 'Sắp tới', color: 'blue' };
-        } else if (start.isBefore(now) || start.isSame(now)) {
-            if (end.isAfter(now)) {
-                return { status: 'ongoing', label: 'Đang diễn ra', color: 'green' };
-            } else {
-                return { status: 'completed', label: 'Đã kết thúc', color: 'default' };
+        try {
+            const userId = authentication.account?.data?.id;
+            if (!userId) {
+                globalStore.triggerNotification('error', 'Không tìm thấy thông tin người dùng!', '');
+                setConfirmModalOpen(false);
+                setSelectedExamId(null);
+                return;
             }
+            
+            await http.post('/exam-rankings', {
+                examId: selectedExamId,
+                userId: userId
+            });
+            
+            setConfirmModalOpen(false);
+            setSelectedExamId(null);
+            navigate(`/${routesConfig.exam}`.replace(':id', selectedExamId));
+        } catch (error) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Có lỗi xảy ra khi bắt đầu làm bài!';
+            globalStore.triggerNotification('error', errorMessage, '');
+            setConfirmModalOpen(false);
+            setSelectedExamId(null);
         }
-        
-        return { status: 'draft', label: 'Chưa có lịch', color: 'default' };
     };
 
     const onFinish: FormProps['onFinish'] = (values) => {
@@ -102,10 +103,6 @@ const Exams = observer(() => {
                     globalStore.triggerNotification('error', error.response?.data?.message || 'Có lỗi xảy ra!', '');
                 });
         }
-    };
-
-    const onFinishFailed: FormProps['onFinishFailed'] = (errorInfo) => {
-        console.log('Failed:', errorInfo);
     };
 
     const columns = [
@@ -180,75 +177,6 @@ const Exams = observer(() => {
             render: (exercises: Array<{ id: string; title: string }> | undefined) => {
                 return exercises ? exercises.length : 0;
             }
-        },
-        {
-            title: '',
-            dataIndex: 'actions',
-            key: 'actions',
-            render: (_: unknown, record: ExamData) => {
-                const now = dayjs();
-                const startTime = record.startTime ? dayjs(record.startTime) : null;
-                const isDisabled = startTime && (startTime.isAfter(now) || startTime.isSame(now));
-                const disabledStyle = isDisabled ? { opacity: 0.7, cursor: 'not-allowed' } : {};
-
-                const handleEdit = () => {
-                    if (isDisabled) return;
-                    setUpdateId(record.id);
-                    setEditingRecord(record);
-                    globalStore.setOpenDetailPopup(true);
-                };
-
-                const handleCopy = () => {
-                    form.setFieldsValue({
-                        title: `${record.title} (Copy)`,
-                        description: record.description,
-                        startTime: null,
-                        endTime: null,
-                        groupIds: record.groups?.map((g) => g.id) || [],
-                        exerciseIds: record.exercises?.map((e) => e.id) || []
-                    });
-                    globalStore.setOpenDetailPopup(true);
-                };
-
-                const handleDelete = () => {
-                    if (isDisabled) return;
-                    http.deleteById('/exams', record.id as unknown as number).then((res) => {
-                        globalStore.triggerNotification('success', res.message || 'Xóa thành công!', '');
-                        getExams();
-                    });
-                };
-
-                return (
-                    <div className="actions-row" onClick={(e) => e.stopPropagation()}>
-                        <ProtectedElement acceptRoles={['INSTRUCTOR']}>
-                            <TooltipWrapper tooltipText="Chỉnh sửa" position="left">
-                                <EditOutlined
-                                    className="action-row-btn"
-                                    style={disabledStyle}
-                                    onClick={handleEdit}
-                                />
-                            </TooltipWrapper>
-                            <TooltipWrapper tooltipText="Sao chép" position="left">
-                                <CopyOutlined className="action-row-btn" onClick={handleCopy} />
-                            </TooltipWrapper>
-                            <TooltipWrapper tooltipText="Xóa" position="left">
-                                {isDisabled ? (
-                                    <DeleteOutlined className="action-row-btn" style={disabledStyle} />
-                                ) : (
-                                    <Popconfirm
-                                        title="Bạn có chắc chắn muốn xóa bài thi này?"
-                                        okText="Có"
-                                        cancelText="Không"
-                                        onConfirm={handleDelete}
-                                    >
-                                        <DeleteOutlined className="action-row-btn" />
-                                    </Popconfirm>
-                                )}
-                            </TooltipWrapper>
-                        </ProtectedElement>
-                    </div>
-                );
-            }
         }
     ];
 
@@ -304,79 +232,39 @@ const Exams = observer(() => {
     }, []);
 
     useEffect(() => {
-        if (!globalStore.isDetailPopupOpen) {
-            form.resetFields();
-            setUpdateId(null);
-            setEditingRecord(null);
-        } else if (editingRecord && updateId) {
-            // Set giá trị form khi modal mở và có record cần edit
-            setTimeout(() => {
-                form.setFieldsValue({
-                    title: editingRecord.title,
-                    description: editingRecord.description,
-                    startTime: editingRecord.startTime ? dayjs(editingRecord.startTime) : null,
-                    endTime: editingRecord.endTime ? dayjs(editingRecord.endTime) : null,
-                    groupIds: editingRecord.groups?.map((g) => g.id) || [],
-                    exerciseIds: editingRecord.exercises?.map((e) => e.id) || []
-                });
-            }, 100);
+        const filtered = filterDataByTab(datas, activeTab, search);
+        setDisplayDatas(filtered);
+    }, [search, datas, activeTab]);
+
+    const handleRowClick = (record: ExamData) => {
+        // Instructor: navigate trực tiếp
+        if (authentication.isInstructor) {
+            navigate(`/${routesConfig.exam}`.replace(':id', record.id));
+            return;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [globalStore.isDetailPopupOpen, editingRecord, updateId]);
-
-    // Filter data based on active tab
-    const filterDataByTab = (dataList: ExamData[]) => {
-        const now = dayjs();
-        let filtered = dataList;
-
-        switch (activeTab) {
-            case 'upcoming':
-                filtered = dataList.filter((data) => {
-                    const startTime = data.startTime ? dayjs(data.startTime) : null;
-                    return startTime && startTime.isAfter(now);
-                });
-                break;
-            case 'ongoing':
-                filtered = dataList.filter((data) => {
-                    const startTime = data.startTime ? dayjs(data.startTime) : null;
-                    const endTime = data.endTime ? dayjs(data.endTime) : null;
-                    return (
-                        startTime &&
-                        endTime &&
-                        (startTime.isBefore(now) || startTime.isSame(now)) &&
-                        endTime.isAfter(now)
-                    );
-                });
-                break;
-            case 'completed':
-                filtered = dataList.filter((data) => {
-                    const endTime = data.endTime ? dayjs(data.endTime) : null;
-                    return endTime && endTime.isBefore(now);
-                });
-                break;
-            case 'all':
-            default:
-                filtered = dataList;
-                break;
-        }
-
-        // Apply search filter
-        if (search) {
-            filtered = filtered.filter(
-                (data: ExamData) =>
-                    (data?.title || '').toLowerCase().includes(search.toLowerCase()) ||
-                    (data?.description || '').toLowerCase().includes(search.toLowerCase())
-            );
-        }
-
-        return filtered;
+        
+        // Student hoặc user khác: hiện cảnh báo trước khi làm bài
+        setSelectedExamId(record.id);
+        setConfirmModalOpen(true);
     };
 
-    useEffect(() => {
-        const filtered = filterDataByTab(datas);
-        setDisplayDatas(filtered);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, datas, activeTab]);
+    const handleEdit = (record: ExamData) => {
+        setUpdateId(record.id);
+        setEditingRecord(record);
+        globalStore.setOpenDetailPopup(true);
+    };
+
+    const handleCopy = (record: ExamData) => {
+        form.setFieldsValue({
+            title: `${record.title} (Copy)`,
+            description: record.description,
+            startTime: null,
+            endTime: null,
+            groupIds: record.groups?.map((g) => g.id) || [],
+            exerciseIds: record.exercises?.map((e) => e.id) || []
+        });
+        globalStore.setOpenDetailPopup(true);
+    };
 
     return (
         <div className={classnames('exams', { 'p-24': globalStore.isBelow1300 })}>
@@ -438,142 +326,36 @@ const Exams = observer(() => {
                         ]}
                         style={{ marginBottom: 16 }}
                     />
-                    <LoadingOverlay loading={loading}>
-                        <Table
-                            rowKey="id"
-                            scroll={{ x: 800 }}
-                            pagination={{ pageSize: 10, showSizeChanger: false }}
-                            dataSource={displayDatas}
-                            columns={columns}
-                            onRow={(record) => {
-                                const now = dayjs();
-                                const endTime = record.endTime ? dayjs(record.endTime) : null;
-                                const isExpired = endTime && endTime.isBefore(now);
-                                
-                                return {
-                                    onClick: () => {
-                                        if (isExpired) {
-                                            globalStore.triggerNotification('warning', 'Bài thi đã kết thúc, không thể làm bài!', '');
-                                            return;
-                                        }
-                                        navigate(`/${routesConfig.exam}`.replace(':id', record.id));
-                                    },
-                                    className: isExpired ? 'expired-row' : '',
-                                    style: isExpired ? { cursor: 'not-allowed' } : {}
-                                };
-                            }}
-                        />
-                    </LoadingOverlay>
+                    <ExamTable
+                        columns={columns}
+                        displayDatas={displayDatas}
+                        loading={loading}
+                        onRowClick={handleRowClick}
+                        onEdit={handleEdit}
+                        onCopy={handleCopy}
+                        onRefresh={getExams}
+                    />
                 </div>
             </div>
-            <Modal
-                title={updateId ? 'Chỉnh sửa bài thi' : 'Tạo bài thi mới'}
-                className="detail-modal"
+            <ConfirmStartExamModal
+                open={confirmModalOpen}
+                onCancel={() => {
+                    setConfirmModalOpen(false);
+                    setSelectedExamId(null);
+                }}
+                onConfirm={handleConfirmStartExam}
+            />
+            <ExamFormModal
                 open={globalStore.isDetailPopupOpen}
-                onCancel={() => globalStore.setOpenDetailPopup(false)}
-                width={600}
-                footer={null}
-            >
-                <div className="groups-form-content">
-                    <Form
-                        form={form}
-                        name="exam-form"
-                        labelCol={{ span: 24 }}
-                        wrapperCol={{ span: 24 }}
-                        labelAlign="left"
-                        initialValues={{ remember: true }}
-                        onFinish={onFinish}
-                        onFinishFailed={onFinishFailed}
-                        autoComplete="off"
-                    >
-                        <Form.Item
-                            label="Tiêu đề"
-                            name="title"
-                            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
-                        >
-                            <Input />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Mô tả"
-                            name="description"
-                            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
-                        >
-                            <Input.TextArea rows={4} />
-                        </Form.Item>
-
-                        <div className="flex gap">
-                            <Form.Item
-                                className="flex-1"
-                                label="Thời gian bắt đầu"
-                                name="startTime"
-                                rules={[{ required: true, message: 'Vui lòng chọn thời gian bắt đầu!' }]}
-                            >
-                                <DatePicker
-                                    showTime
-                                    format="YYYY-MM-DD HH:mm"
-                                    style={{ width: '100%' }}
-                                    placeholder="Chọn thời gian bắt đầu"
-                                />
-                            </Form.Item>
-
-                            <Form.Item
-                                className="flex-1"
-                                label="Thời gian kết thúc"
-                                name="endTime"
-                                rules={[{ required: true, message: 'Vui lòng chọn thời gian kết thúc!' }]}
-                            >
-                                <DatePicker
-                                    showTime
-                                    format="YYYY-MM-DD HH:mm"
-                                    style={{ width: '100%' }}
-                                    placeholder="Chọn thời gian kết thúc"
-                                />
-                            </Form.Item>
-                        </div>
-
-                        <Form.Item
-                            label="Nhóm"
-                            name="groupIds"
-                            rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 nhóm!' }]}
-                        >
-                            <Select
-                                mode="multiple"
-                                showSearch
-                                style={{ width: '100%' }}
-                                placeholder="Chọn nhóm"
-                                options={groups}
-                                filterOption={(input, option) =>
-                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                }
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Bài tập"
-                            name="exerciseIds"
-                            rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 bài tập!' }]}
-                        >
-                            <Select
-                                mode="multiple"
-                                showSearch
-                                style={{ width: '100%' }}
-                                placeholder="Chọn bài tập"
-                                options={exercises}
-                                filterOption={(input, option) =>
-                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                }
-                            />
-                        </Form.Item>
-
-                        <Form.Item label={null}>
-                            <Button type="primary" htmlType="submit">
-                                Tạo mới
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </div>
-            </Modal>
+                updateId={updateId}
+                editingRecord={editingRecord}
+                groups={groups}
+                exercises={exercises}
+                onFinish={onFinish}
+                form={form}
+                setUpdateId={setUpdateId}
+                setEditingRecord={setEditingRecord}
+            />
         </div>
     );
 });

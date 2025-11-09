@@ -2,13 +2,14 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as http from '../../lib/httpRequest';
-import { Card, Descriptions, Tag, Button } from 'antd';
+import { Card, Tag, Button } from 'antd';
 import { LeftOutlined, FileTextOutlined } from '@ant-design/icons';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import classnames from 'classnames';
-import dayjs from 'dayjs';
 import routesConfig from '../../routes/routesConfig';
+import authentication from '../../shared/auth/authentication';
+import ExamCountdownTimer from './components/ExamCountdownTimer';
 
 interface Group {
     id: string;
@@ -135,7 +136,7 @@ const ExamDetail = observer(() => {
                                 Danh sách bài tập
                             </div>
                             <div className="exercise-list">
-                                {examData.exercises.map((exercise, index) => (
+                                {examData.exercises.map((exercise) => (
                                     <div
                                         key={exercise.id}
                                         className={classnames('exercise-item', {
@@ -155,10 +156,19 @@ const ExamDetail = observer(() => {
                             {selectedExercise ? (
                                 <>
                                     <div className="content-header">
-                                        <div className="breadcrumb">
-                                            Bài thi &gt; {examData.title} &gt; {selectedExercise.title}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                                            <div style={{ flex: 1 }}>
+                                                <div className="breadcrumb">
+                                                    Bài thi &gt; {examData.title} &gt; {selectedExercise.title}
+                                                </div>
+                                                <h1 className="exercise-title">{selectedExercise.title}</h1>
+                                            </div>
+                                            {!authentication.isInstructor && id && (
+                                                <div style={{ marginLeft: 16, minWidth: '200px' }}>
+                                                    <ExamCountdownTimer examId={id} />
+                                                </div>
+                                            )}
                                         </div>
-                                        <h1 className="exercise-title">{selectedExercise.title}</h1>
                                     </div>
                                     <Card className="exercise-info-card">
                                         <div className="exercise-description">
@@ -197,11 +207,13 @@ const ExamDetail = observer(() => {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="exercise-action">
-                                            <Button type="primary" size="large" onClick={handleStartExercise}>
-                                                Làm bài
-                                            </Button>
-                                        </div>
+                                        {!authentication.isInstructor && (
+                                            <div className="exercise-action">
+                                                <Button type="primary" size="large" onClick={handleStartExercise}>
+                                                    Làm bài
+                                                </Button>
+                                            </div>
+                                        )}
                                     </Card>
                                 </>
                             ) : (
