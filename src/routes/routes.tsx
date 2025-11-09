@@ -6,6 +6,8 @@ import routesConfig from './routesConfig';
 import Groups from '../pages/Groups/Groups';
 import GroupDetail from '../pages/GroupDetail/GroupDetail';
 import Exams from '../pages/Exams/Exams';
+import ExamDetail from '../pages/ExamDetail/ExamDetail';
+import ExamExercise from '../pages/ExamExercise/ExamExercise';
 import Topics from '../pages/Topics/Topics';
 import ProtectedElementRoute from '../components/ProtectedElementRoute/ProtectedElementRoute';
 
@@ -74,6 +76,22 @@ const router: {
         element: (
             <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
                 <Exams />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.exam,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <ExamDetail />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.examExercise,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <ExamExercise />
             </ProtectedElementRoute>
         )
     },

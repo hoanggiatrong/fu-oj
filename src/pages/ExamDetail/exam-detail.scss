@@ -1,0 +1,130 @@
+.exam-detail {
+    height: 100vh;
+    overflow: hidden;
+
+    .exam-detail-wrapper {
+        display: flex;
+        height: 100%;
+    }
+
+    .sidebar {
+        width: 300px;
+        background: var(--color-background);
+        border-right: 1px solid var(--color-border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        .sidebar-header {
+            padding: var(--base-size-16);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .sidebar-title {
+            padding: var(--base-size-16);
+            font-size: var(--base-size-16);
+            font-weight: var(--base-text-weight-semibold);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            background: #1890ff;
+            color: white;
+        }
+
+        .exercise-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--base-size-8) 0;
+
+            .exercise-item {
+                padding: var(--base-size-12) var(--base-size-16);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                transition: all 0.2s;
+                border-left: 3px solid transparent;
+
+                &:hover {
+                    background: var(--color-border);
+                }
+
+                &.active {
+                    background: #e6f7ff;
+                    border-left-color: #1890ff;
+                    color: #1890ff;
+                    font-weight: var(--base-text-weight-medium);
+                }
+            }
+        }
+    }
+
+    .main-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--base-size-24);
+
+        .content-header {
+            margin-bottom: var(--base-size-24);
+
+            .breadcrumb {
+                font-size: var(--base-size-14);
+                color: var(--color-text-secondary);
+                margin-bottom: var(--base-size-8);
+            }
+
+            .exercise-title {
+                font-size: var(--base-size-32);
+                font-weight: var(--base-text-weight-semibold);
+                margin: 0;
+            }
+        }
+
+        .exercise-info-card {
+            .exercise-description {
+                margin-bottom: var(--base-size-24);
+
+                h3 {
+                    font-size: var(--base-size-18);
+                    font-weight: var(--base-text-weight-semibold);
+                    margin-bottom: var(--base-size-12);
+                }
+
+                p {
+                    font-size: var(--base-size-16);
+                    line-height: 1.6;
+                    color: var(--color-text-secondary);
+                }
+            }
+
+            .exercise-details {
+                margin-bottom: var(--base-size-24);
+
+                .detail-item {
+                    margin-bottom: var(--base-size-16);
+                    font-size: var(--base-size-16);
+
+                    strong {
+                        margin-right: var(--base-size-8);
+                    }
+                }
+            }
+
+            .exercise-action {
+                display: flex;
+                justify-content: center;
+                padding-top: var(--base-size-24);
+                border-top: 1px solid var(--color-border);
+            }
+        }
+
+        .no-selection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: var(--base-size-18);
+            color: var(--color-text-secondary);
+        }
+    }
+}
+

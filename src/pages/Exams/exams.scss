@@ -80,4 +80,20 @@
         .body {
         }
     }
+
+    .ant-table-tbody {
+        .ant-table-row.expired-row {
+            opacity: 0.5;
+            background-color: #f5f5f5 !important;
+            
+            &:hover {
+                background-color: #f5f5f5 !important;
+                cursor: not-allowed !important;
+            }
+            
+            .ant-table-cell {
+                color: #999 !important;
+            }
+        }
+    }
 }

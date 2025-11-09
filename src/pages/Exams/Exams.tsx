@@ -1,8 +1,9 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as http from '../../lib/httpRequest';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
-import { Button, Input, Select, Table, Tag, Popconfirm, Form, Modal, DatePicker } from 'antd';
+import { Button, Input, Select, Table, Popconfirm, Form, Modal, DatePicker, Tabs, Tag } from 'antd';
 import type { FormProps } from 'antd';
 import Line from '../../components/Line/Line';
 import globalStore from '../../components/GlobalComponent/globalStore';
@@ -14,6 +15,7 @@ import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import routesConfig from '../../routes/routesConfig';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -30,6 +32,7 @@ interface ExamData {
 }
 
 const Exams = observer(() => {
+    const navigate = useNavigate();
     const [search, setSearch] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [datas, setDatas] = useState<ExamData[]>([]);
@@ -38,8 +41,31 @@ const Exams = observer(() => {
     const [exercises, setExercises] = useState<Array<{ value: string; label: string }>>([]);
     const [updateId, setUpdateId] = useState<string | null>(null);
     const [editingRecord, setEditingRecord] = useState<ExamData | null>(null);
+    const [activeTab, setActiveTab] = useState<string>('all');
 
     const [form] = Form.useForm();
+
+    const getExamStatus = (startTime: string | null, endTime: string | null) => {
+        const now = dayjs();
+        if (!startTime || !endTime) {
+            return { status: 'draft', label: 'Chưa có lịch', color: 'default' };
+        }
+        
+        const start = dayjs(startTime);
+        const end = dayjs(endTime);
+        
+        if (start.isAfter(now)) {
+            return { status: 'upcoming', label: 'Sắp tới', color: 'blue' };
+        } else if (start.isBefore(now) || start.isSame(now)) {
+            if (end.isAfter(now)) {
+                return { status: 'ongoing', label: 'Đang diễn ra', color: 'green' };
+            } else {
+                return { status: 'completed', label: 'Đã kết thúc', color: 'default' };
+            }
+        }
+        
+        return { status: 'draft', label: 'Chưa có lịch', color: 'default' };
+    };
 
     const onFinish: FormProps['onFinish'] = (values) => {
         const payload = {
@@ -128,6 +154,15 @@ const Exams = observer(() => {
             key: 'endTime',
             render: (endTime: string) => {
                 return endTime ? dayjs(endTime).format('DD/MM/YYYY HH:mm') : '-';
+            }
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            render: (_: unknown, record: ExamData) => {
+                const statusInfo = getExamStatus(record.startTime, record.endTime);
+                return <Tag color={statusInfo.color}>{statusInfo.label}</Tag>;
             }
         },
         {
@@ -289,16 +324,59 @@ const Exams = observer(() => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [globalStore.isDetailPopupOpen, editingRecord, updateId]);
 
+    // Filter data based on active tab
+    const filterDataByTab = (dataList: ExamData[]) => {
+        const now = dayjs();
+        let filtered = dataList;
+
+        switch (activeTab) {
+            case 'upcoming':
+                filtered = dataList.filter((data) => {
+                    const startTime = data.startTime ? dayjs(data.startTime) : null;
+                    return startTime && startTime.isAfter(now);
+                });
+                break;
+            case 'ongoing':
+                filtered = dataList.filter((data) => {
+                    const startTime = data.startTime ? dayjs(data.startTime) : null;
+                    const endTime = data.endTime ? dayjs(data.endTime) : null;
+                    return (
+                        startTime &&
+                        endTime &&
+                        (startTime.isBefore(now) || startTime.isSame(now)) &&
+                        endTime.isAfter(now)
+                    );
+                });
+                break;
+            case 'completed':
+                filtered = dataList.filter((data) => {
+                    const endTime = data.endTime ? dayjs(data.endTime) : null;
+                    return endTime && endTime.isBefore(now);
+                });
+                break;
+            case 'all':
+            default:
+                filtered = dataList;
+                break;
+        }
+
+        // Apply search filter
+        if (search) {
+            filtered = filtered.filter(
+                (data: ExamData) =>
+                    (data?.title || '').toLowerCase().includes(search.toLowerCase()) ||
+                    (data?.description || '').toLowerCase().includes(search.toLowerCase())
+            );
+        }
+
+        return filtered;
+    };
+
     useEffect(() => {
-        const filtered = search
-            ? datas.filter(
-                  (data: ExamData) =>
-                      (data?.title || '').toLowerCase().includes(search.toLowerCase()) ||
-                      (data?.description || '').toLowerCase().includes(search.toLowerCase())
-              )
-            : datas;
+        const filtered = filterDataByTab(datas);
         setDisplayDatas(filtered);
-    }, [search, datas]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search, datas, activeTab]);
 
     return (
         <div className={classnames('exams', { 'p-24': globalStore.isBelow1300 })}>
@@ -337,6 +415,29 @@ const Exams = observer(() => {
                     </ProtectedElement>
                 </div>
                 <div className="body">
+                    <Tabs
+                        activeKey={activeTab}
+                        onChange={setActiveTab}
+                        items={[
+                            {
+                                key: 'all',
+                                label: 'Tất cả'
+                            },
+                            {
+                                key: 'upcoming',
+                                label: 'Sắp tới'
+                            },
+                            {
+                                key: 'ongoing',
+                                label: 'Đang diễn ra'
+                            },
+                            {
+                                key: 'completed',
+                                label: 'Đã kết thúc'
+                            }
+                        ]}
+                        style={{ marginBottom: 16 }}
+                    />
                     <LoadingOverlay loading={loading}>
                         <Table
                             rowKey="id"
@@ -344,6 +445,23 @@ const Exams = observer(() => {
                             pagination={{ pageSize: 10, showSizeChanger: false }}
                             dataSource={displayDatas}
                             columns={columns}
+                            onRow={(record) => {
+                                const now = dayjs();
+                                const endTime = record.endTime ? dayjs(record.endTime) : null;
+                                const isExpired = endTime && endTime.isBefore(now);
+                                
+                                return {
+                                    onClick: () => {
+                                        if (isExpired) {
+                                            globalStore.triggerNotification('warning', 'Bài thi đã kết thúc, không thể làm bài!', '');
+                                            return;
+                                        }
+                                        navigate(`/${routesConfig.exam}`.replace(':id', record.id));
+                                    },
+                                    className: isExpired ? 'expired-row' : '',
+                                    style: isExpired ? { cursor: 'not-allowed' } : {}
+                                };
+                            }}
                         />
                     </LoadingOverlay>
                 </div>

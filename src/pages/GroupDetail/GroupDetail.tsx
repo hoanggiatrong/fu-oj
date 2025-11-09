@@ -1,8 +1,9 @@
 import { DeleteOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Avatar, Button, Form, Input, Modal, Popconfirm, Table, Select } from 'antd';
+import { Avatar, Button, Form, Input, Modal, Popconfirm, Table, Select, Tabs } from 'antd';
+import type { TabsProps } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
@@ -23,15 +24,15 @@ const GroupDetail = observer(() => {
     setSearch;
     const [isAddMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
     const [exams, setExams] = useState<any[]>([]);
+    const [groupExams, setGroupExams] = useState<any[]>([]);
     const [exercises, setExercises] = useState<any[]>([]);
     const [allExercises, setAllExercises] = useState<any[]>([]);
-    const [isViewExamsOpen, setIsViewExamsOpen] = useState(false);
-    const [isViewSubmissionsOpen, setIsViewSubmissionsOpen] = useState(false);
-    const [isViewExercisesOpen, setIsViewExercisesOpen] = useState(false);
-    const [isGroupExercisesOpen, setIsGroupExercisesOpen] = useState(false);
-    const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
+    const [tabs, setTabs] = useState<Array<{ key: string; label: string; type: string }>>([]);
+    const [activeTabKey, setActiveTabKey] = useState<string>('members');
     const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
     const [examRankings, setExamRankings] = useState<any[]>([]);
+    const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
+    const [loadingGroupExams, setLoadingGroupExams] = useState(false);
 
     const columns = [
         {
@@ -186,6 +187,34 @@ const GroupDetail = observer(() => {
             });
     };
 
+    const getExamsForGroup = () => {
+        if (!id) return;
+        
+        // Check if tab already exists, if yes just switch to it and refresh data
+        const existingTab = tabs.find((tab) => tab.type === 'groupExams');
+        if (existingTab) {
+            setActiveTabKey(existingTab.key);
+        }
+        
+        setLoadingGroupExams(true);
+        http.get(`/exams?page=1&size=10&sort=createdTimestamp,desc&groupId=${id}`)
+            .then((res) => {
+                const examData = res.data?.content || res.data || [];
+                setGroupExams(examData);
+                setLoadingGroupExams(false);
+                // Mở tab sau khi fetch xong (chỉ nếu chưa tồn tại)
+                if (!existingTab) {
+                    openTab('groupExams', 'Exam cho nhóm');
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching exams for group:', error);
+                setGroupExams([]);
+                setLoadingGroupExams(false);
+                globalStore.triggerNotification('error', 'Không thể tải danh sách exam!', '');
+            });
+    };
+
     const onAdd: FormProps['onFinish'] = (values) => {
         console.log('Success:', values);
 
@@ -225,6 +254,12 @@ const GroupDetail = observer(() => {
             });
     };
 
+    // Initialize with members tab
+    useEffect(() => {
+        setTabs([{ key: 'members', label: 'Thành viên', type: 'members' }]);
+        setActiveTabKey('members');
+    }, []);
+
     useEffect(() => {
         if (id) {
             getStudentByGroupId();
@@ -234,6 +269,178 @@ const GroupDetail = observer(() => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
+
+    const openTab = (type: string, label: string) => {
+        // Check if tab with this type already exists
+        const existingTab = tabs.find((tab) => tab.type === type);
+        if (existingTab) {
+            // Tab already exists, just switch to it
+            setActiveTabKey(existingTab.key);
+            return;
+        }
+        // Create new tab
+        const tabKey = `${type}-${Date.now()}`;
+        const newTab = { key: tabKey, label, type };
+        setTabs((prev) => [...prev, newTab]);
+        setActiveTabKey(tabKey);
+    };
+
+    const closeTab = (targetKey: string) => {
+        const newTabs = tabs.filter((tab) => tab.key !== targetKey);
+        setTabs(newTabs);
+        if (targetKey === activeTabKey) {
+            if (newTabs.length > 0) {
+                setActiveTabKey(newTabs[newTabs.length - 1].key);
+            } else {
+                // If all tabs closed, open members tab
+                setTabs([{ key: 'members', label: 'Thành viên', type: 'members' }]);
+                setActiveTabKey('members');
+            }
+        }
+    };
+
+    const onEdit = (targetKey: string | React.MouseEvent | React.KeyboardEvent, action: 'add' | 'remove') => {
+        if (action === 'remove' && typeof targetKey === 'string') {
+            closeTab(targetKey);
+        }
+    };
+
+    const renderTabContent = (tab: { key: string; label: string; type: string }) => {
+        switch (tab.type) {
+            case 'members':
+                return (
+                    <Table
+                        rowKey="id"
+                        scroll={{ x: 800 }}
+                        pagination={{ pageSize: 10, showSizeChanger: false }}
+                        dataSource={displayDatas}
+                        columns={columns}
+                        onRow={(record) => {
+                            return {
+                                onClick: () => {
+                                    record;
+                                }
+                            };
+                        }}
+                    />
+                );
+            case 'exams':
+                return (
+                    <Table
+                        rowKey="id"
+                        dataSource={exams}
+                        pagination={{ pageSize: 10 }}
+                        columns={[
+                            { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
+                            { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+                            {
+                                title: 'Thời gian bắt đầu',
+                                dataIndex: 'startTime',
+                                key: 'startTime',
+                                render: (time: string) => (time ? new Date(time).toLocaleString('vi-VN') : '-')
+                            },
+                            {
+                                title: 'Thời gian kết thúc',
+                                dataIndex: 'endTime',
+                                key: 'endTime',
+                                render: (time: string) => (time ? new Date(time).toLocaleString('vi-VN') : '-')
+                            },
+                            { title: 'Trạng thái', dataIndex: 'status', key: 'status' }
+                        ]}
+                    />
+                );
+            case 'submissions':
+                return (
+                    <div>
+                        <div style={{ marginBottom: 16 }}>
+                            <Select
+                                placeholder="Chọn bài kiểm tra"
+                                style={{ width: '100%' }}
+                                onChange={(value) => {
+                                    setSelectedExamId(value);
+                                    getExamRankings(value);
+                                }}
+                                value={selectedExamId}
+                            >
+                                {exams.map((exam) => (
+                                    <Select.Option key={exam.id} value={exam.id}>
+                                        {exam.title}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </div>
+                        {selectedExamId && (
+                            <Table
+                                rowKey="id"
+                                dataSource={examRankings}
+                                pagination={{ pageSize: 10 }}
+                                columns={[
+                                    { title: 'Tên sinh viên', dataIndex: 'studentName', key: 'studentName' },
+                                    { title: 'Điểm', dataIndex: 'score', key: 'score' },
+                                    {
+                                        title: 'Thời gian nộp',
+                                        dataIndex: 'submittedAt',
+                                        key: 'submittedAt',
+                                        render: (time: string) => (time ? new Date(time).toLocaleString('vi-VN') : '-')
+                                    }
+                                ]}
+                            />
+                        )}
+                    </div>
+                );
+            case 'exercises':
+                return (
+                    <Table
+                        rowKey="id"
+                        dataSource={exercises}
+                        pagination={{ pageSize: 10 }}
+                        columns={[
+                            { title: 'Mã bài tập', dataIndex: 'code', key: 'code' },
+                            { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
+                            { title: 'Mô tả', dataIndex: 'description', key: 'description' }
+                        ]}
+                    />
+                );
+            case 'groupExams':
+                return (
+                    <Table
+                        rowKey="id"
+                        loading={loadingGroupExams}
+                        dataSource={groupExams}
+                        pagination={{ pageSize: 10 }}
+                        columns={[
+                            { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
+                            { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+                            {
+                                title: 'Thời gian bắt đầu',
+                                dataIndex: 'startTime',
+                                key: 'startTime',
+                                render: (time: string) => (time ? new Date(time).toLocaleString('vi-VN') : '-')
+                            },
+                            {
+                                title: 'Thời gian kết thúc',
+                                dataIndex: 'endTime',
+                                key: 'endTime',
+                                render: (time: string) => (time ? new Date(time).toLocaleString('vi-VN') : '-')
+                            },
+                            { title: 'Trạng thái', dataIndex: 'status', key: 'status' }
+                        ]}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
+    const tabItems: TabsProps['items'] = useMemo(() => {
+        return tabs.map((tab) => ({
+            key: tab.key,
+            label: tab.label,
+            children: renderTabContent(tab),
+            closable: tab.key !== 'members' // Members tab cannot be closed
+        }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tabs, displayDatas, exams, groupExams, exercises, examRankings, selectedExamId, loadingGroupExams]);
 
     return (
         <div className="group-detail">
@@ -265,20 +472,20 @@ const GroupDetail = observer(() => {
                 </div>
                 <div className="action-btns" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
-                        <Button type="primary" onClick={() => setIsViewExamsOpen(true)}>
+                        <Button type="primary" onClick={() => openTab('exams', 'Bài kiểm tra')}>
                             Xem bài kiểm tra
                         </Button>
                     </ProtectedElement>
                     <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
-                        <Button type="primary" onClick={() => setIsViewSubmissionsOpen(true)}>
+                        <Button type="primary" onClick={() => openTab('submissions', 'Bài nộp')}>
                             Xem bài nộp
                         </Button>
                     </ProtectedElement>
-                    <Button type="primary" onClick={() => setIsViewExercisesOpen(true)}>
-                        Xem bài tập
+                    <Button type="primary" onClick={getExamsForGroup} loading={loadingGroupExams}>
+                        Get exam cho group
                     </Button>
-                    <Button type="primary" onClick={() => setIsGroupExercisesOpen(true)}>
-                        Bài tập cho nhóm
+                    <Button type="primary" onClick={() => openTab('exercises', 'Bài tập')}>
+                        Xem bài tập
                     </Button>
                     <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
                         <Button type="primary" onClick={() => setIsAddExerciseOpen(true)}>
@@ -293,20 +500,13 @@ const GroupDetail = observer(() => {
                 </div>
             </div>
             <div className="body">
-                <Table
-                    rowKey="id"
-                    scroll={{ x: 800 }}
-                    pagination={{ pageSize: 10, showSizeChanger: false }}
-                    dataSource={displayDatas}
-                    columns={columns}
-                    onRow={(record) => {
-                        return {
-                            onClick: () => {
-                                record;
-                                // navigate(`/${routesConfig.exercise}`.replace(':id?', record.id));
-                            }
-                        };
-                    }}
+                <Tabs
+                    activeKey={activeTabKey}
+                    onChange={setActiveTabKey}
+                    type="editable-card"
+                    onEdit={onEdit}
+                    items={tabItems}
+                    hideAdd
                 />
             </div>
             <Modal
@@ -343,111 +543,6 @@ const GroupDetail = observer(() => {
                         </Form.Item>
                     </Form>
                 </div>
-            </Modal>
-
-            {/* Modal Xem bài kiểm tra */}
-            <Modal
-                title="Danh sách bài kiểm tra"
-                open={isViewExamsOpen}
-                onCancel={() => setIsViewExamsOpen(false)}
-                footer={null}
-                width={800}
-            >
-                <Table
-                    rowKey="id"
-                    dataSource={exams}
-                    pagination={{ pageSize: 10 }}
-                    columns={[
-                        { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
-                        { title: 'Mô tả', dataIndex: 'description', key: 'description' },
-                        { title: 'Thời gian bắt đầu', dataIndex: 'startTime', key: 'startTime' },
-                        { title: 'Thời gian kết thúc', dataIndex: 'endTime', key: 'endTime' },
-                        { title: 'Trạng thái', dataIndex: 'status', key: 'status' }
-                    ]}
-                />
-            </Modal>
-
-            {/* Modal Xem bài nộp */}
-            <Modal
-                title="Danh sách bài nộp"
-                open={isViewSubmissionsOpen}
-                onCancel={() => {
-                    setIsViewSubmissionsOpen(false);
-                    setSelectedExamId(null);
-                    setExamRankings([]);
-                }}
-                footer={null}
-                width={800}
-            >
-                <div style={{ marginBottom: 16 }}>
-                    <Select
-                        placeholder="Chọn bài kiểm tra"
-                        style={{ width: '100%' }}
-                        onChange={(value) => {
-                            setSelectedExamId(value);
-                            getExamRankings(value);
-                        }}
-                        value={selectedExamId}
-                    >
-                        {exams.map((exam) => (
-                            <Select.Option key={exam.id} value={exam.id}>
-                                {exam.title}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </div>
-                {selectedExamId && (
-                    <Table
-                        rowKey="id"
-                        dataSource={examRankings}
-                        pagination={{ pageSize: 10 }}
-                        columns={[
-                            { title: 'Tên sinh viên', dataIndex: 'studentName', key: 'studentName' },
-                            { title: 'Điểm', dataIndex: 'score', key: 'score' },
-                            { title: 'Thời gian nộp', dataIndex: 'submittedAt', key: 'submittedAt' }
-                        ]}
-                    />
-                )}
-            </Modal>
-
-            {/* Modal Xem bài tập */}
-            <Modal
-                title="Danh sách bài tập"
-                open={isViewExercisesOpen}
-                onCancel={() => setIsViewExercisesOpen(false)}
-                footer={null}
-                width={800}
-            >
-                <Table
-                    rowKey="id"
-                    dataSource={exercises}
-                    pagination={{ pageSize: 10 }}
-                    columns={[
-                        { title: 'Mã bài tập', dataIndex: 'code', key: 'code' },
-                        { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
-                        { title: 'Mô tả', dataIndex: 'description', key: 'description' }
-                    ]}
-                />
-            </Modal>
-
-            {/* Modal Bài tập cho nhóm */}
-            <Modal
-                title="Bài tập cho nhóm"
-                open={isGroupExercisesOpen}
-                onCancel={() => setIsGroupExercisesOpen(false)}
-                footer={null}
-                width={800}
-            >
-                <Table
-                    rowKey="id"
-                    dataSource={exercises}
-                    pagination={{ pageSize: 10 }}
-                    columns={[
-                        { title: 'Mã bài tập', dataIndex: 'code', key: 'code' },
-                        { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
-                        { title: 'Mô tả', dataIndex: 'description', key: 'description' }
-                    ]}
-                />
             </Modal>
 
             {/* Modal Thêm bài tập cho nhóm */}
