@@ -375,13 +375,32 @@ const GroupDetail = observer(() => {
                                 dataSource={examRankings}
                                 pagination={{ pageSize: 10 }}
                                 columns={[
-                                    { title: 'Tên sinh viên', dataIndex: 'studentName', key: 'studentName' },
-                                    { title: 'Điểm', dataIndex: 'score', key: 'score' },
+                                    {
+                                        title: 'Tên sinh viên',
+                                        key: 'studentName',
+                                        render: (_: any, record: any) => {
+                                            const firstName = record.user?.firstName || '';
+                                            const lastName = record.user?.lastName || '';
+                                            const fullName = `${firstName} ${lastName}`.trim();
+                                            return fullName || record.user?.email || '-';
+                                        }
+                                    },
+                                    {
+                                        title: 'Điểm',
+                                        key: 'score',
+                                        render: (_: any, record: any) => {
+                                            return record.totalScore !== null && record.totalScore !== undefined
+                                                ? record.totalScore.toFixed(1)
+                                                : '-';
+                                        }
+                                    },
                                     {
                                         title: 'Thời gian nộp',
-                                        dataIndex: 'submittedAt',
                                         key: 'submittedAt',
-                                        render: (time: string) => (time ? new Date(time).toLocaleString('vi-VN') : '-')
+                                        render: (_: any, record: any) => {
+                                            const time = record.updatedTimestamp || record.createdTimestamp;
+                                            return time ? new Date(time).toLocaleString('vi-VN') : '-';
+                                        }
                                     }
                                 ]}
                             />

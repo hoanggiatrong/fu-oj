@@ -68,6 +68,8 @@ const Exams = observer(() => {
     const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
     const [completedExams, setCompletedExams] = useState<CompletedExamData[]>([]);
     const [loadingCompletedExams, setLoadingCompletedExams] = useState(false);
+    const [ongoingExams, setOngoingExams] = useState<CompletedExamData[]>([]);
+    const [loadingOngoingExams, setLoadingOngoingExams] = useState(false);
 
     const [form] = Form.useForm();
 
@@ -282,7 +284,13 @@ const Exams = observer(() => {
                     }
 
                     const response = await http.get(`/exam-rankings?userId=${userId}`);
-                    setCompletedExams(response.data || []);
+                    // Lọc những bài đã hoàn thành (có totalScore hoặc đã hết thời gian)
+                    const completed = (response.data || []).filter((exam: CompletedExamData) => {
+                        const now = Date.now();
+                        const examEndTime = exam.exam.endTime * 1000; // Convert to milliseconds
+                        return exam.totalScore !== null || now > examEndTime;
+                    });
+                    setCompletedExams(completed);
                 } catch (error) {
                     console.error('Error fetching completed exams:', error);
                     globalStore.triggerNotification('error', 'Không thể tải danh sách bài đã làm!', '');
@@ -293,6 +301,40 @@ const Exams = observer(() => {
             };
             
             loadCompletedExams();
+        }
+    }, [activeTab]);
+
+    // Tự động load dữ liệu khi chuyển sang tab "Bài đang làm"
+    useEffect(() => {
+        if (activeTab === 'ongoing-exams' && !authentication.isInstructor) {
+            const loadOngoingExams = async () => {
+                setLoadingOngoingExams(true);
+                
+                try {
+                    const userId = authentication.account?.data?.id;
+                    if (!userId) {
+                        setLoadingOngoingExams(false);
+                        return;
+                    }
+
+                    const response = await http.get(`/exam-rankings?userId=${userId}`);
+                    // Lọc những bài đang làm (chưa có totalScore và chưa hết thời gian)
+                    const now = Date.now();
+                    const ongoing = (response.data || []).filter((exam: CompletedExamData) => {
+                        const examEndTime = exam.exam.endTime * 1000; // Convert to milliseconds
+                        return exam.totalScore === null && now <= examEndTime;
+                    });
+                    setOngoingExams(ongoing);
+                } catch (error) {
+                    console.error('Error fetching ongoing exams:', error);
+                    globalStore.triggerNotification('error', 'Không thể tải danh sách bài đang làm!', '');
+                    setOngoingExams([]);
+                } finally {
+                    setLoadingOngoingExams(false);
+                }
+            };
+            
+            loadOngoingExams();
         }
     }, [activeTab]);
 
@@ -409,6 +451,57 @@ const Exams = observer(() => {
         }
     ];
 
+    const ongoingExamsColumns = [
+        {
+            title: 'Mã bài thi',
+            dataIndex: ['exam', 'examCode'],
+            key: 'examCode'
+        },
+        {
+            title: 'Tiêu đề',
+            dataIndex: ['exam', 'examTitle'],
+            key: 'examTitle'
+        },
+        {
+            title: 'Thời gian bắt đầu',
+            dataIndex: ['exam', 'startTime'],
+            key: 'startTime',
+            render: (startTime: number) => {
+                return startTime ? dayjs.unix(startTime).format('DD/MM/YYYY HH:mm') : '-';
+            }
+        },
+        {
+            title: 'Thời gian kết thúc',
+            dataIndex: ['exam', 'endTime'],
+            key: 'endTime',
+            render: (endTime: number) => {
+                return endTime ? dayjs.unix(endTime).format('DD/MM/YYYY HH:mm') : '-';
+            }
+        },
+        {
+            title: 'Thời gian làm bài',
+            dataIndex: ['exam', 'timeLimit'],
+            key: 'timeLimit',
+            render: (timeLimit: number | null) => {
+                return timeLimit !== null ? `${timeLimit} phút` : '-';
+            }
+        },
+        {
+            title: 'Hành động',
+            key: 'action',
+            render: (_: unknown, record: CompletedExamData) => {
+                return (
+                    <Button 
+                        type="link" 
+                        onClick={() => handleViewExamDetail(record.exam.examId)}
+                    >
+                        Tiếp tục làm bài
+                    </Button>
+                );
+            }
+        }
+    ];
+
     return (
         <div className={classnames('exams', { 'p-24': globalStore.isBelow1300 })}>
             <div className="header">
@@ -474,14 +567,28 @@ const Exams = observer(() => {
                                 key: 'completed',
                                 label: 'Đã kết thúc'
                             },
-                            ...(!authentication.isInstructor ? [{
-                                key: 'completed-exams',
-                                label: 'Bài đã làm'
-                            }] : [])
+                            ...(!authentication.isInstructor ? [
+                                {
+                                    key: 'ongoing-exams',
+                                    label: 'Bài đang làm'
+                                },
+                                {
+                                    key: 'completed-exams',
+                                    label: 'Bài đã làm'
+                                }
+                            ] : [])
                         ]}
                         style={{ marginBottom: 16 }}
                     />
-                    {activeTab === 'completed-exams' ? (
+                    {activeTab === 'ongoing-exams' ? (
+                        <Table
+                            columns={ongoingExamsColumns}
+                            dataSource={ongoingExams}
+                            rowKey="id"
+                            loading={loadingOngoingExams}
+                            pagination={{ pageSize: 10 }}
+                        />
+                    ) : activeTab === 'completed-exams' ? (
                         <Table
                             columns={completedExamsColumns}
                             dataSource={completedExams}
