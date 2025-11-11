@@ -1,5 +1,4 @@
-import ProtectedElementRoute from '../components/ProtectedElementRoute/ProtectedElementRoute';
-import Dashboard from '../pages/Dashboard/Dashboard';
+
 import ExamDetail from '../pages/ExamDetail/ExamDetail';
 import ExamExercise from '../pages/ExamExercise/ExamExercise';
 import Exams from '../pages/Exams/Exams';
@@ -9,7 +8,6 @@ import Exercises from '../pages/Exercises/Exercises';
 import GroupDetail from '../pages/GroupDetail/GroupDetail';
 import Groups from '../pages/Groups/Groups';
 import Home from '../pages/Home/Home';
-import Profile from '../pages/Profile/Profile';
 import Ranking from '../pages/Ranking/Ranking';
 import Topics from '../pages/Topics/Topics';
 import routesConfig from './routesConfig';
