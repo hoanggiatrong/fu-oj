@@ -13,6 +13,7 @@ import Profile from '../pages/Profile/Profile';
 import Ranking from '../pages/Ranking/Ranking';
 import Topics from '../pages/Topics/Topics';
 import routesConfig from './routesConfig';
+import Accounts from '../pages/Accounts/Accounts';
 
 const router: {
     path: string;
@@ -125,6 +126,15 @@ const router: {
     {
         path: routesConfig.profile,
         element: <Profile />
+    },
+
+    {
+        path: routesConfig.accounts,
+        element: (
+            <ProtectedElementRoute allowedRoles={['ADMIN']} allowedPermissions={[]}>
+                <Accounts />
+            </ProtectedElementRoute>
+        )
     }
 ];
 

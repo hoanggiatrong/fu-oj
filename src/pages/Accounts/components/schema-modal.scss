@@ -1,0 +1,39 @@
+.schema-modal {
+    .schema-info {
+        margin-bottom: var(--base-size-24);
+
+        h4 {
+            font-size: var(--base-size-16);
+            font-weight: var(--base-text-weight-semibold);
+            margin-bottom: var(--base-size-8);
+        }
+
+        p {
+            margin-bottom: var(--base-size-8);
+            color: var(--color-text-muted);
+        }
+
+        ul {
+            margin-left: var(--base-size-24);
+            margin-bottom: var(--base-size-16);
+
+            li {
+                margin-bottom: var(--base-size-8);
+                color: var(--color-text-secondary);
+
+                strong {
+                    color: var(--color-text-primary);
+                }
+            }
+        }
+    }
+
+    .schema-editor {
+        h4 {
+            font-size: var(--base-size-16);
+            font-weight: var(--base-text-weight-semibold);
+            margin-bottom: var(--base-size-8);
+        }
+    }
+}
+

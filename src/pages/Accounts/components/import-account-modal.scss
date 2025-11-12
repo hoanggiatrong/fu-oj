@@ -1,0 +1,39 @@
+.import-account-modal {
+    .step-content {
+        min-height: 300px;
+
+        .upload-hint {
+            margin-top: var(--base-size-16);
+            padding: var(--base-size-12);
+            background: var(--color-bg);
+            border-radius: var(--borderRadius-medium);
+            font-size: var(--base-size-12);
+            color: var(--color-text-muted);
+
+            p {
+                margin: var(--base-size-4) 0;
+            }
+        }
+
+        .upload-progress {
+            text-align: center;
+            padding: var(--base-size-40) 0;
+
+            p {
+                margin-top: var(--base-size-16);
+                color: var(--color-text-muted);
+            }
+        }
+
+        .error-summary {
+            margin-top: var(--base-size-16);
+
+            h4 {
+                margin-bottom: var(--base-size-8);
+                font-size: var(--base-size-16);
+                font-weight: var(--base-text-weight-medium);
+            }
+        }
+    }
+}
+

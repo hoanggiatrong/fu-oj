@@ -1,0 +1,153 @@
+.accounts {
+    padding-right: var(--base-size-16);
+
+    & > .header {
+        margin-bottom: var(--base-size-24);
+
+        .title {
+            font-size: var(--base-size-24);
+            font-weight: var(--base-text-weight-semibold);
+            margin-bottom: var(--base-size-16);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--base-size-16);
+
+            .ant-avatar {
+                margin-right: var(--base-size-8);
+            }
+
+            .header-actions {
+                display: flex;
+                gap: var(--base-size-8);
+            }
+        }
+
+        .description {
+            color: var(--color-text-muted);
+            font-size: var(--base-size-14);
+        }
+    }
+
+    .wrapper {
+        gap: var(--base-size-16);
+
+        .search {
+            width: 25%;
+            border: 1px solid var(--color-border);
+            border-radius: var(--borderRadius-medium);
+            padding: var(--base-size-16);
+            display: flex;
+            flex-direction: column;
+            gap: var(--base-size-8);
+
+            .title {
+                display: flex;
+                gap: var(--base-size-4);
+                font-size: var(--base-size-16);
+                font-weight: var(--base-text-weight-medium);
+            }
+
+            .line {
+                margin: var(--base-size-4) 0;
+
+                div {
+                    font-size: var(--base-size-14) !important;
+                    font-weight: var(--base-text-weight-medium) !important;
+                    color: var(--color-text-primary);
+                }
+            }
+
+            input,
+            .ant-select {
+                border-radius: var(--borderRadius-medium);
+            }
+
+            & > button {
+                background: var(--color-text-primary);
+                border: none;
+                color: #fff !important;
+                height: var(--base-size-40);
+
+                &:hover {
+                    transform: scale(0.98);
+                    background: var(--color-text-primary);
+                }
+            }
+        }
+
+        .body {
+            flex: 1;
+
+            .stats {
+                display: flex;
+                gap: var(--base-size-16);
+                margin-bottom: var(--base-size-16);
+                flex-wrap: wrap;
+
+                .stat-item {
+                    flex: 1;
+                    min-width: 120px;
+                    padding: var(--base-size-12) var(--base-size-16);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--borderRadius-medium);
+                    background: var(--color-background-card);
+
+                    .stat-label {
+                        font-size: var(--base-size-12);
+                        color: var(--color-text-muted);
+                        margin-bottom: var(--base-size-4);
+                    }
+
+                    .stat-value {
+                        font-size: var(--base-size-20);
+                        font-weight: var(--base-text-weight-semibold);
+                        color: var(--color-text-primary);
+                    }
+                }
+            }
+        }
+    }
+
+    .wrapper.wrapper-responsive {
+        .search {
+            width: 100%;
+        }
+    }
+
+    .account-email-cell {
+        display: flex;
+        align-items: center;
+    }
+
+    .actions-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+
+        .action-row-btn {
+            font-size: var(--base-size-18);
+            cursor: pointer;
+            color: var(--color-text-muted);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                color: var(--color-text-primary);
+                transform: scale(1.1);
+            }
+        }
+    }
+
+    .error-list {
+        .error-item {
+            color: #ff4d4f;
+            font-size: var(--base-size-12);
+            margin-bottom: var(--base-size-4);
+        }
+    }
+}
+
