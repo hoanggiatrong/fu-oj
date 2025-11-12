@@ -99,6 +99,7 @@ const Exercise = observer(() => {
      */
 
     const [submittedData, setSubmittedData]: any = useState(null);
+    const [submittedId, setSubmittedId] = useState<string | null>(null);
 
     useEffect(() => {
         if (submissionId) {
@@ -127,6 +128,7 @@ const Exercise = observer(() => {
     const [error, setError] = useState<string>('');
     const [response, setResponse] = useState<any>(null);
     const [selectedCaseResult, setSelectedCaseResult] = useState<any>(1);
+    const [solution, setSolution] = useState<string | null>(null);
 
     const getDefaultTemplate = (lang: string): string => {
         switch (lang) {
@@ -163,6 +165,8 @@ const Exercise = observer(() => {
     const editorLanguage = selectedLang?.editorValue || 'javascript';
 
     const testRun = () => {
+        setSolution(null);
+        setSubmittedId(null);
         setError('');
         setLoading(true);
 
@@ -182,6 +186,8 @@ const Exercise = observer(() => {
     };
 
     const submit = () => {
+        setSolution(null);
+        setSubmittedId(null);
         setError('');
         setLoading(true);
 
@@ -190,6 +196,7 @@ const Exercise = observer(() => {
             .then((res) => {
                 // Do something
                 setResponse(res);
+                setSubmittedId(res.data.id);
             })
             .catch((error) => {
                 setError(error.response.data.message);
@@ -353,16 +360,18 @@ const Exercise = observer(() => {
                     {response && !loading && response?.data?.verdict && (
                         <div className="response">
                             <div
-                                className={classnames('response-header', {
-                                    accepted: response?.data?.verdict == 'ACCEPTED',
-                                    wrong: response?.data?.verdict != 'ACCEPTED'
-                                })}
+                                className={classnames(
+                                    'response-header',
+                                    response?.data?.verdict == 'PROCESSING' || response?.data?.verdict == 'ACCEPTED'
+                                        ? 'accepted'
+                                        : 'wrong'
+                                )}
                             >
                                 <div className="header">{utils.capitalizeFirstLetter(response?.data?.verdict)}</div>
                             </div>
                             <div className="solution">
                                 <div className="header">Gợi ý lời giải</div>
-                                <div className="content">{response?.data?.exercise?.solution}</div>
+                                <div className="content">{solution}</div>
                             </div>
                         </div>
                     )}
@@ -399,32 +408,27 @@ const Exercise = observer(() => {
     }, [language]);
 
     useEffect(() => {
-        console.log('log:', `/topic/submission-result-updates/${id}`);
+        let subscription: any = null;
 
-        const subscription = stompClientLib.subscribe({
-            destination: `/topic/submission-result-updates/${id}`,
-            onMessage: ({ body }) => {
-                console.log('socket:', JSON.parse(body));
-                // const testCaseResult = testCaseResultSchema.parse(JSON.parse(body));
-                // setSubmissionResult((prev) => {
-                //   const newTestCasesResults = {
-                //     ...prev.testCaseResults,
-                //     [testCaseResult.testCaseId]: testCaseResult,
-                //   };
-                //   const newPassedTestCases = Object.values(newTestCasesResults).filter(
-                //     (result) => result.passed
-                //   ).length;
-                //   return {
-                //     ...prev,
-                //     testCaseResults: newTestCasesResults,
-                //     passedTestCases: newPassedTestCases,
-                //   };
-                // });
-            }
-        });
+        if (submittedId) {
+            subscription = stompClientLib.subscribe({
+                destination: `/topic/submission-result-updates/${submittedId}`,
+                onMessage: ({ body }) => {
+                    const result = JSON.parse(body);
 
-        return () => subscription.unsubscribe();
-    }, [id]);
+                    setResponse({ data: result });
+                }
+            });
+        }
+
+        return () => {
+            if (subscription) subscription.unsubscribe();
+        };
+    }, [submittedId]);
+
+    useEffect(() => {
+        if (response?.data?.exercise?.solution) setSolution(response?.data?.exercise?.solution);
+    }, [response?.data?.exercise?.solution]);
 
     return (
         <div className="exercise">

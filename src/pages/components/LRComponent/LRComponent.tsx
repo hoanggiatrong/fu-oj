@@ -95,7 +95,7 @@ const LRComponent = observer(() => {
 
 const LoginComponent = () => {
     const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-        authentication.login(values.username || '', values.password || '', false);
+        authentication.login(values.username || '', values.password || '', !!values.remember);
     };
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
