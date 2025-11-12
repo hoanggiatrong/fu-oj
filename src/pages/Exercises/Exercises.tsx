@@ -17,6 +17,7 @@ import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
@@ -628,6 +629,9 @@ const Exercises = observer(() => {
             <div className="right">
                 <CustomCalendar />
             </div>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

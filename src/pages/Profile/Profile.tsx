@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import Line from '../../components/Line/Line';
 import * as http from '../../lib/httpRequest';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
+import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import MultiCircleChart from './components/MultiCircleChart';
@@ -312,6 +314,9 @@ const Profile = observer(() => {
                 </div>
             </div>
             {/* <div className="right">Right</div> */}
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

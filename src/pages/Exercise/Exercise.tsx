@@ -21,6 +21,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import { programmingLanguages } from '../../constants/languages';
 import * as http from '../../lib/httpRequest';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
+import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import stompClientLib from '../../lib/stomp-client.lib';
 import routesConfig from '../../routes/routesConfig';
 import utils from '../../utils/utils';
@@ -472,6 +474,9 @@ const Exercise = observer(() => {
                     <FlexLayout.Layout ref={layoutRef} model={model} factory={factory} />
                 </div>
             </div>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

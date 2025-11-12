@@ -13,6 +13,8 @@ import {
 import Editor from '@monaco-editor/react';
 import { Select, Skeleton, Modal, Button } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
+import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import classnames from 'classnames';
 import * as FlexLayout from 'flexlayout-react';
 import 'flexlayout-react/style/light.css';
@@ -535,6 +537,9 @@ const ExamExercise = observer(() => {
                     </Button>
                 </div>
             </Modal>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

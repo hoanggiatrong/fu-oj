@@ -15,6 +15,7 @@ import ExportAccountModal from './components/ExportAccountModal';
 import ImportAccountModal from './components/ImportAccountModal';
 
 interface AccountData {
+    id: string;
     email: string;
     role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
     createdBy?: string | null;
@@ -49,8 +50,8 @@ const Accounts = observer(() => {
                 filters.activated == null
                     ? true
                     : filters.activated
-                    ? item.deletedTimestamp === null
-                    : item.deletedTimestamp !== null;
+                        ? item.deletedTimestamp === null
+                        : item.deletedTimestamp !== null;
 
             return matchesSearch && matchesRole && matchesActivated;
         });
@@ -131,6 +132,27 @@ const Accounts = observer(() => {
         }
     };
 
+    const handleChangeRole = async (accountId: string, newRole: 'STUDENT' | 'INSTRUCTOR') => {
+        try {
+            await http.put('/account/role', {}, { params: { id: accountId, role: newRole } });
+
+            globalStore.triggerNotification(
+                'success',
+                `Đổi vai trò thành công sang ${getRoleLabel(newRole)}!`,
+                ''
+            );
+
+            // Refresh lại dữ liệu từ server
+            getAccounts();
+        } catch (error: any) {
+            globalStore.triggerNotification(
+                'error',
+                error?.response?.data?.message || 'Có lỗi xảy ra khi đổi vai trò!',
+                ''
+            );
+        }
+    };
+
     return (
         <div className={classnames('leetcode', globalStore.isBelow1300 ? 'col' : 'row')}>
             <div className={classnames('accounts left', { 'p-24': globalStore.isBelow1300 })}>
@@ -163,8 +185,7 @@ const Accounts = observer(() => {
                                                 onChange={(value) => handleFilterChange('role', value)}
                                                 options={[
                                                     { value: 'STUDENT', label: 'Sinh viên' },
-                                                    { value: 'INSTRUCTOR', label: 'Giảng viên' },
-                                                    { value: 'ADMIN', label: 'Quản trị viên' }
+                                                    { value: 'INSTRUCTOR', label: 'Giảng viên' }
                                                 ]}
                                             />
                                         </div>
@@ -248,6 +269,7 @@ const Accounts = observer(() => {
                                 onRefresh={getAccounts}
                                 getRoleTagColor={getRoleTagColor}
                                 getRoleLabel={getRoleLabel}
+                                onChangeRole={handleChangeRole}
                             />
                         </LoadingOverlay>
                     </div>

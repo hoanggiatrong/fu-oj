@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
@@ -750,6 +751,9 @@ const Exams = observer(() => {
                     setEditingRecord={setEditingRecord}
                 />
             </div>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

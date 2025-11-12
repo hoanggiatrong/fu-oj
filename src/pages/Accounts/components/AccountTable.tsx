@@ -1,4 +1,4 @@
-import { Table, Tag } from 'antd';
+import { Select, Table, Tag } from 'antd';
 import { observer } from 'mobx-react-lite';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -27,9 +27,10 @@ interface AccountTableProps {
     onRefresh: () => void;
     getRoleTagColor: (role: string) => string;
     getRoleLabel: (role: string) => string;
+    onChangeRole: (accountId: string, newRole: 'STUDENT' | 'INSTRUCTOR') => void;
 }
 
-const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLabel, search }: AccountTableProps) => {
+const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLabel, search, onChangeRole }: AccountTableProps) => {
     const handleToggleActivated = async (account: AccountData) => {
         try {
             const isCurrentlyActivated = account.deletedTimestamp === null;
@@ -73,9 +74,27 @@ const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLa
             title: 'Vai trò',
             dataIndex: 'role',
             key: 'role',
-            render: (role: string) => (
+            render: (role: string, record: AccountData) => (
                 <div className="cell">
-                    <Tag color={getRoleTagColor(role)}>{getRoleLabel(role)}</Tag>
+                    {record.role === 'ADMIN' ? (
+                        <Tag color={getRoleTagColor(role)}>{getRoleLabel(role)}</Tag>
+                    ) : (
+                        <Select
+                            value={role}
+                            onChange={(value) => {
+                                if (value === 'STUDENT' || value === 'INSTRUCTOR') {
+                                    onChangeRole(record.id, value);
+                                }
+                            }}
+                            style={{ width: 120 }}
+                            onClick={(e) => e.stopPropagation()}
+                            options={[
+                                { value: 'STUDENT', label: 'Sinh viên' },
+                                { value: 'INSTRUCTOR', label: 'Giảng viên' }
+                            ]}
+                            suffixIcon={null}
+                        />
+                    )}
                 </div>
             ),
             filters: [
