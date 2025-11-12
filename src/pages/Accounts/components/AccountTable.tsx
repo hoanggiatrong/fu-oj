@@ -10,6 +10,7 @@ import * as http from '../../../lib/httpRequest';
 import Highlighter from 'react-highlight-words';
 
 interface AccountData {
+    id: string;
     email: string;
 
     role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
@@ -31,15 +32,13 @@ interface AccountTableProps {
 const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLabel, search }: AccountTableProps) => {
     const handleToggleActivated = async (account: AccountData) => {
         try {
-            const isActivated = account.deletedTimestamp === null;
-            // Nếu đã kích hoạt (deletedTimestamp = null) thì vô hiệu hóa (set deletedTimestamp)
-            // Nếu chưa kích hoạt (deletedTimestamp != null) thì kích hoạt (set deletedTimestamp = null)
-            await http.put(`/accounts/${account.email}`, {
-                deletedTimestamp: isActivated ? new Date().toISOString() : null
-            });
+            const isCurrentlyActivated = account.deletedTimestamp === null;
+            const action = !isCurrentlyActivated;
+            console.log('Account toggle request', { id: account.id, action });
+            await http.put('/account/active', {}, { params: { action, id: account.id } });
             globalStore.triggerNotification(
                 'success',
-                `${isActivated ? 'Vô hiệu hóa' : 'Kích hoạt'} tài khoản thành công!`,
+                `${action ? 'Kích hoạt' : 'Vô hiệu hóa'} tài khoản thành công!`,
                 ''
             );
             onRefresh();
