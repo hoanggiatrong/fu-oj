@@ -484,7 +484,7 @@ const ExamExercise = observer(() => {
                                 </div>
                             ) : (
                                 <div className="icon" onClick={testRun}>
-                                    <img src="/sources/icons/play-ico.svg" alt="" />
+                                    <img src="/sources/icons/play-ico.svg" alt="" style={{ pointerEvents: 'none' }} />
                                 </div>
                             )}
                             <div className="icon submit-btn" onClick={submit}>

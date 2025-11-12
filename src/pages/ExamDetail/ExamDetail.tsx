@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as http from '../../lib/httpRequest';
 import { Card, Tag, Button } from 'antd';
@@ -94,6 +94,7 @@ const ExamDetail = observer(() => {
     const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
     const [isTimeExpired, setIsTimeExpired] = useState(false);
     const [submissionsMap, setSubmissionsMap] = useState<Map<string, SubmissionData>>(new Map());
+    const timeCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const getExamDetail = () => {
         if (!id) return;
@@ -153,7 +154,7 @@ const ExamDetail = observer(() => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [examData]);
 
-    // Check thời gian làm bài
+    // Check thời gian làm bài (chỉ check một lần khi mount, sau đó dùng local timer)
     useEffect(() => {
         if (!id || authentication.isInstructor) return;
 
@@ -181,6 +182,21 @@ const ExamDetail = observer(() => {
 
                 // Nếu hết thời gian thì disable nút
                 setIsTimeExpired(now >= endTimeMs);
+
+                // Nếu chưa hết thời gian, set interval để check lại mỗi phút (thay vì mỗi giây)
+                // Không gọi API nữa, chỉ check local time
+                if (now < endTimeMs) {
+                    timeCheckIntervalRef.current = setInterval(() => {
+                        const currentTime = Date.now();
+                        if (currentTime >= endTimeMs) {
+                            setIsTimeExpired(true);
+                            if (timeCheckIntervalRef.current) {
+                                clearInterval(timeCheckIntervalRef.current);
+                                timeCheckIntervalRef.current = null;
+                            }
+                        }
+                    }, 60000); // Check mỗi phút thay vì mỗi giây
+                }
             } catch (error) {
                 console.error('Error checking exam time:', error);
             }
@@ -188,10 +204,12 @@ const ExamDetail = observer(() => {
 
         checkTimeRemaining();
 
-        // Check lại mỗi giây
-        const interval = setInterval(checkTimeRemaining, 1000);
-
-        return () => clearInterval(interval);
+        return () => {
+            if (timeCheckIntervalRef.current) {
+                clearInterval(timeCheckIntervalRef.current);
+                timeCheckIntervalRef.current = null;
+            }
+        };
     }, [id]);
 
     const handleExerciseClick = (exercise: Exercise) => {
