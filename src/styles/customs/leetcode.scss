@@ -161,6 +161,19 @@
             }
         }
 
+        .ant-pagination-options {
+            & > .ant-select {
+                & > .ant-select-selector {
+                    border-radius: var(--borderRadius-full);
+
+                    &:hover {
+                        cursor: pointer;
+                        border-color: var(--c-cyan);
+                    }
+                }
+            }
+        }
+
         .ant-pagination-item {
             border-radius: var(--borderRadius-full);
             opacity: 0.5;

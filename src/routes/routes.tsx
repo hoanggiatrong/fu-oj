@@ -11,126 +11,129 @@ import Home from '../pages/Home/Home';
 import Ranking from '../pages/Ranking/Ranking';
 import Topics from '../pages/Topics/Topics';
 import routesConfig from './routesConfig';
-import Dashboard from '../pages/Dashboard/Dashboard';
 import Accounts from '../pages/Accounts/Accounts';
-import ProtectedElementRoute from '../components/ProtectedElementRoute/ProtectedElementRoute';
 
 const router: {
     path: string;
     element: React.ReactNode;
 }[] = [
-        {
-            path: routesConfig.home,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
-                    <Home />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.exercises,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <Exercises />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.exercise,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <Exercise />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.submissionsOfAStudent,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <ExerciseCompletionList />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.submissionOfAStudent,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <Exercise />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.groups,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <Groups />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.groupDetail,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <GroupDetail />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.exams,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <Exams />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.exam,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <ExamDetail />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.examExercise,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <ExamExercise />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.topics,
-            element: (
-                <ProtectedElementRoute allowedRoles={['ADMIN']} allowedPermissions={[]}>
-                    <Topics />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.ranking,
-            element: (
-                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                    <Ranking />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.dashboard,
-            element: (
-                <ProtectedElementRoute allowedRoles={['INSTRUCTOR']} allowedPermissions={[]}>
-                    <Dashboard />
-                </ProtectedElementRoute>
-            )
-        },
-        {
-            path: routesConfig.accounts,
-            element: (
-                <ProtectedElementRoute allowedRoles={['ADMIN']} allowedPermissions={[]}>
-                    <Accounts />
-                </ProtectedElementRoute>
-            )
-        }
-    ];
+    {
+        path: routesConfig.home,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
+                <Home />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.exercises,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Exercises />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.exercise,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Exercise />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.submissionsOfAStudent,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <ExerciseCompletionList />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.submissionOfAStudent,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Exercise />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.groups,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Groups />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.groupDetail,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <GroupDetail />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.exams,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Exams />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.exam,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <ExamDetail />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.examExercise,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <ExamExercise />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.topics,
+        element: (
+            <ProtectedElementRoute allowedRoles={['ADMIN']} allowedPermissions={[]}>
+                <Topics />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.ranking,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                <Ranking />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.dashboard,
+        element: (
+            <ProtectedElementRoute allowedRoles={['INSTRUCTOR']} allowedPermissions={[]}>
+                <Dashboard />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.profile,
+        element: <Profile />
+    },
+
+    {
+        path: routesConfig.accounts,
+        element: (
+            <ProtectedElementRoute allowedRoles={['ADMIN']} allowedPermissions={[]}>
+                <Accounts />
+            </ProtectedElementRoute>
+        )
+    }
+];
 
 export default router;

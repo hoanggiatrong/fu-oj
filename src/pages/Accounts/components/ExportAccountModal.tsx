@@ -4,19 +4,14 @@ import { useState } from 'react';
 import { DownloadOutlined } from '@ant-design/icons';
 import globalStore from '../../../components/GlobalComponent/globalStore';
 
-interface AccountFilter {
-    search?: string;
-    role?: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN' | '';
-    activated?: boolean | null;
-}
-
 interface ExportAccountModalProps {
     open: boolean;
-    filter: AccountFilter;
+    filter: any;
     onCancel: () => void;
 }
 
 const ExportAccountModal = observer(({ open, filter, onCancel }: ExportAccountModalProps) => {
+    filter;
     const [exporting, setExporting] = useState(false);
 
     const handleExport = async () => {
@@ -37,7 +32,9 @@ const ExportAccountModal = observer(({ open, filter, onCancel }: ExportAccountMo
 
             // Tạo blob và download
             const blob = new Blob([response.data], {
-                type: response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                type:
+                    response.headers['content-type'] ||
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -76,7 +73,13 @@ const ExportAccountModal = observer(({ open, filter, onCancel }: ExportAccountMo
                 <Button key="cancel" onClick={onCancel}>
                     Hủy
                 </Button>,
-                <Button key="export" type="primary" icon={<DownloadOutlined />} loading={exporting} onClick={handleExport}>
+                <Button
+                    key="export"
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    loading={exporting}
+                    onClick={handleExport}
+                >
                     Export
                 </Button>
             ]}
@@ -111,4 +114,3 @@ const ExportAccountModal = observer(({ open, filter, onCancel }: ExportAccountMo
 });
 
 export default ExportAccountModal;
-
