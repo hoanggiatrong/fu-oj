@@ -179,8 +179,8 @@ const ExamExercise = observer(() => {
             .then((res) => {
                 console.log('log:', res);
                 setResponse(res);
-                globalStore.triggerNotification('success', 'Nộp bài thành công!', '');
-                
+                // globalStore.triggerNotification('success', 'Nộp bài thành công!', '');
+
                 // Nếu nộp bài thành công (status 201), quay lại trang bài tập
                 if (res.status === 201 && examId) {
                     setTimeout(() => {
@@ -421,7 +421,7 @@ const ExamExercise = observer(() => {
     useEffect(() => {
         // Push một state vào history để có thể intercept back button
         window.history.pushState(null, '', location.pathname);
-        
+
         const handlePopState = () => {
             if (!isNavigatingRef.current) {
                 // Push lại state để giữ user ở trang hiện tại
@@ -478,7 +478,10 @@ const ExamExercise = observer(() => {
                         </div>
                     </div>
                     <div className="center">
-                        <div className={classnames('group-btn', { disabled: loading })} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div
+                            className={classnames('group-btn', { disabled: loading })}
+                            style={{ display: 'flex', alignItems: 'center', gap: '16px' }}
+                        >
                             <BugOutlined className="icon" style={{ color: '#FFA118' }} />
                             {loading ? (
                                 <div className="icon">
@@ -545,4 +548,3 @@ const ExamExercise = observer(() => {
 });
 
 export default ExamExercise;
-
