@@ -7,6 +7,8 @@ import { LeftOutlined, FileTextOutlined } from '@ant-design/icons';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import classnames from 'classnames';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
+import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
 import ExamCountdownTimer from './components/ExamCountdownTimer';
@@ -374,6 +376,9 @@ const ExamDetail = observer(() => {
                     </div>
                 )}
             </LoadingOverlay>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

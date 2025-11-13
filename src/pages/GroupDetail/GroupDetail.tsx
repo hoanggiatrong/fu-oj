@@ -9,6 +9,7 @@ import { useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import * as http from '../../lib/httpRequest';
 
 const GroupDetail = observer(() => {
@@ -607,6 +608,9 @@ const GroupDetail = observer(() => {
                     </Form.Item>
                 </Form>
             </Modal>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

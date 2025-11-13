@@ -5,6 +5,8 @@ import { Table, Avatar, Tag } from 'antd';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import classnames from 'classnames';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
+import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import { TrophyOutlined } from '@ant-design/icons';
 
 interface User {
@@ -341,6 +343,9 @@ const Ranking = observer(() => {
                     />
                 </LoadingOverlay>
             </div>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

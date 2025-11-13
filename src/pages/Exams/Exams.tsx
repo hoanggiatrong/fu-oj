@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
@@ -22,6 +23,7 @@ import ExamResultModal from './components/ExamResultModal';
 import type { ExamData, SelectOption } from './types';
 import { filterDataByTab, getExamStatus } from './utils';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
+import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 
 interface CompletedExamData {
     id: string;
@@ -677,7 +679,7 @@ const Exams = observer(() => {
 
     return (
         <div className={classnames('leetcode', globalStore.isBelow1300 ? 'col' : 'row')}>
-            <div className={classnames('exams', { 'p-24': globalStore.isBelow1300 })}>
+            <div className={classnames('exams left', { 'p-24': globalStore.isBelow1300 })}>
                 <div className="header">
                     <div className="title">Bài thi</div>
                     <div className="description">
@@ -861,6 +863,12 @@ const Exams = observer(() => {
                     }}
                 />
             </div>
+            <div className="right">
+                <CustomCalendar />
+            </div>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

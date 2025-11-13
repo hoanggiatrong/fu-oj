@@ -1,4 +1,4 @@
-import { Table, Tag } from 'antd';
+import { Select, Table, Tag } from 'antd';
 import { observer } from 'mobx-react-lite';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -10,6 +10,7 @@ import * as http from '../../../lib/httpRequest';
 import Highlighter from 'react-highlight-words';
 
 interface AccountData {
+    id: string;
     email: string;
 
     role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
@@ -26,20 +27,19 @@ interface AccountTableProps {
     onRefresh: () => void;
     getRoleTagColor: (role: string) => string;
     getRoleLabel: (role: string) => string;
+    onChangeRole: (accountId: string, newRole: 'STUDENT' | 'INSTRUCTOR') => void;
 }
 
-const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLabel, search }: AccountTableProps) => {
+const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLabel, search, onChangeRole }: AccountTableProps) => {
     const handleToggleActivated = async (account: AccountData) => {
         try {
-            const isActivated = account.deletedTimestamp === null;
-            // Nếu đã kích hoạt (deletedTimestamp = null) thì vô hiệu hóa (set deletedTimestamp)
-            // Nếu chưa kích hoạt (deletedTimestamp != null) thì kích hoạt (set deletedTimestamp = null)
-            await http.put(`/accounts/${account.email}`, {
-                deletedTimestamp: isActivated ? new Date().toISOString() : null
-            });
+            const isCurrentlyActivated = account.deletedTimestamp === null;
+            const action = !isCurrentlyActivated;
+            console.log('Account toggle request', { id: account.id, action });
+            await http.put('/account/active', {}, { params: { action, id: account.id } });
             globalStore.triggerNotification(
                 'success',
-                `${isActivated ? 'Vô hiệu hóa' : 'Kích hoạt'} tài khoản thành công!`,
+                `${action ? 'Kích hoạt' : 'Vô hiệu hóa'} tài khoản thành công!`,
                 ''
             );
             onRefresh();
@@ -74,9 +74,27 @@ const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLa
             title: 'Vai trò',
             dataIndex: 'role',
             key: 'role',
-            render: (role: string) => (
+            render: (role: string, record: AccountData) => (
                 <div className="cell">
-                    <Tag color={getRoleTagColor(role)}>{getRoleLabel(role)}</Tag>
+                    {record.role === 'ADMIN' ? (
+                        <Tag color={getRoleTagColor(role)}>{getRoleLabel(role)}</Tag>
+                    ) : (
+                        <Select
+                            value={role}
+                            onChange={(value) => {
+                                if (value === 'STUDENT' || value === 'INSTRUCTOR') {
+                                    onChangeRole(record.id, value);
+                                }
+                            }}
+                            style={{ width: 120 }}
+                            onClick={(e) => e.stopPropagation()}
+                            options={[
+                                { value: 'STUDENT', label: 'Sinh viên' },
+                                { value: 'INSTRUCTOR', label: 'Giảng viên' }
+                            ]}
+                            suffixIcon={null}
+                        />
+                    )}
                 </div>
             ),
             filters: [

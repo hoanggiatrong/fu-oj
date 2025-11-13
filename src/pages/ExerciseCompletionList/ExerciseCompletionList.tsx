@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import Line from '../../components/Line/Line';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
@@ -177,6 +178,9 @@ const ExerciseCompletionList = observer(() => {
                     />
                 </div>
             </div>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

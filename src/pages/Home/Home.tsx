@@ -4,6 +4,8 @@ import { Carousel, Avatar } from 'antd';
 import classnames from 'classnames';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import { useEffect, useState } from 'react';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
+import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 
 const carouselItems = [
     {
@@ -114,6 +116,9 @@ const Home = observer(() => {
                 </div>
             </div>
             <div className="submitted-exs container"></div>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });

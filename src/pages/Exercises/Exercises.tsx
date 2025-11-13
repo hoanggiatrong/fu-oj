@@ -17,6 +17,7 @@ import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
@@ -232,8 +233,9 @@ const Exercises = observer(() => {
         if (displayDatas.length == 0) {
             globalStore.triggerNotification('error', 'Không tìm thấy bài tập', '');
         } else {
-            const randomInt = utils.getRandomInt(displayDatas.length);
-            const randomSelect: any = displayDatas[randomInt];
+            const includeTestCaseDatas = displayDatas.filter((d: any) => d.testCases.length > 0);
+            const randomInt = utils.getRandomInt(includeTestCaseDatas.length);
+            const randomSelect: any = includeTestCaseDatas[randomInt];
             navigate(`/${routesConfig.exercise}`.replace(':id?', randomSelect?.id));
         }
     };
@@ -628,6 +630,9 @@ const Exercises = observer(() => {
             <div className="right">
                 <CustomCalendar />
             </div>
+            <ProtectedElement acceptRoles={['STUDENT']}>
+                <AIAssistant />
+            </ProtectedElement>
         </div>
     );
 });
