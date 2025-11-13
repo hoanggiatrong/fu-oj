@@ -91,6 +91,18 @@ const ExamResultModal = ({ open, examId, onCancel }: ExamResultModalProps) => {
             render: (title: string) => <div className="cell">{title}</div>
         },
         {
+            title: 'Số testcase đã pass',
+            dataIndex: 'passedTestCases',
+            key: 'passedTestCases',
+            render: (passedTestCases: number) => <div className="cell">{passedTestCases}</div>
+        },
+        {
+            title: 'Tổng số testcases',
+            dataIndex: 'totalTestCases',
+            key: 'totalTestCases',
+            render: (totalTestCases: number) => <div className="cell">{totalTestCases}</div>
+        },
+        {
             title: 'Thời gian nộp',
             dataIndex: 'submittedAt',
             key: 'submittedAt',

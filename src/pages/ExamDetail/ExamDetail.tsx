@@ -97,6 +97,7 @@ const ExamDetail = observer(() => {
     const [isTimeExpired, setIsTimeExpired] = useState(false);
     const [submissionsMap, setSubmissionsMap] = useState<Map<string, SubmissionData>>(new Map());
     const timeCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const autoSubmittedRef = useRef<boolean>(false);
 
     const getExamDetail = () => {
         if (!id) return;
@@ -175,7 +176,7 @@ const ExamDetail = observer(() => {
                 }
 
                 const examRanking = data[0];
-                const timeLimit = examRanking.exam?.timeLimit || 90; // Mặc định 90 phút
+                const timeLimit = examRanking.exam?.timeLimit ?? 90; // Mặc định 90 phút nếu null hoặc undefined
                 const startTimeDate = new Date(examRanking.createdTimestamp);
                 const startTimeMs = startTimeDate.getTime();
                 const timeLimitMs = timeLimit * 60 * 1000;
@@ -213,6 +214,93 @@ const ExamDetail = observer(() => {
             }
         };
     }, [id]);
+
+    // Tự động nộp bài khi hết thời gian
+    useEffect(() => {
+        if (!id || authentication.isInstructor || !examData || !isTimeExpired || autoSubmittedRef.current) return;
+
+        const autoSubmitUncompletedExercises = async () => {
+            // Đảm bảo chỉ nộp một lần
+            autoSubmittedRef.current = true;
+
+            // Hàm retry với số lần tối đa
+            const submitWithRetry = async (
+                payload: { examId: string; exerciseId: string; sourceCode: string; languageCode: number },
+                maxRetries: number = 10,
+                delay: number = 2000
+            ): Promise<boolean> => {
+                for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                    try {
+                        await http.post('/exams/submissions', payload);
+                        return true; // Thành công
+                    } catch (error: any) {
+                        const statusCode = error?.response?.status;
+                        const isServerError = statusCode === 500 || (statusCode >= 502 && statusCode <= 504);
+                        
+                        if (isServerError && attempt < maxRetries) {
+                            // Nếu là lỗi 500 và chưa hết số lần retry, đợi rồi thử lại
+                            console.log(`Retry ${attempt}/${maxRetries} for exercise ${payload.exerciseId} after ${delay}ms`);
+                            await new Promise((resolve) => setTimeout(resolve, delay));
+                        } else {
+                            // Nếu không phải lỗi 500 hoặc đã hết số lần retry
+                            console.error(`Error auto-submitting exercise ${payload.exerciseId} (attempt ${attempt}/${maxRetries}):`, error);
+                            return false; // Thất bại
+                        }
+                    }
+                }
+                return false; // Thất bại sau tất cả các lần retry
+            };
+
+            try {
+                // Lấy danh sách bài tập chưa làm (chưa có trong submissionsMap)
+                const uncompletedExercises = examData.exercises.filter(
+                    (exercise) => !submissionsMap.has(exercise.id)
+                );
+
+                if (uncompletedExercises.length === 0) {
+                    return; // Đã làm hết bài
+                }
+
+                // Nộp từng bài chưa làm với retry
+                const submitPromises = uncompletedExercises.map((exercise) => {
+                    const payload = {
+                        examId: id,
+                        exerciseId: exercise.id,
+                        sourceCode: '// Start coding here',
+                        languageCode: 45
+                    };
+
+                    return submitWithRetry(payload);
+                });
+
+                await Promise.all(submitPromises);
+
+                // Refresh danh sách bài đã làm sau khi nộp
+                const userId = authentication.account?.data?.id;
+                if (userId) {
+                    try {
+                        const response = await http.get(`/exams/submissions/results?userId=${userId}&examId=${id}`);
+                        const data: ExamResultData = response.data;
+                        if (data && data.submissions) {
+                            const map = new Map<string, SubmissionData>();
+                            data.submissions.forEach((submission) => {
+                                map.set(submission.exerciseId, submission);
+                            });
+                            setSubmissionsMap(map);
+                        }
+                    } catch (error) {
+                        console.error('Error refreshing submissions:', error);
+                    }
+                }
+
+                globalStore.triggerNotification('info', 'Đã tự động nộp các bài chưa làm!', '');
+            } catch (error) {
+                console.error('Error auto-submitting exercises:', error);
+            }
+        };
+
+        autoSubmitUncompletedExercises();
+    }, [isTimeExpired, examData, id, submissionsMap]);
 
     const handleExerciseClick = (exercise: Exercise) => {
         setSelectedExercise(exercise);

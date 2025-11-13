@@ -508,17 +508,38 @@ const Exams = observer(() => {
             return;
         }
 
+        // Kiểm tra trạng thái bài thi
+        const examStatus = getExamStatus(record.startTime, record.endTime);
+        
+        // Nếu bài thi đã kết thúc, chỉ cho phép xem kết quả (nếu đã làm)
+        if (examStatus.status === 'completed') {
+            try {
+                const res = await http.get(`/exam-rankings?userId=${userId}&examId=${record.id}`);
+                if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+                    // Đã làm bài, mở modal kết quả
+                    setSelectedExamIdForResult(record.id);
+                    setIsResultModalOpen(true);
+                } else {
+                    globalStore.triggerNotification('info', 'Bài thi đã kết thúc và bạn chưa tham gia!', '');
+                }
+            } catch (error) {
+                console.error('Error checking exam ranking:', error);
+                globalStore.triggerNotification('info', 'Bài thi đã kết thúc và bạn chưa tham gia!', '');
+            }
+            return;
+        }
+
         try {
             // Check xem user đã làm bài thi này chưa
             const res = await http.get(`/exam-rankings?userId=${userId}&examId=${record.id}`);
 
-            // Nếu đã có data (đã làm bài), navigate thẳng
+            // Nếu đã có data (đã join/làm bài), navigate thẳng
             if (res.data && Array.isArray(res.data) && res.data.length > 0) {
                 navigate(`/${routesConfig.exam}`.replace(':id', record.id));
                 return;
             }
 
-            // Nếu chưa có data, mở popup xác nhận
+            // Nếu chưa có data, mở popup xác nhận (cho cả bài "sắp tới" và "đang diễn ra")
             setSelectedExamId(record.id);
             setSelectedExamRecord(record);
             setConfirmModalOpen(true);
@@ -842,6 +863,7 @@ const Exams = observer(() => {
                         setSelectedExamRecord(null);
                     }}
                     onConfirm={handleConfirmStartExam}
+                    examRecord={selectedExamRecord}
                 />
                 <ExamFormModal
                     open={globalStore.isDetailPopupOpen}

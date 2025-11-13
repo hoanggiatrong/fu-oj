@@ -45,7 +45,7 @@ const ExamCountdownTimer = observer(({ examId, compact = false }: ExamCountdownT
                 }
 
                 const examRanking = data[0];
-                const timeLimit = examRanking.exam.timeLimit || 90; // Mặc định 90 phút nếu null
+                const timeLimit = examRanking.exam.timeLimit ?? 90; // Mặc định 90 phút nếu null hoặc undefined
                 
                 // Lấy thời điểm bắt đầu làm bài từ createdTimestamp (UTC ISO string)
                 // createdTimestamp là thời điểm user bắt đầu làm bài, không phải thời điểm exam bắt đầu
