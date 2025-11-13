@@ -106,19 +106,6 @@ const Accounts = observer(() => {
         }));
     };
 
-    const getRoleTagColor = (role: string) => {
-        switch (role) {
-            case 'ADMIN':
-                return 'red';
-            case 'INSTRUCTOR':
-                return 'blue';
-            case 'STUDENT':
-                return 'green';
-            default:
-                return 'default';
-        }
-    };
-
     const getRoleLabel = (role: string) => {
         switch (role) {
             case 'ADMIN':
@@ -256,10 +243,6 @@ const Accounts = observer(() => {
                                     {accounts.filter((a) => a.role === 'INSTRUCTOR').length}
                                 </div>
                             </div>
-                            <div className="stat-item">
-                                <div className="stat-label">Quản trị viên</div>
-                                <div className="stat-value">{accounts.filter((a) => a.role === 'ADMIN').length}</div>
-                            </div>
                         </div>
 
                         <LoadingOverlay loading={loading}>
@@ -267,7 +250,6 @@ const Accounts = observer(() => {
                                 search={search}
                                 accounts={displayAccounts}
                                 onRefresh={getAccounts}
-                                getRoleTagColor={getRoleTagColor}
                                 getRoleLabel={getRoleLabel}
                                 onChangeRole={handleChangeRole}
                             />

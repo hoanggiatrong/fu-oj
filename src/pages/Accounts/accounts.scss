@@ -149,4 +149,85 @@
             margin-bottom: var(--base-size-4);
         }
     }
+
+    .role-cell {
+        display: flex;
+        align-items: center;
+        gap: var(--base-size-8);
+    }
+
+    .role-pill-button {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--base-size-8);
+        padding: 0;
+        border-radius: 999px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 70, 120, 0.2);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 3px;
+        }
+    }
+
+    .role-pill {
+        font-weight: var(--base-text-weight-semibold);
+        text-transform: capitalize;
+        color: #fff;
+        border-radius: 999px;
+        padding: var(--base-size-4) var(--base-size-12);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 110px;
+        text-align: center;
+
+        &--student {
+            background: linear-gradient(135deg, #28c76f 0%, #48e5a7 100%);
+        }
+
+        &--instructor {
+            background: linear-gradient(135deg, #1677ff 0%, #69b1ff 100%);
+        }
+
+        &--admin {
+            background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+        }
+    }
+
+    .role-pill-caret {
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid rgba(255, 255, 255, 0.85);
+        transition: transform 0.2s ease;
+
+        .role-pill-button:hover & {
+            transform: translateY(2px);
+        }
+    }
+
+    .role-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: var(--base-size-8);
+        font-weight: var(--base-text-weight-medium);
+
+        &[data-role='STUDENT'] {
+            color: #28c76f;
+        }
+
+        &[data-role='INSTRUCTOR'] {
+            color: #1677ff;
+        }
+    }
 }
