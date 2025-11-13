@@ -232,8 +232,9 @@ const Exercises = observer(() => {
         if (displayDatas.length == 0) {
             globalStore.triggerNotification('error', 'Không tìm thấy bài tập', '');
         } else {
-            const randomInt = utils.getRandomInt(displayDatas.length);
-            const randomSelect: any = displayDatas[randomInt];
+            const includeTestCaseDatas = displayDatas.filter((d: any) => d.testCases.length > 0);
+            const randomInt = utils.getRandomInt(includeTestCaseDatas.length);
+            const randomSelect: any = includeTestCaseDatas[randomInt];
             navigate(`/${routesConfig.exercise}`.replace(':id?', randomSelect?.id));
         }
     };

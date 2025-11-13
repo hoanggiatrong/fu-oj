@@ -3,7 +3,7 @@ import {
     BellOutlined,
     BugOutlined,
     CloudUploadOutlined,
-    GithubOutlined,
+    UnorderedListOutlined,
     LeftOutlined,
     LoadingOutlined,
     RightOutlined,
@@ -24,6 +24,7 @@ import * as http from '../../lib/httpRequest';
 import stompClientLib from '../../lib/stomp-client.lib';
 import routesConfig from '../../routes/routesConfig';
 import utils from '../../utils/utils';
+import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 
 const json = {
     global: { tabSetEnableClose: false },
@@ -436,9 +437,16 @@ const Exercise = observer(() => {
                 <div className="header">
                     <div className="left">
                         <div className="group-btn">
-                            <GithubOutlined className="icon" />
-                            <LeftOutlined className="icon" />
-                            <RightOutlined className="icon" />
+                            <TooltipWrapper tooltipText="Trở lại" position="right">
+                                <LeftOutlined className="icon" onClick={() => navigate('/exercises')} />
+                            </TooltipWrapper>
+                            <TooltipWrapper tooltipText="Danh sách bài tập đã nộp" position="right">
+                                <UnorderedListOutlined
+                                    className="icon color-gold"
+                                    onClick={() => navigate('/submissions')}
+                                />
+                            </TooltipWrapper>
+                            {/* <RightOutlined className="icon" /> */}
                         </div>
                     </div>
                     <div className="center">

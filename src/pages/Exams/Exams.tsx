@@ -21,6 +21,7 @@ import ExamTable from './components/ExamTable';
 import type { ExamData, SelectOption } from './types';
 import { filterDataByTab, getExamStatus } from './utils';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
+import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 
 interface CompletedExamData {
     id: string;
@@ -575,7 +576,7 @@ const Exams = observer(() => {
 
     return (
         <div className={classnames('leetcode', globalStore.isBelow1300 ? 'col' : 'row')}>
-            <div className={classnames('exams', { 'p-24': globalStore.isBelow1300 })}>
+            <div className={classnames('exams left', { 'p-24': globalStore.isBelow1300 })}>
                 <div className="header">
                     <div className="title">Bài thi</div>
                     <div className="description">
@@ -749,6 +750,9 @@ const Exams = observer(() => {
                     setUpdateId={setUpdateId}
                     setEditingRecord={setEditingRecord}
                 />
+            </div>
+            <div className="right">
+                <CustomCalendar />
             </div>
         </div>
     );
