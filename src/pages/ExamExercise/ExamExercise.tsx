@@ -112,6 +112,7 @@ const ExamExercise = observer(() => {
     const [showExitConfirm, setShowExitConfirm] = useState(false);
     const [pendingPath, setPendingPath] = useState<string | null>(null);
     const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+    const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
     const isNavigatingRef = useRef(false);
 
     const getDefaultTemplate = (lang: string): string => {
@@ -180,6 +181,8 @@ const ExamExercise = observer(() => {
         setLoading(true);
         // Đảm bảo response đã được clear
         setResponse(null);
+        // Đảm bảo response đã được clear
+        setResponse(null);
 
         const payload = {
             examId: examId,
@@ -195,7 +198,13 @@ const ExamExercise = observer(() => {
                 setResponse(null);
                 
                 // Nếu nộp bài thành công (status 201), quay lại trang bài tập ngay lập tức
+                // KHÔNG set response để không hiển thị kết quả
+                // Đảm bảo response vẫn là null
+                setResponse(null);
+                
+                // Nếu nộp bài thành công (status 201), quay lại trang bài tập ngay lập tức
                 if (res.status === 201 && examId) {
+                    navigate(`/${routesConfig.exam}`.replace(':id', examId));
                     navigate(`/${routesConfig.exam}`.replace(':id', examId));
                 }
             })
@@ -204,10 +213,16 @@ const ExamExercise = observer(() => {
                 globalStore.triggerNotification('error', error.response?.data?.message || 'Nộp bài thất bại!', '');
                 // Đảm bảo không hiển thị response khi có lỗi
                 setResponse(null);
+                // Đảm bảo không hiển thị response khi có lỗi
+                setResponse(null);
             })
             .finally(() => {
                 setLoading(false);
             });
+    };
+
+    const handleCancelSubmit = () => {
+        setShowSubmitConfirm(false);
     };
 
     const handleCancelSubmit = () => {
