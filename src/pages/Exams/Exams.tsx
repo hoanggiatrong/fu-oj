@@ -19,7 +19,6 @@ import authentication from '../../shared/auth/authentication';
 import ConfirmStartExamModal from './components/ConfirmStartExamModal';
 import ExamFormModal from './components/ExamFormModal';
 import ExamTable from './components/ExamTable';
-import ExamResultModal from './components/ExamResultModal';
 import type { ExamData, SelectOption } from './types';
 import { filterDataByTab, getExamStatus } from './utils';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
@@ -78,8 +77,6 @@ const Exams = observer(() => {
     const [loadingOngoingExams, setLoadingOngoingExams] = useState(false);
     const [examRankingsMap, setExamRankingsMap] = useState<Map<string, CompletedExamData>>(new Map());
     const [isFilterOpen, setFilterOpen]: any = useState(false);
-    const [isResultModalOpen, setIsResultModalOpen] = useState(false);
-    const [selectedExamIdForResult, setSelectedExamIdForResult] = useState<string | null>(null);
     const [filters, setFilters] = useState({
         status: null,
         startTime: null,
@@ -516,9 +513,8 @@ const Exams = observer(() => {
             try {
                 const res = await http.get(`/exam-rankings?userId=${userId}&examId=${record.id}`);
                 if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-                    // Đã làm bài, mở modal kết quả
-                    setSelectedExamIdForResult(record.id);
-                    setIsResultModalOpen(true);
+                    // Đã làm bài, chuyển sang trang kết quả
+                    navigate(`/${routesConfig.examResult}`.replace(':examId', record.id));
                 } else {
                     globalStore.triggerNotification('info', 'Bài thi đã kết thúc và bạn chưa tham gia!', '');
                 }
@@ -577,13 +573,11 @@ const Exams = observer(() => {
 
     const handleViewExamDetail = (examId: string, isCompleted: boolean = false) => {
         if (isCompleted) {
-            // Nếu là bài đã làm, mở modal kết quả
-            setSelectedExamIdForResult(examId);
-            setIsResultModalOpen(true);
-        } else {
-            // Nếu là bài đang làm, navigate đến trang làm bài
-            navigate(`/${routesConfig.exam}`.replace(':id', examId));
+            navigate(`/${routesConfig.examResult}`.replace(':examId', examId));
+            return;
         }
+
+        navigate(`/${routesConfig.exam}`.replace(':id', examId));
     };
 
     const completedExamsColumns = [
@@ -875,14 +869,6 @@ const Exams = observer(() => {
                     form={form}
                     setUpdateId={setUpdateId}
                     setEditingRecord={setEditingRecord}
-                />
-                <ExamResultModal
-                    open={isResultModalOpen}
-                    examId={selectedExamIdForResult || ''}
-                    onCancel={() => {
-                        setIsResultModalOpen(false);
-                        setSelectedExamIdForResult(null);
-                    }}
                 />
             </div>
             <div className="right">

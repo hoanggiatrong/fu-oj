@@ -2,6 +2,7 @@ import ProtectedElementRoute from '../components/ProtectedElementRoute/Protected
 import Dashboard from '../pages/Dashboard/Dashboard';
 import ExamDetail from '../pages/ExamDetail/ExamDetail';
 import ExamExercise from '../pages/ExamExercise/ExamExercise';
+import ExamResult from '../pages/ExamResult/ExamResult';
 import Exams from '../pages/Exams/Exams';
 import Exercise from '../pages/Exercise/Exercise';
 import ExerciseCompletionList from '../pages/ExerciseCompletionList/ExerciseCompletionList';
@@ -96,6 +97,14 @@ const router: {
         element: (
             <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
                 <ExamExercise />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.examResult,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT']} allowedPermissions={[]}>
+                <ExamResult />
             </ProtectedElementRoute>
         )
     },

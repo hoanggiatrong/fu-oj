@@ -6,7 +6,6 @@ import {
     UnorderedListOutlined,
     LeftOutlined,
     LoadingOutlined,
-    RightOutlined,
     SettingOutlined,
     WechatOutlined
 } from '@ant-design/icons';

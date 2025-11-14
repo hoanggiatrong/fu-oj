@@ -12,6 +12,7 @@ const routesConfig: IPageRoutes = {
     groupDetail: 'group/:id?',
     exams: 'exams',
     exam: 'exams/:id',
+    examResult: 'exams/:examId/result',
     examExercise: 'exams/:examId/exercise/:exerciseId',
     topics: 'topics',
     ranking: 'ranking',
