@@ -1,7 +1,9 @@
-import { Select, Table, Tag } from 'antd';
+import { Button, Dropdown, Modal, Table, Tag } from 'antd';
 import { observer } from 'mobx-react-lite';
 import type { ColumnsType } from 'antd/es/table';
+import type { MenuProps } from 'antd';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import ProtectedElement from '../../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../../components/TooltipWrapper/TooltipWrapperComponent';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
@@ -25,23 +27,26 @@ interface AccountTableProps {
     search: string;
     accounts: AccountData[];
     onRefresh: () => void;
-    getRoleTagColor: (role: string) => string;
     getRoleLabel: (role: string) => string;
     onChangeRole: (accountId: string, newRole: 'STUDENT' | 'INSTRUCTOR') => void;
 }
 
-const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLabel, search, onChangeRole }: AccountTableProps) => {
+const AccountTable = observer(({ accounts, onRefresh, getRoleLabel, search, onChangeRole }: AccountTableProps) => {
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedAccount, setSelectedAccount] = useState<AccountData | null>(null);
+
     const handleToggleActivated = async (account: AccountData) => {
         try {
             const isCurrentlyActivated = account.deletedTimestamp === null;
             const action = !isCurrentlyActivated;
-            console.log('Account toggle request', { id: account.id, action });
             await http.put('/account/active', {}, { params: { action, id: account.id } });
             globalStore.triggerNotification(
                 'success',
                 `${action ? 'Kích hoạt' : 'Vô hiệu hóa'} tài khoản thành công!`,
                 ''
             );
+            setModalVisible(false);
+            setSelectedAccount(null);
             onRefresh();
         } catch (error: any) {
             globalStore.triggerNotification(
@@ -51,6 +56,48 @@ const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLa
             );
         }
     };
+
+    const handleConfirmToggle = (account: AccountData) => {
+        setSelectedAccount(account);
+        setModalVisible(true);
+    };
+
+    const handleModalOk = () => {
+        if (selectedAccount) {
+            handleToggleActivated(selectedAccount);
+        }
+    };
+
+    const handleModalCancel = () => {
+        setModalVisible(false);
+        setSelectedAccount(null);
+    };
+
+    const handleRoleChange = (accountId: string, newRole: 'STUDENT' | 'INSTRUCTOR') => {
+        onChangeRole(accountId, newRole);
+    };
+
+    const buildRoleMenuItems = (record: AccountData): MenuProps['items'] => {
+        const roleItems: { key: 'STUDENT' | 'INSTRUCTOR'; label: string }[] = [
+            { key: 'STUDENT', label: 'Sinh viên' },
+            { key: 'INSTRUCTOR', label: 'Giảng viên' }
+        ];
+
+        return roleItems
+            .filter((item) => item.key !== record.role)
+            .map((item) => ({
+                key: item.key,
+                label: (
+                    <span className="role-dropdown-item" data-role={item.key}>
+                        {item.label}
+                    </span>
+                )
+            }));
+    };
+
+    const renderRolePill = (role: string) => (
+        <span className={`role-pill role-pill--${role.toLowerCase()}`}>{getRoleLabel(role)}</span>
+    );
 
     const columns: ColumnsType<AccountData> = [
         {
@@ -75,32 +122,32 @@ const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLa
             dataIndex: 'role',
             key: 'role',
             render: (role: string, record: AccountData) => (
-                <div className="cell">
+                <div className="cell role-cell">
                     {record.role === 'ADMIN' ? (
-                        <Tag color={getRoleTagColor(role)}>{getRoleLabel(role)}</Tag>
+                        renderRolePill(role)
                     ) : (
-                        <Select
-                            value={role}
-                            onChange={(value) => {
-                                if (value === 'STUDENT' || value === 'INSTRUCTOR') {
-                                    onChangeRole(record.id, value);
-                                }
+                        <Dropdown
+                            trigger={['click']}
+                            menu={{
+                                items: buildRoleMenuItems(record),
+                                onClick: ({ key }) => handleRoleChange(record.id, key as 'STUDENT' | 'INSTRUCTOR')
                             }}
-                            style={{ width: 120 }}
-                            onClick={(e) => e.stopPropagation()}
-                            options={[
-                                { value: 'STUDENT', label: 'Sinh viên' },
-                                { value: 'INSTRUCTOR', label: 'Giảng viên' }
-                            ]}
-                            suffixIcon={null}
-                        />
+                        >
+                            <button
+                                className="role-pill-button"
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {renderRolePill(role)}
+                                <span className="role-pill-caret" />
+                            </button>
+                        </Dropdown>
                     )}
                 </div>
             ),
             filters: [
                 { text: 'Sinh viên', value: 'STUDENT' },
-                { text: 'Giảng viên', value: 'INSTRUCTOR' },
-                { text: 'Quản trị viên', value: 'ADMIN' }
+                { text: 'Giảng viên', value: 'INSTRUCTOR' }
             ],
             onFilter: (value, record) => record.role === value
         },
@@ -148,48 +195,78 @@ const AccountTable = observer(({ accounts, onRefresh, getRoleTagColor, getRoleLa
             fixed: 'right',
             width: 100,
             align: 'center',
-            render: (_: unknown, record: AccountData) => (
-                <div className="actions-row cell" onClick={(e) => e.stopPropagation()}>
-                    <ProtectedElement acceptRoles={['ADMIN']}>
-                        <TooltipWrapper
-                            tooltipText={record.deletedTimestamp === null ? 'Vô hiệu hóa' : 'Kích hoạt'}
-                            position="left"
-                        >
-                            {record.deletedTimestamp === null ? (
-                                <CloseCircleOutlined
-                                    className="action-row-btn"
-                                    onClick={() => handleToggleActivated(record)}
-                                />
-                            ) : (
-                                <CheckCircleOutlined
-                                    className="action-row-btn"
-                                    onClick={() => handleToggleActivated(record)}
-                                />
-                            )}
-                        </TooltipWrapper>
-                    </ProtectedElement>
-                </div>
-            )
+            render: (_: unknown, record: AccountData) => {
+                const handleActionClick = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleConfirmToggle(record);
+                };
+
+                return (
+                    <div className="actions-row cell" onClick={(e) => e.stopPropagation()}>
+                        <ProtectedElement acceptRoles={['ADMIN']}>
+                            <TooltipWrapper
+                                tooltipText={record.deletedTimestamp === null ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                                position="left"
+                            >
+                                {record.deletedTimestamp === null ? (
+                                    <CloseCircleOutlined
+                                        className="action-row-btn"
+                                        onClick={handleActionClick}
+                                    />
+                                ) : (
+                                    <CheckCircleOutlined
+                                        className="action-row-btn"
+                                        onClick={handleActionClick}
+                                    />
+                                )}
+                            </TooltipWrapper>
+                        </ProtectedElement>
+                    </div>
+                );
+            }
         }
     ];
 
+    const isActivated = selectedAccount?.deletedTimestamp === null;
+
     return (
-        <Table
-            rowKey="email"
-            scroll={{ x: 800 }}
-            pagination={{
-                pageSize: 10,
-                showSizeChanger: true,
-                showTotal: (total) => `Tổng ${total} tài khoản`,
-                pageSizeOptions: ['10', '20', '50', '100']
-            }}
-            dataSource={accounts}
-            columns={columns}
-            rowClassName={(record, index) => {
-                record;
-                return index % 2 === 0 ? 'custom-row row-even' : 'custom-row row-odd';
-            }}
-        />
+        <>
+            <Table
+                rowKey="email"
+                scroll={{ x: 800 }}
+                pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showTotal: (total) => `Tổng ${total} tài khoản`,
+                    pageSizeOptions: ['10', '20', '50', '100']
+                }}
+                dataSource={accounts}
+                columns={columns}
+                rowClassName={(record, index) => {
+                    record;
+                    return index % 2 === 0 ? 'custom-row row-even' : 'custom-row row-odd';
+                }}
+            />
+            <Modal
+                title={`${isActivated ? 'Vô hiệu hóa' : 'Kích hoạt'} tài khoản?`}
+                open={modalVisible}
+                onCancel={handleModalCancel}
+                centered
+                footer={null}
+            >
+                <p>
+                    Bạn có chắc chắn muốn {isActivated ? 'vô hiệu hóa' : 'kích hoạt'} tài khoản{' '}
+                    <strong>{selectedAccount?.email}</strong>?
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '24px' }}>
+                    <Button onClick={handleModalCancel}>Hủy</Button>
+                    <Button type="primary" danger={isActivated} onClick={handleModalOk}>
+                        {isActivated ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                    </Button>
+                </div>
+            </Modal>
+        </>
     );
 });
 
