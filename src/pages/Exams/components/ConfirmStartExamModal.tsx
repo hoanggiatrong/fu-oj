@@ -11,7 +11,9 @@ interface ConfirmStartExamModalProps {
 }
 
 const ConfirmStartExamModal = observer(({ open, onCancel, onConfirm, examRecord }: ConfirmStartExamModalProps) => {
-    const examStatus = examRecord ? getExamStatus(examRecord.startTime, examRecord.endTime) : null;
+    const examStatus = examRecord
+        ? getExamStatus(examRecord.startTime ?? null, examRecord.endTime ?? null)
+        : null;
     const isUpcoming = examStatus?.status === 'upcoming';
     const startTime = examRecord?.startTime ? dayjs(examRecord.startTime).format('DD/MM/YYYY HH:mm') : null;
 
