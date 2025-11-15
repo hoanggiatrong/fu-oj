@@ -8,7 +8,6 @@ import globalStore from '../../components/GlobalComponent/globalStore';
 import classnames from 'classnames';
 import { TeamOutlined, UserOutlined, BookOutlined, CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import authentication from '../../shared/auth/authentication';
-import routesConfig from '../../routes/routesConfig';
 import dayjs from 'dayjs';
 
 const carouselItems = [
@@ -224,7 +223,7 @@ const Dashboard = observer(() => {
                                     renderItem={(group) => (
                                         <List.Item
                                             style={{ cursor: 'pointer' }}
-                                            onClick={() => navigate(`/${routesConfig.groupDetail}`.replace(':id?', group.id))}
+                                            onClick={() => navigate(`/group/${group.id}/members`)}
                                         >
                                             <List.Item.Meta
                                                 avatar={<Avatar icon={<TeamOutlined />} />}
