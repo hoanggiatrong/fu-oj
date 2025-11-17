@@ -3,6 +3,7 @@ import {
     DeleteOutlined,
     FilterOutlined,
     HeartOutlined,
+    RobotOutlined,
     SettingOutlined,
     UnorderedListOutlined
 } from '@ant-design/icons';
@@ -239,6 +240,7 @@ const Exercises = observer(() => {
             navigate(`/${routesConfig.exercise}`.replace(':id?', randomSelect?.id));
         }
     };
+
 
     const onFinish: FormProps['onFinish'] = (values) => {
         console.log('Success:', values);
@@ -584,6 +586,14 @@ const Exercises = observer(() => {
                             <TooltipWrapper tooltipText="Tạo mới" position="top">
                                 <div className="custom-circle-ico" onClick={() => globalStore.setOpenDetailPopup(true)}>
                                     <AppstoreAddOutlined className="custom-ant-ico color-cyan" />
+                                </div>
+                            </TooltipWrapper>
+                            <TooltipWrapper tooltipText="Tạo câu hỏi với AI" position="top">
+                                <div
+                                    className="custom-circle-ico"
+                                    onClick={() => navigate(`/${routesConfig.aiExercises}`)}
+                                >
+                                    <RobotOutlined className="custom-ant-ico color-purple" />
                                 </div>
                             </TooltipWrapper>
                         </ProtectedElement>

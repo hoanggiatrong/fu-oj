@@ -354,3 +354,14 @@
         }
     }
 }
+
+// Override CSS để hiển thị footer cho modal AI
+.ai-generate-exercises-modal {
+    .ant-modal-footer {
+        display: flex !important;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 16px 24px;
+        border-top: 1px solid #f0f0f0;
+    }
+}

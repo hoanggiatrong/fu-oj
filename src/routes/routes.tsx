@@ -7,6 +7,7 @@ import Exams from '../pages/Exams/Exams';
 import Exercise from '../pages/Exercise/Exercise';
 import ExerciseCompletionList from '../pages/ExerciseCompletionList/ExerciseCompletionList';
 import Exercises from '../pages/Exercises/Exercises';
+import AIGenerateExercises from '../pages/Exercises/components/AIGenerateExercises';
 import GroupDetail from '../pages/GroupDetail/GroupDetail';
 import Groups from '../pages/Groups/Groups';
 import Home from '../pages/Home/Home';
@@ -33,6 +34,14 @@ const router: {
         element: (
             <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
                 <Exercises />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.aiExercises,
+        element: (
+            <ProtectedElementRoute allowedRoles={['INSTRUCTOR']} allowedPermissions={[]}>
+                <AIGenerateExercises />
             </ProtectedElementRoute>
         )
     },
