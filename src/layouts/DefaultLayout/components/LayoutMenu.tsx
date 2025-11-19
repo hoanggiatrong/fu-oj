@@ -1,4 +1,14 @@
-import { ContainerFilled, FundFilled, HomeFilled, ReadFilled, UsergroupAddOutlined, TrophyOutlined, BarChartOutlined, UserOutlined } from '@ant-design/icons';
+import {
+    BarChartOutlined,
+    BookFilled,
+    ContainerFilled,
+    FundFilled,
+    HomeFilled,
+    ReadFilled,
+    TrophyOutlined,
+    UserOutlined,
+    UsergroupAddOutlined
+} from '@ant-design/icons';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState, useMemo } from 'react';
@@ -54,6 +64,13 @@ const menuItems = [
         name: 'Topics',
         icon: <FundFilled />,
         to: '/topics',
+        allowedRoles: ['ADMIN']
+    },
+    {
+        id: 'courses',
+        name: 'Khóa học',
+        icon: <BookFilled />,
+        to: '/courses',
         allowedRoles: ['ADMIN']
     },
     {

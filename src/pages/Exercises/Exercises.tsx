@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     AppstoreAddOutlined,
     DeleteOutlined,
@@ -11,7 +12,7 @@ import type { FormProps } from 'antd';
 import { Button, Form, Input, InputNumber, Modal, Popconfirm, Popover, Select, Steps, Table, Tag } from 'antd';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from 'react-router-dom';
 import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
@@ -24,6 +25,7 @@ import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
+import CourseSlider, { type CourseSliderItem } from './components/CourseSlider';
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
@@ -42,6 +44,8 @@ const Exercises = observer(() => {
         visibility: null
     });
 
+    const [courses, setCourses] = useState<CourseSliderItem[]>([]);
+    const [coursesLoading, setCoursesLoading] = useState(false);
     const [form] = Form.useForm();
 
     const columns = [
@@ -140,8 +144,7 @@ const Exercises = observer(() => {
             dataIndex: 'actions',
             key: 'actions',
             width: 100,
-            render: (actions: any, record: any) => {
-                actions;
+            render: (_: any, record: any) => {
                 return (
                     <div className="actions-row cell" onClick={(e) => e.stopPropagation()}>
                         <TooltipWrapper tooltipText="Thêm vào yêu thích" position="left">
@@ -285,6 +288,27 @@ const Exercises = observer(() => {
         });
     };
 
+    const getCourses = async () => {
+        setCoursesLoading(true);
+        try {
+            const response = await http.get('/courses', {
+                params: { page: 1, size: 10 }
+            });
+            const data: CourseSliderItem[] = (response?.data ?? []).map((course: any) => ({
+                id: course.id,
+                title: course.title,
+                description: course.description
+            }));
+            setCourses(data);
+        } catch (error) {
+            console.error('Error fetching courses for slider', error);
+            globalStore.triggerNotification('error', 'Không thể tải danh sách khóa học!', '');
+            setCourses([]);
+        } finally {
+            setCoursesLoading(false);
+        }
+    };
+
     useEffect(() => {
         const searchLowerCase = search.toLowerCase();
 
@@ -293,23 +317,26 @@ const Exercises = observer(() => {
                 d.code.toLowerCase().includes(searchLowerCase) || d.title.toLowerCase().includes(searchLowerCase)
         );
         setDisplayDatas(filtered);
-    }, [search]);
+    }, [search, datas]);
 
     useEffect(() => {
         getExercises();
+        getCourses();
 
         http.get('/topics').then((res) => {
             setTopics(res.data.map((topic: any) => ({ ...topic, value: topic.id, label: topic.name })));
         });
     }, []);
 
+    const isDetailPopupOpen = globalStore.isDetailPopupOpen;
+
     useEffect(() => {
-        if (!globalStore.isDetailPopupOpen) {
+        if (!isDetailPopupOpen) {
             setStep(0);
             form.resetFields();
             setUpdateId(null);
         }
-    }, [globalStore.isDetailPopupOpen]);
+    }, [isDetailPopupOpen, form]);
 
     return (
         <div className={classnames('leetcode', globalStore.isBelow1300 ? 'col' : 'row')}>
@@ -487,6 +514,14 @@ const Exercises = observer(() => {
                         trí "Lập trình viên Front-end" bạn nên tập trung vào lộ trình "Front-end".
                     </div>
                 </div>
+                
+                <CourseSlider
+                    courses={courses}
+                    loading={coursesLoading}
+                    onManageClick={() => navigate('/courses')}
+                    onExploreCourse={(courseId) => navigate(`/courses/${courseId}`)}
+                />
+
                 <div
                     className={classnames('wrapper flex', {
                         'flex-col wrapper-responsive': globalStore.windowSize.width < 1300
@@ -620,10 +655,9 @@ const Exercises = observer(() => {
                                 }}
                                 dataSource={displayDatas}
                                 columns={columns}
-                                rowClassName={(record, index) => {
-                                    record;
-                                    return index % 2 === 0 ? 'custom-row row-even' : 'custom-row row-odd';
-                                }}
+                                rowClassName={(_record, index) =>
+                                    index % 2 === 0 ? 'custom-row row-even' : 'custom-row row-odd'
+                                }
                                 onRow={(record) => {
                                     return {
                                         onClick: () => {
@@ -680,8 +714,7 @@ const TestCases = ({ updateId, testCases, setTestCases }: any) => {
             title: '',
             dataIndex: 'actions',
             key: 'actions',
-            render: (actions: any, record: any) => {
-                actions;
+            render: (_: any, record: any) => {
                 return (
                     <div className="actions-row" onClick={(e) => e.stopPropagation()}>
                         <ProtectedElement acceptRoles={['INSTRUCTOR']}>
@@ -756,11 +789,12 @@ const TestCases = ({ updateId, testCases, setTestCases }: any) => {
             });
     };
 
-    const getTestCasesById = () => {
+    const getTestCasesById = useCallback(() => {
+        if (!updateId) return;
         http.get(`exercises/${updateId}`).then((res) => {
             setTestCases(res.data.testCases);
         });
-    };
+    }, [updateId, setTestCases]);
 
     useEffect(() => {
         setTestCases([]);
@@ -769,7 +803,7 @@ const TestCases = ({ updateId, testCases, setTestCases }: any) => {
             // Get exercise by updateId
             getTestCasesById();
         }
-    }, [updateId]);
+    }, [updateId, getTestCasesById, setTestCases]);
 
     return (
         <div className="test-cases-component">
