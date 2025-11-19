@@ -22,6 +22,7 @@ import GroupExamSubmissionsTab from './pages/GroupDetail/components/GroupExamDet
 import StatisticsTab from './pages/GroupDetail/components/GroupExamDetail/StatisticsTab';
 import router from './routes/routes';
 import authentication from './shared/auth/authentication';
+import ActivateAccount from './pages/Accounts/ActivateAccount';
 import './styles/styles.scss';
 
 function App() {
@@ -97,6 +98,8 @@ function App() {
 
                     {/* --- Route public (không cần login) --- */}
                     <Route path="/login" element={<Login />} />
+                    <Route path="/activate-account" element={<ActivateAccount />} />
+                    <Route path="/auth/active-account" element={<ActivateAccount />} />
                 </Routes>
             </BrowserRouter>
         </ConfigProvider>

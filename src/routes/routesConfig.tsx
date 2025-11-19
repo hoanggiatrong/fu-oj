@@ -24,7 +24,8 @@ const routesConfig: IPageRoutes = {
     ranking: 'ranking',
     dashboard: 'dashboard',
     profile: 'profile',
-    accounts: 'accounts'
+    accounts: 'accounts',
+    activateAccount: 'activate-account'
 };
 
 export default routesConfig;
