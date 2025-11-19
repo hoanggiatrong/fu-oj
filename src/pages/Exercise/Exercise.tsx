@@ -3,11 +3,12 @@ import {
     BellOutlined,
     BugOutlined,
     CloudUploadOutlined,
-    UnorderedListOutlined,
     LeftOutlined,
     LoadingOutlined,
     SettingOutlined,
-    WechatOutlined
+    UnorderedListOutlined,
+    WechatOutlined,
+    PlayCircleOutlined
 } from '@ant-design/icons';
 import Editor from '@monaco-editor/react';
 import { Select, Skeleton } from 'antd';
@@ -18,14 +19,14 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
+import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import { programmingLanguages } from '../../constants/languages';
 import * as http from '../../lib/httpRequest';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
-import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import stompClientLib from '../../lib/stomp-client.lib';
 import routesConfig from '../../routes/routesConfig';
 import utils from '../../utils/utils';
-import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
+import Submissions from './components/Submissions';
+import AIAssistant from './components/AIAssistant';
 
 const json = {
     global: { tabSetEnableClose: false },
@@ -42,6 +43,18 @@ const json = {
                         name: 'Mô tả',
                         component: 'desc',
                         icon: '/sources/icons/description-ico.svg'
+                    },
+                    {
+                        type: 'tab',
+                        name: 'Danh sách bài tập đã nộp',
+                        component: 'submissions',
+                        icon: '/sources/icons/list-ico.svg'
+                    },
+                    {
+                        type: 'tab',
+                        name: 'AI Assistant',
+                        component: 'ai-assistant',
+                        icon: '/sources/icons/ai-assistant-ico.svg'
                     }
                 ]
             },
@@ -86,9 +99,11 @@ const json = {
 };
 
 const Exercise = observer(() => {
+    /**
+     * @param submissionId lấy kết 1 kết quả nộp của 1 exercise Id
+     */
     const { id, exerciseId, submissionId } = useParams();
     const navigate = useNavigate();
-    // const location = useLocation();
 
     if (!id && !exerciseId && !submissionId) {
         globalStore.triggerNotification('error', 'Exercise does not exist!', '');
@@ -379,6 +394,10 @@ const Exercise = observer(() => {
                     )}
                 </div>
             );
+        } else if (component === 'submissions') {
+            return <Submissions id={id || exerciseId} submissionId={submissionId} />;
+        } else if (component === 'ai-assistant') {
+            return <AIAssistant />;
         }
         return null;
     };
@@ -429,6 +448,24 @@ const Exercise = observer(() => {
     }, [submittedId]);
 
     useEffect(() => {
+        if (submissionId) {
+            setLoading(true);
+            http.get(`/submissions/${submissionId}/result`)
+                .then((res) => {
+                    setSubmittedData(res);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        } else {
+            setSubmittedData(null);
+            setEditorValue('');
+            setResponse(null);
+        }
+        return () => {};
+    }, [submissionId]);
+
+    useEffect(() => {
         if (response?.data?.exercise?.solution) setSolution(response?.data?.exercise?.solution);
     }, [response?.data?.exercise?.solution]);
 
@@ -439,18 +476,35 @@ const Exercise = observer(() => {
                     <div className="left">
                         <div className="group-btn">
                             <TooltipWrapper tooltipText="Trở lại" position="right">
-                                <LeftOutlined className="icon" onClick={() => navigate('/exercises')} />
+                                <LeftOutlined
+                                    className="icon"
+                                    onClick={() => {
+                                        navigate(-1);
+                                    }}
+                                />
                             </TooltipWrapper>
-                            <TooltipWrapper tooltipText="Danh sách bài tập đã nộp" position="right">
+                            {submissionId && (
+                                <TooltipWrapper tooltipText="Tiếp tục bài làm" position="right">
+                                    <PlayCircleOutlined
+                                        className="icon color-cyan"
+                                        onClick={() => {
+                                            if (exerciseId) {
+                                                navigate(`/${routesConfig.exercise}`.replace(':id?', exerciseId));
+                                            }
+                                        }}
+                                    />
+                                </TooltipWrapper>
+                            )}
+                            <TooltipWrapper tooltipText="Danh sách bài tập" position="right">
                                 <UnorderedListOutlined
                                     className="icon color-gold"
-                                    onClick={() => navigate('/submissions')}
+                                    onClick={() => navigate('/exercises')}
                                 />
                             </TooltipWrapper>
                             {/* <RightOutlined className="icon" /> */}
                         </div>
                     </div>
-                    <div className="center">
+                    <div className={classnames('center', { disabled: submittedData })}>
                         <div className={classnames('group-btn', { disabled: loading })}>
                             <BugOutlined className="icon" style={{ color: '#FFA118' }} />
                             {loading ? (
@@ -485,9 +539,6 @@ const Exercise = observer(() => {
                     <FlexLayout.Layout ref={layoutRef} model={model} factory={factory} />
                 </div>
             </div>
-            <ProtectedElement acceptRoles={['STUDENT']}>
-                <AIAssistant />
-            </ProtectedElement>
         </div>
     );
 });

@@ -1,0 +1,148 @@
+.ai-assistant {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .ai-assistant-container {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
+        height: 100%;
+
+        .ai-assistant-chat {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 0;
+            background: #262626;
+
+            .ai-assistant-header {
+                display: none;
+            }
+
+            .ai-assistant-messages {
+                background: #262626;
+
+                .ai-assistant-message {
+                    .ai-assistant-message-bubble {
+                        background: #333333;
+                        color: white;
+                    }
+                }
+            }
+
+            .ai-assistant-input-container {
+                background: #262626;
+                border-color: #545454;
+
+                .ant-input-affix-wrapper {
+                    border-color: #545454 !important;
+
+                    .ant-input-suffix {
+                        margin-left: 0 !important;
+                        top: auto;
+
+                        .ai-assistant-send {
+                            color: var(--color-link);
+                        }
+
+                        .ai-assistant-send-disabled {
+                            color: white;
+                            cursor: not-allowed;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.submissions {
+    height: 100%;
+    overflow: auto;
+
+    /* Scrollbar kiểu macOS Chrome */
+    &::-webkit-scrollbar {
+        width: 6px; // mỏng
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Scrollbar Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+
+    .search {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #262626;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--base-size-8);
+        padding: var(--base-size-8) var(--base-size-4);
+        min-width: 400px;
+
+        & > .custom {
+            flex: 1;
+            background: #262626 !important;
+
+            & > .ant-picker-input {
+                & > input {
+                    background: #262626 !important;
+                }
+            }
+        }
+    }
+
+    .container {
+        height: auto !important;
+        color: white;
+        padding: var(--base-size-8);
+
+        .submission {
+            display: flex;
+            min-width: 400px;
+            height: var(--base-size-44);
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--base-size-8);
+            border-radius: var(--borderRadius-medium);
+
+            .submission-info {
+                width: 33.33333%;
+
+                &:last-child {
+                    text-align: right;
+                }
+            }
+
+            &:hover {
+                cursor: pointer;
+                background: #3c3c3c !important;
+            }
+        }
+
+        .submission.selected {
+            opacity: 1;
+            background: #3c3c3c !important;
+        }
+
+        .submission.odd {
+            background: #2c2c2c;
+        }
+    }
+}

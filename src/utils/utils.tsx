@@ -1,6 +1,7 @@
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 import type { GetProp, UploadProps } from 'antd';
 import { message } from 'antd';
+import moment from 'moment';
 
 class Utils {
     capitalizeFirstLetter(word: string): string {
@@ -29,6 +30,12 @@ class Utils {
         );
     };
 
+    getColor = (str: string) => {
+        if (str == 'ACCEPTED') return <span className="p-4 br-medium light-bold bg-cyan color-white">{str}</span>;
+
+        return <span className="p-4 br-medium light-bold bg-red color-white">{str}</span>;
+    };
+
     getRandomInt(max: number): number {
         return Math.floor(Math.random() * max);
     }
@@ -49,6 +56,19 @@ class Utils {
         const reader = new FileReader();
         reader.addEventListener('load', () => callback(reader.result as string));
         reader.readAsDataURL(img);
+    };
+
+    formatDate = (date?: any, format: any = 'DD/MM/YYYY HH:mm', defaultEmpty: string = '') => {
+        if (!date) {
+            return defaultEmpty;
+        } else {
+            let data = moment(date);
+            if (data.isValid()) {
+                return moment(date).format(format);
+            } else {
+                return defaultEmpty;
+            }
+        }
     };
 }
 

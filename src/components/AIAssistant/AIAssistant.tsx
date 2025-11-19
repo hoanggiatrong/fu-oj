@@ -13,7 +13,7 @@ interface Message {
     timestamp: Date;
 }
 
-const AIAssistant = observer(() => {
+const AIAssistant = observer(({ defaultOpen }: { defaultOpen?: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -55,7 +55,11 @@ const AIAssistant = observer(() => {
             const response = await http.post('/chat', { message: messageText });
             const aiMessage: Message = {
                 id: (Date.now() + 1).toString(),
-                text: response?.data?.messageResponse || response?.messageResponse || response?.message || 'Xin lỗi, không thể xử lý yêu cầu của bạn.',
+                text:
+                    response?.data?.messageResponse ||
+                    response?.messageResponse ||
+                    response?.message ||
+                    'Xin lỗi, không thể xử lý yêu cầu của bạn.',
                 isUser: false,
                 timestamp: new Date()
             };
@@ -63,7 +67,8 @@ const AIAssistant = observer(() => {
         } catch (error: any) {
             const errorMessage: Message = {
                 id: (Date.now() + 1).toString(),
-                text: error?.response?.data?.message || error?.message || 'Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau.',
+                text:
+                    error?.response?.data?.message || error?.message || 'Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau.',
                 isUser: false,
                 timestamp: new Date()
             };
@@ -79,6 +84,12 @@ const AIAssistant = observer(() => {
             handleSendMessage();
         }
     };
+
+    useEffect(() => {
+        if (defaultOpen) {
+            setIsOpen(true);
+        }
+    }, [defaultOpen]);
 
     return (
         <div className="ai-assistant-container">
@@ -115,10 +126,7 @@ const AIAssistant = observer(() => {
                                 <div className="ai-assistant-subtitle">Đang hoạt động</div>
                             </div>
                         </div>
-                        <CloseOutlined
-                            className="ai-assistant-close"
-                            onClick={() => setIsOpen(false)}
-                        />
+                        <CloseOutlined className="ai-assistant-close" onClick={() => setIsOpen(false)} />
                     </div>
 
                     <div className="ai-assistant-messages">
@@ -142,9 +150,7 @@ const AIAssistant = observer(() => {
                                         <span style={{ fontSize: '16px' }}>🤖</span>
                                     </Avatar>
                                 )}
-                                <div className="ai-assistant-message-bubble">
-                                    {message.text}
-                                </div>
+                                <div className="ai-assistant-message-bubble">{message.text}</div>
                             </div>
                         ))}
                         {isTyping && (
@@ -204,4 +210,3 @@ const AIAssistant = observer(() => {
 });
 
 export default AIAssistant;
-
