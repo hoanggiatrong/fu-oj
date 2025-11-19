@@ -7,6 +7,7 @@ import Exams from '../pages/Exams/Exams';
 import Exercise from '../pages/Exercise/Exercise';
 import ExerciseCompletionList from '../pages/ExerciseCompletionList/ExerciseCompletionList';
 import Exercises from '../pages/Exercises/Exercises';
+import AIGenerateExercises from '../pages/Exercises/components/AIGenerateExercises';
 import GroupDetail from '../pages/GroupDetail/GroupDetail';
 import Groups from '../pages/Groups/Groups';
 import Home from '../pages/Home/Home';
@@ -15,6 +16,9 @@ import Ranking from '../pages/Ranking/Ranking';
 import Topics from '../pages/Topics/Topics';
 import routesConfig from './routesConfig';
 import Accounts from '../pages/Accounts/Accounts';
+import Courses from '../pages/Courses/Courses';
+import CourseDetail from '../pages/CourseDetail/CourseDetail';
+import Certificates from '../pages/Certificates/Certificates';
 
 const router: {
     path: string;
@@ -33,6 +37,14 @@ const router: {
         element: (
             <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
                 <Exercises />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.aiExercises,
+        element: (
+            <ProtectedElementRoute allowedRoles={['INSTRUCTOR']} allowedPermissions={[]}>
+                <AIGenerateExercises />
             </ProtectedElementRoute>
         )
     },
@@ -142,6 +154,30 @@ const router: {
         element: (
             <ProtectedElementRoute allowedRoles={['ADMIN']} allowedPermissions={[]}>
                 <Accounts />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.courses,
+        element: (
+            <ProtectedElementRoute allowedRoles={['ADMIN']} allowedPermissions={[]}>
+                <Courses />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.courseDetail,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
+                <CourseDetail />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.certificates,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
+                <Certificates />
             </ProtectedElementRoute>
         )
     }

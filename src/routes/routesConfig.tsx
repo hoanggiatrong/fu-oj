@@ -25,6 +25,10 @@ const routesConfig: IPageRoutes = {
     dashboard: 'dashboard',
     profile: 'profile',
     accounts: 'accounts',
+    courses: 'courses',
+    courseDetail: 'courses/:courseId',
+    aiExercises: 'ai-exercises',
+    certificates: 'certificates'
     activateAccount: 'activate-account'
 };
 

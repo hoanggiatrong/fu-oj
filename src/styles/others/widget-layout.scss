@@ -144,6 +144,30 @@
             background-color: #a6a6a6;
         }
     }
+
+    .flexlayout__popup_menu_container {
+        z-index: 99999;
+        background: #262626;
+        color: white;
+        border: 1px solid #535353;
+
+        .flexlayout__popup_menu {
+            font-size: var(--base-size-14);
+
+            .flexlayout__popup_menu_item {
+                padding: var(--base-size-4);
+                border-bottom: 1px solid #535353;
+
+                &:last-child {
+                    border: none;
+                }
+
+                &:hover {
+                    background: #535353;
+                }
+            }
+        }
+    }
 }
 
 // Global
