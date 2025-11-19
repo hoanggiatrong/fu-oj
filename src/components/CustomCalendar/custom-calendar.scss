@@ -1,6 +1,6 @@
 .custom-calendar {
     width: 270px;
-    background: #282828;
+    background: var(--color-navbar);
     border-radius: var(--borderRadius-medium);
 
     .title {
@@ -80,7 +80,7 @@
 
     .react-calendar {
         padding: var(--base-size-8);
-        background: #282828;
+        background: var(--color-navbar);
         color: #636366;
         border: none;
         border-radius: var(--borderRadius-medium);

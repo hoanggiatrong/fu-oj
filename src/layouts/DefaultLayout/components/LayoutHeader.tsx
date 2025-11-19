@@ -1,6 +1,8 @@
-import { Avatar } from 'antd';
+import { MoonOutlined, SlackOutlined } from '@ant-design/icons';
+import { Avatar, theme } from 'antd';
 import { observer } from 'mobx-react-lite';
 import globalStore from '../../../components/GlobalComponent/globalStore';
+import Switch from '../../../components/Switch/Switch';
 import authentication from '../../../shared/auth/authentication';
 
 const LayoutHeader = observer(() => {
@@ -12,8 +14,8 @@ const LayoutHeader = observer(() => {
                 </div>
             </div>
             <div className="right">
-                {/* <Switch
-                    isOn={false}
+                <Switch
+                    isOn={globalStore.theme == 'theme-dark'}
                     onToggle={(theme) => {
                         document.querySelector('body')?.classList.remove(!theme ? 'theme-dark' : 'theme-light');
                         document.querySelector('body')?.classList.add(theme ? 'theme-dark' : 'theme-light');
@@ -22,7 +24,7 @@ const LayoutHeader = observer(() => {
                     }}
                     iconOn={<MoonOutlined />}
                     iconOff={<SlackOutlined />}
-                /> */}
+                />
 
                 {/* {globalStore.windowSize.width < 1000 ? (
                     <SearchOutlined className="global-search-icon" />

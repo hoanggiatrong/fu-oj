@@ -73,7 +73,7 @@
 
                             .ant-table-column-sort {
                                 background: inherit;
-                                border-bottom: 1px solid var(--color-link);
+                                border-bottom: 1px solid var(--color-link) !important;
                             }
                         }
                     }
@@ -136,6 +136,17 @@
                         .custom-row.expired-row {
                             pointer-events: none;
                             opacity: 0.3;
+                        }
+
+                        tr:hover {
+                            background-color: inherit !important;
+
+                            .ant-table-cell {
+                                .cell {
+                                    color: var(--color-link);
+                                    font-weight: var(--base-text-weight-semibold);
+                                }
+                            }
                         }
                     }
                 }

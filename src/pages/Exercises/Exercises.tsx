@@ -115,6 +115,7 @@ const Exercises = observer(() => {
                 return topics.map((topic, index) => {
                     const text = topic.name.trim().toUpperCase();
                     const colors = [
+                        'cyan',
                         'magenta',
                         'red',
                         'volcano',
@@ -122,7 +123,6 @@ const Exercises = observer(() => {
                         'gold',
                         'lime',
                         'green',
-                        'cyan',
                         'blue',
                         'geekblue',
                         'purple'
@@ -243,7 +243,6 @@ const Exercises = observer(() => {
             navigate(`/${routesConfig.exercise}`.replace(':id?', randomSelect?.id));
         }
     };
-
 
     const onFinish: FormProps['onFinish'] = (values) => {
         console.log('Success:', values);
@@ -514,7 +513,7 @@ const Exercises = observer(() => {
                         trí "Lập trình viên Front-end" bạn nên tập trung vào lộ trình "Front-end".
                     </div>
                 </div>
-                
+
                 <CourseSlider
                     courses={courses}
                     loading={coursesLoading}

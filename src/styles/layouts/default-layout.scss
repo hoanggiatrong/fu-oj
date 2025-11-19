@@ -104,14 +104,14 @@
 
                     &:hover {
                         cursor: pointer;
-                        background: var(--color-text-primary);
+                        background: var(--color-fpt);
                         color: var(--color-bg);
                         opacity: 0.9;
                     }
                 }
 
                 .menu-item.selected {
-                    background: var(--color-text-primary);
+                    background: var(--color-fpt);
                     pointer-events: none;
                     color: var(--color-bg);
                 }

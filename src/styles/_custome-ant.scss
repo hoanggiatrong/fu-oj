@@ -92,3 +92,25 @@
 .ant-picker-dropdown {
     z-index: 99999;
 }
+
+.ant-empty {
+    .ant-empty-description {
+        color: var(--color-text-muted);
+    }
+}
+
+.ant-table-cell {
+    color: var(--color-text-secondary) !important;
+    background: var(--color-table-header) !important;
+    border-color: var(--color-table-border) !important;
+
+    &::before {
+        background: var(--color-table-border) !important;
+    }
+
+    &:hover {
+        color: var(--color-text-secondary) !important;
+        background: var(--color-table-header-hover) !important;
+        border-color: var(--color-table-border) !important;
+    }
+}

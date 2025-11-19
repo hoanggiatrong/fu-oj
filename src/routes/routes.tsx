@@ -19,6 +19,17 @@ import Accounts from '../pages/Accounts/Accounts';
 import Courses from '../pages/Courses/Courses';
 import CourseDetail from '../pages/CourseDetail/CourseDetail';
 import Certificates from '../pages/Certificates/Certificates';
+import { Route, Navigate } from 'react-router-dom';
+import MembersTab from '../pages/GroupDetail/components/MembersTab';
+import ExamsTab from '../pages/GroupDetail/components/ExamsTab';
+import SubmissionsTab from '../pages/GroupDetail/components/SubmissionsTab';
+import ExercisesTab from '../pages/GroupDetail/components/ExercisesTab';
+import GroupExamsTab from '../pages/GroupDetail/components/GroupExamsTab';
+import GroupExamDetail from '../pages/GroupDetail/components/GroupExamDetail';
+import OverviewTab from '../pages/GroupDetail/components/GroupExamDetail/OverviewTab';
+import StudentsProgressTab from '../pages/GroupDetail/components/GroupExamDetail/StudentsProgressTab';
+import GroupExamSubmissionsTab from '../pages/GroupDetail/components/GroupExamDetail/SubmissionsTab';
+import StatisticsTab from '../pages/GroupDetail/components/GroupExamDetail/StatisticsTab';
 
 const router: {
     path: string;
@@ -182,5 +193,64 @@ const router: {
         )
     }
 ];
+
+export const groupRoutes = (
+    <Route path="group/:id" element={<GroupDetail />}>
+        <Route index element={<Navigate to="members" replace />} />
+        <Route
+            path="members"
+            element={
+                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                    <MembersTab />
+                </ProtectedElementRoute>
+            }
+        />
+        <Route
+            path="exams/:examId"
+            element={
+                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                    <GroupExamDetail />
+                </ProtectedElementRoute>
+            }
+        >
+            <Route index element={<OverviewTab />} />
+            <Route path="students-progress" element={<StudentsProgressTab />} />
+            <Route path="submissions" element={<GroupExamSubmissionsTab />} />
+            <Route path="statistics" element={<StatisticsTab />} />
+        </Route>
+        <Route
+            path="exams"
+            element={
+                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                    <ExamsTab />
+                </ProtectedElementRoute>
+            }
+        />
+        <Route
+            path="submissions"
+            element={
+                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                    <SubmissionsTab />
+                </ProtectedElementRoute>
+            }
+        />
+        <Route
+            path="exercises"
+            element={
+                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                    <ExercisesTab />
+                </ProtectedElementRoute>
+            }
+        />
+        <Route
+            path="group-exams"
+            element={
+                <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+                    <GroupExamsTab />
+                </ProtectedElementRoute>
+            }
+        />
+    </Route>
+);
 
 export default router;

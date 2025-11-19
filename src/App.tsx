@@ -5,24 +5,15 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import GlobalComponent from './components/GlobalComponent/GlobalComponent';
 import globalDataStore from './components/GlobalComponent/globalDataStore';
-import ProtectedElementRoute from './components/ProtectedElementRoute/ProtectedElementRoute';
+import globalStore from './components/GlobalComponent/globalStore';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import DefaultLayout from './layouts/DefaultLayout/defaultLayout';
 import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
-import MembersTab from './pages/GroupDetail/components/MembersTab';
-import ExamsTab from './pages/GroupDetail/components/ExamsTab';
-import SubmissionsTab from './pages/GroupDetail/components/SubmissionsTab';
-import ExercisesTab from './pages/GroupDetail/components/ExercisesTab';
-import GroupExamsTab from './pages/GroupDetail/components/GroupExamsTab';
-import GroupExamDetail from './pages/GroupDetail/components/GroupExamDetail';
-import OverviewTab from './pages/GroupDetail/components/GroupExamDetail/OverviewTab';
-import StudentsProgressTab from './pages/GroupDetail/components/GroupExamDetail/StudentsProgressTab';
-import GroupExamSubmissionsTab from './pages/GroupDetail/components/GroupExamDetail/SubmissionsTab';
-import StatisticsTab from './pages/GroupDetail/components/GroupExamDetail/StatisticsTab';
 import router from './routes/routes';
 import authentication from './shared/auth/authentication';
 import './styles/styles.scss';
+import { groupRoutes } from './routes/routes';
 
 function App() {
     useEffect(() => {
@@ -31,7 +22,7 @@ function App() {
     }, []);
 
     return (
-        <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+        <ConfigProvider theme={{ algorithm: globalStore.theme == 'theme-light' ? theme.darkAlgorithm : undefined }}>
             <ToastContainer />
             <GlobalComponent />
             <BrowserRouter>
@@ -45,50 +36,8 @@ function App() {
                         }
                     >
                         <Route index element={<Home />} />
+                        {groupRoutes}
                         {router.map((route) => {
-                            // Handle nested routes for GroupDetail
-                            if (route.path === 'group/:id') {
-                                return (
-                                    <Route key={route.path} path={route.path} element={route.element}>
-                                        <Route index element={<Navigate to="members" replace />} />
-                                        <Route path="members" element={
-                                            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                                                <MembersTab />
-                                            </ProtectedElementRoute>
-                                        } />
-                                        <Route path="exams/:examId" element={
-                                            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                                                <GroupExamDetail />
-                                            </ProtectedElementRoute>
-                                        }>
-                                            <Route index element={<OverviewTab />} />
-                                            <Route path="students-progress" element={<StudentsProgressTab />} />
-                                            <Route path="submissions" element={<GroupExamSubmissionsTab />} />
-                                            <Route path="statistics" element={<StatisticsTab />} />
-                                        </Route>
-                                        <Route path="exams" element={
-                                            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                                                <ExamsTab />
-                                            </ProtectedElementRoute>
-                                        } />
-                                        <Route path="submissions" element={
-                                            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                                                <SubmissionsTab />
-                                            </ProtectedElementRoute>
-                                        } />
-                                        <Route path="exercises" element={
-                                            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                                                <ExercisesTab />
-                                            </ProtectedElementRoute>
-                                        } />
-                                        <Route path="group-exams" element={
-                                            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
-                                                <GroupExamsTab />
-                                            </ProtectedElementRoute>
-                                        } />
-                                    </Route>
-                                );
-                            }
                             return <Route key={route.path} path={route.path} element={route.element} />;
                         })}
                         {/* Redirect to home page when route is not found */}

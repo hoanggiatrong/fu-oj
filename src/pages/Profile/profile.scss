@@ -3,7 +3,7 @@
         gap: var(--base-size-16);
 
         & > .left-side {
-            background: #282828;
+            background: var(--color-navbar);
             padding: var(--base-size-16);
             min-width: var(--base-size-320);
             border-radius: var(--borderRadius-large);
@@ -94,7 +94,7 @@
                     max-width: 320px;
                     max-height: 200px;
                     border-radius: var(--borderRadius-large);
-                    background: #282828;
+                    background: var(--color-navbar);
                     padding: var(--base-size-16);
                     display: flex;
                     justify-content: space-between;
@@ -166,7 +166,7 @@
                         flex: 1;
                         max-height: 200px;
                         border-radius: var(--borderRadius-large);
-                        background: #282828;
+                        background: var(--color-navbar);
                         padding: var(--base-size-16);
                         display: flex;
                         justify-content: space-between;
@@ -178,7 +178,7 @@
             & > .bottom {
                 flex: 1;
                 border-radius: var(--borderRadius-large);
-                background: #282828;
+                background: var(--color-navbar);
                 padding: var(--base-size-16);
             }
         }

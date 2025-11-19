@@ -1,24 +1,24 @@
-// Dark theme colors
-$d-color-bg: #181a25;
-$d-color-background: #02040a;
-$d-color-navbar: #02040a;
-$d-color-drawer-bg: #161b22;
-$d-color-text-secondary: #e6edf3;
-$d-color-button-text: #c8d1d9;
-$d-color-button-bg: #202830;
-$d-color-button-hover: #262c36;
-$d-color-list-item-hover: #252c33;
-// $d-color-list-item-selected: #161a21;
-$d-color-background-card: #0d1116;
-$d-color-border: #3d444d;
-$d-color-border-lighter: #2f353d;
-$d-color-border-focused: #1f72f1;
-$d-color-text-primary: oklch(70.5% 0.213 47.604);
-$d-color-text-muted: #9198a1;
-$d-color-link: #4493f8;
-$d-color-underline: #f78166;
-$d-color-tooltip-bg: rgba(255, 255, 255, 0.75);
-$d-box-shadow-color: rgba(255, 255, 255, 0.1);
+// // Dark theme colors
+// $d-color-bg: #181a25;
+// $d-color-background: #02040a;
+// $d-color-navbar: #02040a;
+// $d-color-drawer-bg: #161b22;
+// $d-color-text-secondary: #e6edf3;
+// $d-color-button-text: #c8d1d9;
+// $d-color-button-bg: #202830;
+// $d-color-button-hover: #262c36;
+// $d-color-list-item-hover: #252c33;
+// // $d-color-list-item-selected: #161a21;
+// $d-color-background-card: #0d1116;
+// $d-color-border: #3d444d;
+// $d-color-border-lighter: #2f353d;
+// $d-color-border-focused: #1f72f1;
+// $d-color-text-primary: oklch(70.5% 0.213 47.604);
+// $d-color-text-muted: #9198a1;
+// $d-color-link: #4493f8;
+// $d-color-underline: #f78166;
+// $d-color-tooltip-bg: rgba(255, 255, 255, 0.75);
+// $d-box-shadow-color: rgba(255, 255, 255, 0.1);
 
 // // Light theme colors
 // $l-color-bg: #f4f5f8;
@@ -54,8 +54,6 @@ $l-color-text-muted: #a9a9a9;
 $l-color-link: #0b84ff;
 $l-color-underline: #fd8c73;
 $l-color-tooltip-bg: #2c2c2c;
-
-// Light theme colors
 $l-color-button-text: #24292f;
 $l-color-button-bg: #f6f8fa;
 $l-color-button-hover: #f0f2f5;
@@ -64,6 +62,37 @@ $l-color-background-card: #ffffff;
 $l-color-border-lighter: #dfe4ea;
 $l-color-border-focused: #1f72f1;
 $l-box-shadow-color: rgba(0, 0, 0, 0.1);
+$l-color-table-header: #1d1d1d;
+$l-color-table-header-hover: #1a1a1a;
+$l-color-table-border: #303030;
+$l-color-fpt: #ffffff;
+$l-color-ico-hover: #323232;
+
+// Leetcode light theme colors
+$d-color-bg: #fafafa;
+$d-color-background: #ffffff;
+$d-color-navbar: #fafafa;
+$d-color-drawer-bg: #fafafa;
+$d-color-text-primary: #1a1a1a;
+$d-color-text-secondary: #4d4d4d;
+$d-color-border: #e5e5e5;
+$d-color-text-muted: #8c8c8c;
+$d-color-link: #0a66ff;
+$d-color-underline: #ff6b6b;
+$d-color-tooltip-bg: #f2f2f2;
+$d-color-button-text: #1a1a1a;
+$d-color-button-bg: #f6f6f6;
+$d-color-button-hover: #ededed;
+$d-color-list-item-hover: #f0f0f0;
+$d-color-background-card: #fafafa;
+$d-color-border-lighter: #f0f0f0;
+$d-color-border-focused: #1f72f1;
+$d-box-shadow-color: rgba(0, 0, 0, 0.08);
+$d-color-table-header: #f0f0f0;
+$d-color-table-header-hover: #f6f6f6;
+$d-color-table-border: #d0d0d0;
+$d-color-fpt: #f05124;
+$d-color-ico-hover: #f0f0f0;
 
 // Function to return the appropriate theme color
 @mixin theme-colors($theme) {
@@ -88,6 +117,11 @@ $l-box-shadow-color: rgba(0, 0, 0, 0.1);
         --color-underline: #{$d-color-underline};
         --color-tooltip-bg: #{$d-color-tooltip-bg};
         --box-shadow-color: #{$d-box-shadow-color};
+        --color-table-header: #{$d-color-table-header};
+        --color-table-header-hover: #{$d-color-table-header-hover};
+        --color-table-border: #{$d-color-table-border};
+        --color-fpt: #{$d-color-fpt};
+        --color-ico-hover: #{$d-color-ico-hover};
     } @else if $theme == 'light' {
         --color-bg: #{$l-color-bg};
         --color-background: #{$l-color-background};
@@ -109,6 +143,11 @@ $l-box-shadow-color: rgba(0, 0, 0, 0.1);
         --color-underline: #{$l-color-underline};
         --color-tooltip-bg: #{$l-color-tooltip-bg};
         --box-shadow-color: #{$l-box-shadow-color};
+        --color-table-header: #{$l-color-table-header};
+        --color-table-header-hover: #{$l-color-table-header-hover};
+        --color-table-border: #{$l-color-table-border};
+        --color-fpt: #{$l-color-fpt};
+        --color-ico-hover: #{$l-color-ico-hover};
     }
 }
 
@@ -161,6 +200,6 @@ $l-box-shadow-color: rgba(0, 0, 0, 0.1);
 
     &:hover {
         cursor: pointer;
-        background: #323232;
+        background: var(--color-ico-hover);
     }
 }

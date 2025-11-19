@@ -22,6 +22,7 @@ class GlobalStore {
             isLROpen: observable,
             drawerKey: observable,
             openNotificationWithIcon: observable,
+            theme: observable,
             isDetailPopupOpen: observable,
 
             setWindowSize: action,
@@ -30,6 +31,18 @@ class GlobalStore {
             setTheme: action,
             setOpenDetailPopup: action
         });
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'theme-dark' || savedTheme === 'theme-light') {
+            this.theme = savedTheme;
+
+            const body = document.body;
+            body.classList.remove('theme-dark', 'theme-light'); // xóa cả 2 class cũ
+            body.classList.add(savedTheme); // thêm class đúng
+        } else {
+            localStorage.setItem('theme', this.theme);
+            document.body.classList.add(this.theme); // thêm class mặc định
+        }
     }
 
     setWindowSize = (windowSize: WindowSizeType) => {
@@ -54,6 +67,7 @@ class GlobalStore {
 
     setTheme = (theme: 'theme-dark' | 'theme-light') => {
         this.theme = theme;
+        localStorage.setItem('theme', theme);
     };
 
     setOpenDetailPopup = (status: boolean) => {
