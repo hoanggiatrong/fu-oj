@@ -96,7 +96,7 @@ function App() {
                         <Route path="*" element={<Navigate to="/" />} />
                     </Route>
 
-                    {/* --- Route public (không cần login) --- */}
+
                     <Route path="/login" element={<Login />} />
                     <Route path="/activate-account" element={<ActivateAccount />} />
                     <Route path="/auth/active-account" element={<ActivateAccount />} />
