@@ -5,6 +5,7 @@ import {
     FundFilled,
     HomeFilled,
     ReadFilled,
+    SafetyCertificateOutlined,
     TrophyOutlined,
     UserOutlined,
     UsergroupAddOutlined
@@ -51,6 +52,13 @@ const menuItems = [
         icon: <TrophyOutlined />,
         to: '/ranking',
         allowedRoles: ['STUDENT', 'INSTRUCTOR']
+    },
+    {
+        id: 'certificates',
+        name: 'Chứng chỉ',
+        icon: <SafetyCertificateOutlined />,
+        to: '/certificates',
+        allowedRoles: ['STUDENT', 'ADMIN']
     },
     {
         id: 'dashboard',

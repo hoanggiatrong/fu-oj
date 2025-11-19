@@ -18,6 +18,7 @@ import routesConfig from './routesConfig';
 import Accounts from '../pages/Accounts/Accounts';
 import Courses from '../pages/Courses/Courses';
 import CourseDetail from '../pages/CourseDetail/CourseDetail';
+import Certificates from '../pages/Certificates/Certificates';
 
 const router: {
     path: string;
@@ -169,6 +170,14 @@ const router: {
         element: (
             <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
                 <CourseDetail />
+            </ProtectedElementRoute>
+        )
+    },
+    {
+        path: routesConfig.certificates,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
+                <Certificates />
             </ProtectedElementRoute>
         )
     }

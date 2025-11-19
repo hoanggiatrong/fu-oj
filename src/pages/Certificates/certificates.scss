@@ -1,0 +1,123 @@
+.certificates {
+    & > .header {
+        margin-bottom: var(--base-size-24);
+
+        .title {
+            font-size: var(--base-size-24);
+            font-weight: var(--base-text-weight-semibold);
+            margin-bottom: var(--base-size-16);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .description {
+            color: var(--color-text-muted);
+        }
+    }
+
+    & > .wrapper {
+        & > .filters {
+            margin-bottom: var(--base-size-16);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: var(--base-size-8);
+
+            & > .ant-input {
+                border-radius: var(--borderRadius-full);
+            }
+        }
+    }
+}
+
+.custom-card-header {
+    padding: var(--base-size-24);
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    & > .name {
+        font-size: var(--base-size-20);
+        font-weight: var(--base-text-weight-medium);
+        color: white;
+    }
+}
+
+.ant-card {
+    background: linear-gradient(180deg, #333 0%, #222 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.25s ease;
+
+    &:hover {
+        cursor: pointer;
+        transform: translateY(-4px) scale(1.02);
+        background: linear-gradient(180deg, #3a3a3a 0%, #292929 100%);
+        box-shadow: 0 0 20px rgba(80, 120, 255, 0.25);
+    }
+}
+
+.ant-card-body {
+    padding: var(--base-size-12) var(--base-size-24) !important;
+    padding-top: var(--base-size-4) !important;
+    padding-bottom: var(--base-size-24) !important;
+
+    & > .ant-card-meta {
+        & > .ant-card-meta-avatar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-right: var(--base-size-12);
+
+            & > span {
+                width: var(--base-size-40);
+                height: var(--base-size-40);
+            }
+        }
+
+        & > .ant-card-meta-detail {
+            & > .ant-card-meta-title {
+                font-weight: var(--base-text-weight-medium);
+                color: var(--color-text-muted);
+                margin-bottom: 0;
+            }
+
+            & > .ant-card-meta-description {
+                color: var(--color-text-muted);
+                font-size: var(--base-size-12);
+            }
+        }
+    }
+}
+
+.certificate-infos {
+    margin-top: var(--base-size-16);
+
+    & > .course-info,
+    & > .reason-info {
+        margin-top: var(--base-size-12);
+
+        & > .label {
+            font-size: var(--base-size-12);
+            display: block;
+            margin-bottom: var(--base-size-4);
+        }
+
+        & > .course-title,
+        & > .reason-text {
+            font-size: var(--base-size-14);
+            color: var(--color-text);
+            word-wrap: break-word;
+        }
+    }
+
+    & > .roll-number {
+        margin-top: var(--base-size-12);
+        font-size: var(--base-size-12);
+    }
+}
+
+
