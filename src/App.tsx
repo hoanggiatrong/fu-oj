@@ -12,6 +12,7 @@ import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import router from './routes/routes';
 import authentication from './shared/auth/authentication';
+import ActivateAccount from './pages/Accounts/ActivateAccount';
 import './styles/styles.scss';
 import { groupRoutes } from './routes/routes';
 
@@ -46,6 +47,8 @@ function App() {
 
                     {/* --- Route public (không cần login) --- */}
                     <Route path="/login" element={<Login />} />
+                    <Route path="/activate-account" element={<ActivateAccount />} />
+                    <Route path="/auth/active-account" element={<ActivateAccount />} />
                 </Routes>
             </BrowserRouter>
         </ConfigProvider>
