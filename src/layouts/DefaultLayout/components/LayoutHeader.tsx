@@ -1,5 +1,5 @@
 import { MoonOutlined, SlackOutlined } from '@ant-design/icons';
-import { Avatar, theme } from 'antd';
+import { Avatar } from 'antd';
 import { observer } from 'mobx-react-lite';
 import globalStore from '../../../components/GlobalComponent/globalStore';
 import Switch from '../../../components/Switch/Switch';

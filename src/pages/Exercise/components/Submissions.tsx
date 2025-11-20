@@ -11,6 +11,7 @@ import routesConfig from '../../../routes/routesConfig';
 const Submissions = observer(({ id, submissionId }: { id: string | undefined; submissionId: string | undefined }) => {
     const navigate = useNavigate();
     const [datas, setDatas] = useState([]);
+    datas;
     const [displayDatas, setDisplayDatas] = useState([]);
 
     const getExerciseCompletionListByExerciseId = () => {
