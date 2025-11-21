@@ -63,7 +63,16 @@ const LRComponent = observer(() => {
                     <LoginComponent />
                 </div>
                 <div className="split"></div>
-                <div className="right">
+                <div
+                    className="right"
+                    style={{
+                        backgroundImage: `url('${
+                            globalStore.theme == 'theme-dark'
+                                ? '/sources/login/image.jpeg'
+                                : 'https://i.ex-cdn.com/mientay.giadinhonline.vn/files/content/2025/05/12/z6594050220643_b9164f734c54e153355c37e32d3de83f-1635.jpg'
+                        }')`
+                    }}
+                >
                     <img className="logo" src="/favicon.svg" alt="" />
                     <div className="content">
                         <div className="title">

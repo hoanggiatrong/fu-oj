@@ -142,13 +142,14 @@ const Groups = observer(() => {
                             </TooltipWrapper>
                         </ProtectedElement>
 
-                        <ProtectedElement acceptRoles={['INSTRUCTOR']}>
-                            <TooltipWrapper tooltipText="Tạo mới" position="top">
-                                <div className="custom-circle-ico" onClick={() => globalStore.setOpenDetailPopup(true)}>
+                        <div className="group-create">
+                            <ProtectedElement acceptRoles={['INSTRUCTOR']}>
+                                <div className="custom-btn-ico" onClick={() => globalStore.setOpenDetailPopup(true)}>
                                     <AppstoreAddOutlined className="custom-ant-ico color-cyan" />
+                                    Tạo mới
                                 </div>
-                            </TooltipWrapper>
-                        </ProtectedElement>
+                            </ProtectedElement>
+                        </div>
                     </div>
 
                     <div className="body">
@@ -244,7 +245,9 @@ const Groups = observer(() => {
                                                 >
                                                     <Meta
                                                         avatar={
-                                                            <Avatar src={item.owner.avatar || '/sources/thaydat.jpg'} />
+                                                            <Avatar
+                                                                src={item?.owner?.avatar?.url || '/sources/thaydat.jpg'}
+                                                            />
                                                         }
                                                         title={`Creator Name`}
                                                         description={item.owner.email}

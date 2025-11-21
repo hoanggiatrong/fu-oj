@@ -236,14 +236,19 @@ const ExamDetail = observer(() => {
                     } catch (error: any) {
                         const statusCode = error?.response?.status;
                         const isServerError = statusCode === 500 || (statusCode >= 502 && statusCode <= 504);
-                        
+
                         if (isServerError && attempt < maxRetries) {
                             // Nếu là lỗi 500 và chưa hết số lần retry, đợi rồi thử lại
-                            console.log(`Retry ${attempt}/${maxRetries} for exercise ${payload.exerciseId} after ${delay}ms`);
+                            console.log(
+                                `Retry ${attempt}/${maxRetries} for exercise ${payload.exerciseId} after ${delay}ms`
+                            );
                             await new Promise((resolve) => setTimeout(resolve, delay));
                         } else {
                             // Nếu không phải lỗi 500 hoặc đã hết số lần retry
-                            console.error(`Error auto-submitting exercise ${payload.exerciseId} (attempt ${attempt}/${maxRetries}):`, error);
+                            console.error(
+                                `Error auto-submitting exercise ${payload.exerciseId} (attempt ${attempt}/${maxRetries}):`,
+                                error
+                            );
                             return false; // Thất bại
                         }
                     }
@@ -253,9 +258,7 @@ const ExamDetail = observer(() => {
 
             try {
                 // Lấy danh sách bài tập chưa làm (chưa có trong submissionsMap)
-                const uncompletedExercises = examData.exercises.filter(
-                    (exercise) => !submissionsMap.has(exercise.id)
-                );
+                const uncompletedExercises = examData.exercises.filter((exercise) => !submissionsMap.has(exercise.id));
 
                 if (uncompletedExercises.length === 0) {
                     return; // Đã làm hết bài
@@ -312,7 +315,9 @@ const ExamDetail = observer(() => {
             return;
         }
         if (selectedExercise && id) {
-            navigate(`/${routesConfig.examExercise}`.replace(':examId', id).replace(':exerciseId', selectedExercise.id));
+            navigate(
+                `/${routesConfig.examExercise}`.replace(':examId', id).replace(':exerciseId', selectedExercise.id)
+            );
         }
     };
 
@@ -349,7 +354,7 @@ const ExamDetail = observer(() => {
                                 {examData.exercises.map((exercise) => {
                                     const submission = submissionsMap.get(exercise.id);
                                     const isCompleted = !!submission;
-                                    
+
                                     return (
                                         <div
                                             key={exercise.id}
@@ -358,11 +363,15 @@ const ExamDetail = observer(() => {
                                                 completed: isCompleted
                                             })}
                                             onClick={() => handleExerciseClick(exercise)}
-                                            style={isCompleted ? { 
-                                                color: '#999', 
-                                                opacity: 0.7,
-                                                cursor: 'default'
-                                            } : {}}
+                                            style={
+                                                isCompleted
+                                                    ? {
+                                                          color: '#999',
+                                                          opacity: 0.7,
+                                                          cursor: 'default'
+                                                      }
+                                                    : {}
+                                            }
                                         >
                                             <FileTextOutlined style={{ marginRight: 8 }} />
                                             <span>
@@ -377,7 +386,14 @@ const ExamDetail = observer(() => {
                             {selectedExercise ? (
                                 <>
                                     <div className="content-header">
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'flex-start',
+                                                marginBottom: 16
+                                            }}
+                                        >
                                             <div style={{ flex: 1 }}>
                                                 <div className="breadcrumb">
                                                     Bài thi &gt; {examData.title} &gt; {selectedExercise.title}
@@ -433,19 +449,15 @@ const ExamDetail = observer(() => {
                                                 {(() => {
                                                     const submission = submissionsMap.get(selectedExercise.id);
                                                     const isCompleted = !!submission;
-                                                    
+
                                                     if (isCompleted) {
-                                                        return (
-                                                            <Tag color="blue">
-                                                                Đã làm
-                                                            </Tag>
-                                                        );
+                                                        return <Tag color="blue">Đã làm</Tag>;
                                                     }
-                                                    
+
                                                     return (
-                                                        <Button 
-                                                            type="primary" 
-                                                            size="large" 
+                                                        <Button
+                                                            type="primary"
+                                                            size="large"
                                                             onClick={handleStartExercise}
                                                             disabled={isTimeExpired}
                                                         >
@@ -472,4 +484,3 @@ const ExamDetail = observer(() => {
 });
 
 export default ExamDetail;
-

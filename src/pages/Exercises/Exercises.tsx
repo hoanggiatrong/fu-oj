@@ -279,8 +279,13 @@ const Exercises = observer(() => {
     const getExercises = () => {
         setLoading(true);
         http.get('/exercises?pageSize=9999999').then((res) => {
-            setDatas(res.data);
-            setDisplayDatas(res.data);
+            const userId = authentication?.account?.data?.id;
+            const filteredData = res.data.filter((d: any) =>
+                authentication.isInstructor ? d.createdBy == userId : true
+            );
+
+            setDatas(filteredData);
+            setDisplayDatas(filteredData);
             setTimeout(() => {
                 setLoading(false);
             }, 1000);
@@ -616,21 +621,21 @@ const Exercises = observer(() => {
                             </TooltipWrapper>
                         </ProtectedElement>
 
-                        <ProtectedElement acceptRoles={['INSTRUCTOR']}>
-                            <TooltipWrapper tooltipText="Tạo mới" position="top">
-                                <div className="custom-circle-ico" onClick={() => globalStore.setOpenDetailPopup(true)}>
-                                    <AppstoreAddOutlined className="custom-ant-ico color-cyan" />
-                                </div>
-                            </TooltipWrapper>
-                            <TooltipWrapper tooltipText="Tạo câu hỏi với AI" position="top">
+                        <div className="group-create">
+                            <ProtectedElement acceptRoles={['INSTRUCTOR']}>
                                 <div
-                                    className="custom-circle-ico"
+                                    className="custom-btn-ico"
                                     onClick={() => navigate(`/${routesConfig.aiExercises}`)}
                                 >
                                     <RobotOutlined className="custom-ant-ico color-purple" />
+                                    Tạo câu hỏi với AI
                                 </div>
-                            </TooltipWrapper>
-                        </ProtectedElement>
+                                <div className="custom-btn-ico" onClick={() => globalStore.setOpenDetailPopup(true)}>
+                                    <AppstoreAddOutlined className="custom-ant-ico color-cyan" />
+                                    Tạo mới
+                                </div>
+                            </ProtectedElement>
+                        </div>
 
                         <div className="random">
                             <ProtectedElement acceptRoles={['STUDENT']}>

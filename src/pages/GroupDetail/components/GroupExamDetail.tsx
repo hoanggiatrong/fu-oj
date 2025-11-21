@@ -1,13 +1,12 @@
+import { Card, Col, Row, Tabs, Tag } from 'antd';
+import classnames from 'classnames';
+import dayjs from 'dayjs';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Breadcrumb, Card, Tag, Tabs } from 'antd';
-import { HomeOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
-import * as http from '../../../lib/httpRequest';
-import routesConfig from '../../../routes/routesConfig';
-import LoadingOverlay from '../../../components/LoadingOverlay/LoadingOverlay';
+import { NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import globalStore from '../../../components/GlobalComponent/globalStore';
+import LoadingOverlay from '../../../components/LoadingOverlay/LoadingOverlay';
+import * as http from '../../../lib/httpRequest';
 
 interface Exam {
     id: string;
@@ -29,20 +28,20 @@ const getExamStatus = (startTime: string | null | undefined, endTime: string | n
     if (!startTime || !endTime) {
         return { status: 'draft', label: 'Chưa có lịch', color: 'default' };
     }
-    
+
     const start = dayjs(startTime);
     const end = dayjs(endTime);
-    
+
     if (start.isAfter(now)) {
         return { status: 'upcoming', label: 'Sắp tới', color: 'blue' };
     } else if (start.isBefore(now) || start.isSame(now)) {
         if (end.isAfter(now)) {
             return { status: 'ongoing', label: 'Đang diễn ra', color: 'green' };
         } else {
-            return { status: 'completed', label: 'Đã kết thúc', color: 'default' };
+            return { status: 'completed', label: 'Đã kết thúc', color: 'red' };
         }
     }
-    
+
     return { status: 'draft', label: 'Chưa có lịch', color: 'default' };
 };
 
@@ -55,6 +54,7 @@ const GroupExamDetail = observer(() => {
     const location = useLocation();
     const [exam, setExam] = useState<Exam | null>(null);
     const [group, setGroup] = useState<Group | null>(null);
+    group;
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -140,59 +140,67 @@ const GroupExamDetail = observer(() => {
 
     return (
         <LoadingOverlay loading={loading}>
-            <div style={{ padding: '24px' }}>
-                {/* Breadcrumb */}
-                <Breadcrumb
-                    items={[
-                        {
-                            href: `/${routesConfig.groups}`,
-                            title: <><HomeOutlined /> Nhóm</>
-                        },
-                        {
-                            href: `/${routesConfig.groupDetail.replace(':id', groupId || '')}`,
-                            title: group?.name || 'Nhóm'
-                        },
-                        {
-                            href: `/${routesConfig.groupExams.replace(':id', groupId || '')}`,
-                            title: 'Bài kiểm tra'
-                        },
-                        {
-                            title: exam?.title || 'Bài kiểm tra'
-                        }
-                    ]}
-                    style={{ marginBottom: '24px' }}
-                />
-
-                {/* Thông tin chung */}
+            <div>
                 {activeTab !== 'statistics' && (
-                    <Card 
-                        title="THÔNG TIN CHUNG" 
-                        style={{ marginBottom: '24px' }}
-                        headStyle={{ fontSize: '16px', fontWeight: 'bold' }}
-                    >
-                        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '16px', rowGap: '12px' }}>
-                            <div style={{ fontWeight: 'bold' }}>Tiêu đề:</div>
-                            <div>{exam?.title || '-'}</div>
-                            
-                            <div style={{ fontWeight: 'bold' }}>Mô tả:</div>
-                            <div>{exam?.description || '-'}</div>
-                            
-                            <div style={{ fontWeight: 'bold' }}>Thời gian bắt đầu:</div>
-                            <div>{exam?.startTime ? dayjs(exam.startTime).format('DD/MM/YYYY HH:mm') : '-'}</div>
-                            
-                            <div style={{ fontWeight: 'bold' }}>Thời gian kết thúc:</div>
-                            <div>{exam?.endTime ? dayjs(exam.endTime).format('DD/MM/YYYY HH:mm') : '-'}</div>
-                            
-                            <div style={{ fontWeight: 'bold' }}>Trạng thái:</div>
-                            <div>
-                                {statusInfo && <Tag color={statusInfo.color}>{statusInfo.label}</Tag>}
-                            </div>
-                        </div>
+                    <Card className="event-none mb-16" title="THÔNG TIN CHUNG">
+                        <Row gutter={24}>
+                            <Col span={24} className="mt-8">
+                                <Row gutter={24}>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 4} className="bold color-text-secondary">
+                                        Tiêu đề
+                                    </Col>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 20} className="color-text-secondary">
+                                        {exam?.title || '-'}
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col span={24} className="mt-8">
+                                <Row gutter={24}>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 4} className="bold color-text-secondary">
+                                        Mô tả
+                                    </Col>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 20} className="color-text-secondary">
+                                        {exam?.description || '-'}
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col span={24} className="mt-8">
+                                <Row gutter={24}>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 4} className="bold color-text-secondary">
+                                        Thời gian bắt đầu
+                                    </Col>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 20} className="color-text-secondary">
+                                        {exam?.startTime ? dayjs(exam.startTime).format('DD/MM/YYYY HH:mm') : '-'}
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col span={24} className="mt-8">
+                                <Row gutter={24}>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 4} className="bold color-text-secondary">
+                                        Thời gian kết thúc
+                                    </Col>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 20} className="color-text-secondary">
+                                        {exam?.endTime ? dayjs(exam.endTime).format('DD/MM/YYYY HH:mm') : '-'}
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col span={24} className="mt-8">
+                                <Row gutter={24}>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 4} className="bold color-text-secondary">
+                                        Trạng thái
+                                    </Col>
+                                    <Col span={globalStore.isBelow1000 ? 12 : 20}>
+                                        {statusInfo && <Tag color={statusInfo.color}>{statusInfo.label}</Tag>}
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
                     </Card>
                 )}
 
                 {/* Tabs */}
                 <Tabs
+                    className="p-8"
                     activeKey={activeTab}
                     items={tabItems}
                     onChange={(key) => {
@@ -204,8 +212,8 @@ const GroupExamDetail = observer(() => {
                         }
                     }}
                 />
-                
-                <div style={{ marginTop: '16px' }}>
+
+                <div className={classnames({ 'p-8': !globalStore.isBelow1300 })}>
                     <Outlet />
                 </div>
             </div>
@@ -214,4 +222,3 @@ const GroupExamDetail = observer(() => {
 });
 
 export default GroupExamDetail;
-

@@ -19,6 +19,13 @@
             border-top: 1px solid var(--color-border);
             padding-top: var(--base-size-16);
 
+            & > .group-create {
+                position: absolute;
+                right: 0;
+                display: flex;
+                gap: var(--base-size-8);
+            }
+
             & > .random {
                 position: absolute;
                 right: 0;
@@ -208,6 +215,108 @@
         display: flex;
         justify-content: flex-end;
         padding-right: var(--base-size-16);
+    }
+
+    table {
+        background: var(--color-bg);
+
+        thead {
+            tr {
+                th {
+                    padding: var(--base-size-8) var(--base-size-16) !important;
+
+                    .ant-table-column-sorter-up {
+                        font-size: var(--base-size-10);
+                    }
+
+                    .ant-table-column-sorter-down {
+                        font-size: var(--base-size-10);
+                    }
+
+                    &:hover {
+                        background: inherit;
+                        color: var(--c-cyan);
+                    }
+                }
+
+                .ant-table-column-sort {
+                    background: inherit;
+                    border-bottom: 1px solid var(--color-link) !important;
+                }
+            }
+        }
+
+        tbody {
+            // tắt hover trên row
+            tr:hover {
+                background-color: inherit !important;
+            }
+
+            .custom-row {
+                background-color: var(--color-bg);
+
+                // tắt hover trên từng cell
+                td,
+                td .cell {
+                    background-color: inherit !important;
+                }
+
+                td {
+                    border: none !important;
+                    padding: 0 !important;
+
+                    .cell {
+                        display: flex;
+                        align-items: center;
+                        padding-left: var(--base-size-16);
+                        height: var(--base-size-44);
+
+                        .ant-tag {
+                            margin: 0 !important;
+                        }
+
+                        .tooltip-wrapper {
+                            height: var(--base-size-16);
+                        }
+                    }
+                }
+            }
+
+            .custom-row.row-odd {
+                td {
+                    .cell {
+                        background: var(--color-tooltip-bg) !important;
+                    }
+                }
+
+                // bo góc trái/cần cho row
+                td:first-child .cell {
+                    border-top-left-radius: var(--borderRadius-medium);
+                    border-bottom-left-radius: var(--borderRadius-medium);
+                }
+
+                td:last-child .cell {
+                    border-top-right-radius: var(--borderRadius-medium);
+                    border-bottom-right-radius: var(--borderRadius-medium);
+                }
+            }
+
+            .custom-row.expired-row {
+                pointer-events: none;
+                opacity: 0.3;
+            }
+
+            tr:hover {
+                background-color: inherit !important;
+
+                .ant-table-cell {
+                    .cell {
+                        color: var(--color-link);
+                        font-weight: var(--base-text-weight-semibold);
+                    }
+                }
+            }
+        }
     }
 }
 

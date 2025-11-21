@@ -1,17 +1,18 @@
-import { Button, Avatar, Dropdown, Tabs } from 'antd';
-import type { MenuProps } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
+import { BookOutlined, CalendarOutlined, CopyOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Button, Col, Row, Tabs } from 'antd';
+import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
-import { useParams, Outlet, useLocation, useNavigate, NavLink } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
+import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
 import authentication from '../../shared/auth/authentication';
-import DashboardStats from './components/DashboardStats';
-import AddMemberModal from './components/AddMemberModal';
+import utils from '../../utils/utils';
 import AddExerciseModal from './components/AddExerciseModal';
+import AddMemberModal from './components/AddMemberModal';
 
 interface DashboardData {
     totalStudents: number;
@@ -42,40 +43,42 @@ const GroupDetail = observer(() => {
         examsComing: 0
     });
     const [loadingDashboard, setLoadingDashboard] = useState(false);
+    loadingDashboard;
 
     const getAllExercises = () => {
-        console.log('[API] GET /exercises - Fetching all exercises');
         http.get('/exercises')
             .then((res) => {
-                console.log('[API] GET /exercises - Success:', res.data);
                 setAllExercises(res.data || []);
             })
             .catch((error) => {
-                console.error('[API] GET /exercises - Error:', error);
+                error;
                 setAllExercises([]);
             });
     };
 
     const getDashboardData = () => {
         if (!id || !authentication.isInstructor) return;
-        
+
         const url = `/dashboard/instructor/?groupId=${id}`;
-        console.log('[API] GET', url, '- Fetching dashboard data for group:', id);
         setLoadingDashboard(true);
         http.get(url)
             .then((res: DashboardResponse) => {
-                console.log('[API] GET', url, '- Success:', res.data);
-                setDashboardData(res.data || {
-                    totalStudents: 0,
-                    totalGroups: 0,
-                    totalExams: 0,
-                    totalExercises: 0,
-                    examsComing: 0
-                });
+                setDashboardData(
+                    res.data || {
+                        totalStudents: 0,
+                        totalGroups: 0,
+                        totalExams: 0,
+                        totalExercises: 0,
+                        examsComing: 0
+                    }
+                );
             })
             .catch((error) => {
-                console.error('[API] GET', url, '- Error:', error);
-                globalStore.triggerNotification('error', error.response?.data?.message || 'Có lỗi xảy ra khi tải dữ liệu dashboard!', '');
+                globalStore.triggerNotification(
+                    'error',
+                    error.response?.data?.message || 'Có lỗi xảy ra khi tải dữ liệu dashboard!',
+                    ''
+                );
             })
             .finally(() => {
                 setLoadingDashboard(false);
@@ -104,53 +107,6 @@ const GroupDetail = observer(() => {
     };
 
     const activeTab = getActiveTab();
-
-    // Menu items cho Quản lý bài kiểm tra
-    const examManagementMenuItems: MenuProps['items'] = [
-        {
-            key: 'view-exams',
-            label: 'Xem bài kiểm tra',
-            onClick: () => navigate(`/group/${id}/exams`)
-        },
-        // {
-        //     key: 'view-submissions',
-        //     label: 'Xem bài nộp',
-        //     onClick: () => navigate(`/group/${id}/submissions`)
-        // },
-        {
-            key: 'assign-exam',
-            label: 'Gán bài kiểm tra cho nhóm',
-            onClick: () => navigate(`/group/${id}/group-exams`)
-        }
-    ];
-
-    // Menu items cho Quản lý bài tập
-    const exerciseManagementMenuItems: MenuProps['items'] = [
-        {
-            key: 'view-exercises',
-            label: 'Xem bài tập',
-            onClick: () => navigate(`/group/${id}/exercises`)
-        },
-        {
-            key: 'add-exercise',
-            label: 'Thêm bài tập',
-            onClick: () => setIsAddExerciseOpen(true)
-        }
-    ];
-
-    // Menu items cho Quản lý thành viên
-    const memberManagementMenuItems: MenuProps['items'] = [
-        {
-            key: 'add-member',
-            label: 'Thêm thành viên',
-            onClick: () => setAddMemberDialogOpen(true)
-        },
-        {
-            key: 'view-members',
-            label: 'Danh sách thành viên',
-            onClick: () => navigate(`/group/${id}/members`)
-        }
-    ];
 
     const tabItems = [
         {
@@ -187,43 +143,92 @@ const GroupDetail = observer(() => {
         }
     ];
 
+    const [groupInfo, setGroupInfo] = useState<any>(null);
+
+    useEffect(() => {
+        http.get(`/groups/${id}`).then((res) => {
+            console.log('log:', res);
+            setGroupInfo(res.data);
+        });
+    }, []);
+
     return (
-        <div className="group-detail">
+        <div className={classnames('group-detail', { 'p-24': globalStore.isBelow1300 })}>
             <div className="header">
-                <div className="title">
-                    Nhóm
-                </div>
+                <div className="title">Nhóm</div>
                 <div className="description">
                     <div className="owner">
-                        <Avatar src={'/sources/thaydat.jpg'} />
-                        Nhóm thầy Đạt
+                        <Avatar src={groupInfo?.owner?.avatar?.url || '/sources/thaydat.jpg'} />
+                        <div className="right">
+                            {groupInfo?.name || 'Nhóm thầy Đạt'}
+                            <div className="group-code">
+                                Mã nhóm: ******{' '}
+                                <TooltipWrapper tooltipText="Sao chép mã nhóm" position="bottom">
+                                    <CopyOutlined
+                                        className="copy-group-code"
+                                        onClick={() => {
+                                            utils.copyToClipBoard(groupInfo?.code);
+                                            globalStore.triggerNotification(
+                                                'success',
+                                                'Sao chép mã nhóm thành công!',
+                                                ''
+                                            );
+                                        }}
+                                    />
+                                </TooltipWrapper>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="group-infos">
+                        <Row gutter={24}>
+                            <Col span={6}>
+                                <div className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}>
+                                    <div className="header">
+                                        <UserOutlined className="ico" />
+                                        <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
+                                            Tổng số sinh viên
+                                        </div>
+                                    </div>
+                                    <div className="content">{dashboardData.totalStudents}</div>
+                                </div>
+                            </Col>
+                            <Col span={6}>
+                                <div className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}>
+                                    <div className="header">
+                                        <CalendarOutlined className="ico" />
+                                        <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
+                                            Tổng số bài kiểm tra
+                                        </div>
+                                    </div>
+                                    <div className="content">{dashboardData.totalExams}</div>
+                                </div>
+                            </Col>
+                            <Col span={6}>
+                                <div className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}>
+                                    <div className="header">
+                                        <BookOutlined className="ico" />
+                                        <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
+                                            Tổng số bài tập
+                                        </div>
+                                    </div>
+                                    <div className="content">{dashboardData.totalExercises}</div>
+                                </div>
+                            </Col>
+                            <Col span={6}>
+                                <div className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}>
+                                    <div className="header">
+                                        <CalendarOutlined className="ico" />
+                                        <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
+                                            Bài kiểm tra sắp tới
+                                        </div>
+                                    </div>
+                                    <div className="content">{dashboardData.examsComing}</div>
+                                </div>
+                            </Col>
+                        </Row>
                     </div>
                 </div>
             </div>
-            <div className="actions">
-                <div className="action-btns" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
-                        <Dropdown menu={{ items: examManagementMenuItems }} trigger={['click']}>
-                            <Button type="primary">
-                                Quản lý bài kiểm tra <DownOutlined />
-                            </Button>
-                        </Dropdown>
-                    </ProtectedElement>
-                    <ProtectedElement acceptRoles={['INSTRUCTOR', 'ADMIN']}>
-                        <Dropdown menu={{ items: exerciseManagementMenuItems }} trigger={['click']}>
-                            <Button type="primary">
-                                Quản lý bài tập <DownOutlined />
-                            </Button>
-                        </Dropdown>
-                    </ProtectedElement>
-                    <Dropdown menu={{ items: memberManagementMenuItems }} trigger={['click']}>
-                        <Button type="primary">
-                            Quản lý thành viên <DownOutlined />
-                        </Button>
-                    </Dropdown>
-                </div>
-            </div>
-            <DashboardStats dashboardData={dashboardData} loading={loadingDashboard} />
             <div className="body">
                 <Tabs
                     activeKey={activeTab}
@@ -232,6 +237,29 @@ const GroupDetail = observer(() => {
                         navigate(`/group/${id}/${key}`);
                     }}
                 />
+                {activeTab == 'members' && (
+                    <div className="trong-2111">
+                        <Button onClick={() => setAddMemberDialogOpen(true)}>Thêm thành viên</Button>
+                    </div>
+                )}
+                {activeTab == 'exams' && (
+                    <div className="trong-2111">
+                        <div className="trong-2111">
+                            <Button onClick={() => navigate(`/group/${id}/group-exams`)}>
+                                Gán bài kiểm tra cho nhóm
+                            </Button>
+                        </div>
+                    </div>
+                )}
+                {activeTab == 'exercises' && (
+                    <div className="trong-2111">
+                        <div className="trong-2111">
+                            <div className="trong-2111">
+                                <Button onClick={() => setIsAddExerciseOpen(true)}>Thêm bài tập</Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div style={{ marginTop: 16 }}>
                     <Outlet />
                 </div>

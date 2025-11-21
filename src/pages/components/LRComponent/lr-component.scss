@@ -6,13 +6,14 @@
         & > .ant-modal-content {
             border-radius: 5px;
             padding: 6px;
-            background: var(--color-navbar);
+            background: var(--color-border);
             overflow: hidden;
 
             & > .ant-modal-body {
                 display: flex;
                 background: var(--color-bg);
                 border-radius: 5px;
+                overflow: hidden;
 
                 & > .left {
                     width: 33.333%;
@@ -53,8 +54,8 @@
                 }
 
                 & > .right {
-                    background-image: url('/sources/login/DHFPT6-1.webp');
-                    background-image: url('https://i.ex-cdn.com/mientay.giadinhonline.vn/files/content/2025/05/12/z6594050220643_b9164f734c54e153355c37e32d3de83f-1635.jpg');
+                    // background-image: url('/sources/login/DHFPT6-1.webp');
+                    // background-image: url('https://i.ex-cdn.com/mientay.giadinhonline.vn/files/content/2025/05/12/z6594050220643_b9164f734c54e153355c37e32d3de83f-1635.jpg');
                     background-size: cover;
                     background-repeat: no-repeat;
                     flex: 1;

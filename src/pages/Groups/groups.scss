@@ -67,21 +67,48 @@
 }
 
 .ant-card {
-    background: linear-gradient(180deg, #333 0%, #222 100%);
+    background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-navbar) 100%);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.25s ease;
 
+    & > .ant-card-head {
+        color: var(--color-text-secondary);
+        border-color: var(--color-border);
+    }
+
     & > .ant-card-actions {
         background: transparent;
+        border-color: var(--color-border);
+
+        & > li {
+            border-color: var(--color-border) !important;
+
+            .anticon {
+                color: var(--color-text-primary) !important;
+            }
+
+            &:hover {
+                .anticon {
+                    color: var(--color-link) !important;
+                    transform: scale(1.1);
+                }
+            }
+        }
     }
 
     &:hover {
         cursor: pointer;
         transform: translateY(-4px) scale(1.02);
-        background: linear-gradient(180deg, #3a3a3a 0%, #292929 100%);
+        // background: linear-gradient(180deg, #3a3a3a 0%, #292929 100%);
         box-shadow: 0 0 20px rgba(80, 120, 255, 0.25);
+    }
+}
+
+.ant-card-cover {
+    .name {
+        color: var(--color-text-primary);
     }
 }
 

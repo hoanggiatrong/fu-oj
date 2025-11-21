@@ -203,3 +203,33 @@ $d-color-ico-hover: #f0f0f0;
         background: var(--color-ico-hover);
     }
 }
+
+.custom-btn-ico {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--borderRadius-full);
+    background: var(--color-tooltip-bg);
+    height: var(--base-size-32);
+    padding: 0 var(--base-size-8);
+    gap: var(--base-size-8);
+    font-size: var(--base-size-12);
+    font-weight: var(--base-text-weight-medium);
+    transition: transform 0.3s ease;
+
+    & > img {
+        width: var(--base-size-16);
+        height: var(--base-size-16);
+    }
+
+    & > .custom-ant-ico {
+        color: var(--color-text-muted);
+        color: var(--color-fpt);
+    }
+
+    &:hover {
+        cursor: pointer;
+        background: var(--color-ico-hover);
+        transform: scale(1.05);
+    }
+}
