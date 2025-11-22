@@ -165,11 +165,15 @@
         & > .member {
             width: var(--base-size-24);
             height: var(--base-size-24);
-            border: 2px solid red; // giúp tách nhẹ viền giữa các avatar
+            border: 1px solid var(--color-border); // giúp tách nhẹ viền giữa các avatar
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
+
+            & > span {
+                border: none;
+            }
 
             // avatar chính
             & > .ant-avatar {
@@ -179,6 +183,8 @@
 
             // cái sau đè lên cái trước
             &:not(:first-child) {
+                z-index: 1;
+                background: var(--color-border);
                 margin-left: -8px; // đè lên 8px
             }
         }

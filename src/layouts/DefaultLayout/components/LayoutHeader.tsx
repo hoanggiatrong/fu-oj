@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import globalStore from '../../../components/GlobalComponent/globalStore';
 import Switch from '../../../components/Switch/Switch';
 import authentication from '../../../shared/auth/authentication';
+import QuickAction from './QuickAction';
 
 const LayoutHeader = observer(() => {
     return (
@@ -12,6 +13,7 @@ const LayoutHeader = observer(() => {
                 <div className="brand-name">
                     <img src="/sources/logo-fullname.png" alt="Everything" />
                 </div>
+                <QuickAction />
             </div>
             <div className="right">
                 <Switch

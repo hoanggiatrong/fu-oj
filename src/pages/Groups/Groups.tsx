@@ -265,7 +265,21 @@ const Groups = observer(() => {
                                                             </div>
                                                         </div> */}
                                                         <div className="members">
-                                                            <div className="member">
+                                                            {item.alittleStudent?.map((i: any) => {
+                                                                console.log('log:', i);
+                                                                return (
+                                                                    <div className="member">
+                                                                        <Avatar src={i.avatar.url} />
+                                                                    </div>
+                                                                );
+                                                            }) || (
+                                                                <div className="member">
+                                                                    <Avatar
+                                                                        src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                            {/* <div className="member">
                                                                 <Avatar
                                                                     src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
                                                                 />
@@ -284,10 +298,17 @@ const Groups = observer(() => {
                                                                 <Avatar
                                                                     src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
                                                                 />
-                                                            </div>
-                                                            <div className="member">
-                                                                <Avatar src={`+4`} />
-                                                            </div>
+                                                            </div> */}
+                                                            {item.alittleStudent.length > 5 ? (
+                                                                <div className="member">
+                                                                    `+${item.alittleStudent.length - 5}`
+                                                                </div>
+                                                            ) : item.alittleStudent.length == 0 ? (
+                                                                <div className="member">0</div>
+                                                            ) : (
+                                                                <div className="member">...</div>
+                                                            )}
+                                                            {/* <Avatar src={`+4`} /> */}
                                                         </div>
                                                     </div>
                                                 </Card>

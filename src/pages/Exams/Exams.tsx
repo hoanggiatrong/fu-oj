@@ -507,7 +507,7 @@ const Exams = observer(() => {
 
         // Kiểm tra trạng thái bài thi
         const examStatus = getExamStatus(record.startTime, record.endTime);
-        
+
         // Nếu bài thi đã kết thúc, chỉ cho phép xem kết quả (nếu đã làm)
         if (examStatus.status === 'completed') {
             try {
@@ -766,13 +766,14 @@ const Exams = observer(() => {
                             </Popover>
                         </TooltipWrapper>
 
-                        <ProtectedElement acceptRoles={['INSTRUCTOR']}>
-                            <TooltipWrapper tooltipText="Tạo bài thi" position="top">
-                                <div className="custom-circle-ico" onClick={() => globalStore.setOpenDetailPopup(true)}>
+                        <div className="group-create">
+                            <ProtectedElement acceptRoles={['INSTRUCTOR']}>
+                                <div className="custom-btn-ico" onClick={() => globalStore.setOpenDetailPopup(true)}>
                                     <AppstoreAddOutlined className="custom-ant-ico color-cyan" />
+                                    Tạo bài thi
                                 </div>
-                            </TooltipWrapper>
-                        </ProtectedElement>
+                            </ProtectedElement>
+                        </div>
                     </div>
                     <div className="body">
                         <Tabs
