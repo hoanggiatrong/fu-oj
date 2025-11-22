@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite';
 import { LogoutOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+// import { useState } from 'react';
 
 const QuickAction = observer(() => {
-    const [selected, select] = useState(0);
+    // const [selected, select] = useState(0);
 
     return (
         <div className="quick-action">
