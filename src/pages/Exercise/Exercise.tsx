@@ -388,7 +388,13 @@ const Exercise = observer(() => {
                             </div>
                             <div className="solution">
                                 <div className="header">Gợi ý lời giải</div>
-                                <div className="content">{solution}</div>
+                                <div
+                                    className="content"
+                                    style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: (solution || '').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+                                    }}
+                                />
                             </div>
                         </div>
                     )}

@@ -38,8 +38,12 @@
 
                 .ant-input-affix-wrapper {
                     border-color: #545454 !important;
+                    overflow: hidden;
 
                     .ant-input-suffix {
+                        background: #333333;
+                        padding: 0 var(--base-size-8) !important;
+                        height: 100%;
                         margin-left: 0 !important;
                         top: auto;
 
