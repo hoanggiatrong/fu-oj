@@ -114,3 +114,55 @@
         border-color: var(--color-table-border) !important;
     }
 }
+
+.ant-modal {
+    top: var(--base-size-44);
+}
+
+.custom-tooltip {
+    width: 500px;
+}
+
+.ant-tooltip-inner {
+    width: 500px;
+    background: var(--color-border) !important;
+}
+
+.custom-tooltip-child {
+    & > .custom-select-exercises {
+        background: var(--color-bg);
+        padding: var(--base-size-8);
+        border-radius: var(--borderRadius-small);
+        color: var(--color-text-secondary);
+
+        .name {
+            font-weight: var(--base-text-weight-medium);
+            font-size: var(--base-size-16);
+            margin-bottom: var(--base-size-8);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: var(--base-size-8);
+
+            & > .difficulty {
+                color: white;
+                border-radius: var(--borderRadius-small);
+                padding: 0 var(--base-size-4);
+                width: auto;
+                font-size: var(--base-size-14);
+            }
+
+            & > .difficulty.EASY {
+                background: var(--c-cyan);
+            }
+
+            & > .difficulty.MEDIUM {
+                background: var(--c-gold);
+            }
+
+            & > .difficulty.HARD {
+                background: var(--c-red);
+            }
+        }
+    }
+}

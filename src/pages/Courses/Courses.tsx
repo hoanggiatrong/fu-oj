@@ -1,4 +1,4 @@
-import { EditOutlined, LinkOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, LinkOutlined } from '@ant-design/icons';
 import { Button, Form, Tag } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import classnames from 'classnames';
@@ -266,6 +266,15 @@ const Courses = () => {
         }
     };
 
+    const deleteCourse = (record: any) => {
+        http.deleteById('/courses', record.id)
+            .then()
+            .then((res) => {
+                fetchCourses();
+                globalStore.triggerNotification('success', res.message || 'Delete successfully!', '');
+            });
+    };
+
     const stats: CourseStat[] = useMemo(() => {
         return [
             {
@@ -323,6 +332,9 @@ const Courses = () => {
                     </Button>
                     <Button type="link" icon={<LinkOutlined />} onClick={() => openAssignModal(record)}>
                         Gán bài tập
+                    </Button>
+                    <Button type="link" icon={<DeleteOutlined />} onClick={() => deleteCourse(record)}>
+                        Xóa khóa học
                     </Button>
                 </div>
             )
@@ -391,4 +403,3 @@ const Courses = () => {
 };
 
 export default Courses;
-

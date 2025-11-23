@@ -1,4 +1,4 @@
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+// import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ProtectedElement from '../../../components/ProtectedElement/ProtectedElement';
@@ -19,7 +19,9 @@ interface CourseSliderProps {
 const CourseSlider = ({ courses, loading, onManageClick, onExploreCourse }: CourseSliderProps) => {
     const trackRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
+    canScrollLeft;
     const [canScrollRight, setCanScrollRight] = useState(false);
+    canScrollRight;
 
     const updateScrollState = useCallback(() => {
         const el = trackRef.current;
@@ -37,15 +39,15 @@ const CourseSlider = ({ courses, loading, onManageClick, onExploreCourse }: Cour
         return () => el.removeEventListener('scroll', handleScroll);
     }, [updateScrollState, courses.length]);
 
-    const handleScroll = (direction: 'left' | 'right') => {
-        const el = trackRef.current;
-        if (!el) return;
-        const scrollAmount = el.clientWidth * 0.9;
-        el.scrollBy({
-            left: direction === 'left' ? -scrollAmount : scrollAmount,
-            behavior: 'smooth'
-        });
-    };
+    // const handleScroll = (direction: 'left' | 'right') => {
+    //     const el = trackRef.current;
+    //     if (!el) return;
+    //     const scrollAmount = el.clientWidth * 0.9;
+    //     el.scrollBy({
+    //         left: direction === 'left' ? -scrollAmount : scrollAmount,
+    //         behavior: 'smooth'
+    //     });
+    // };
 
     return (
         <div className="course-slider">
@@ -71,21 +73,23 @@ const CourseSlider = ({ courses, loading, onManageClick, onExploreCourse }: Cour
                 <div className="slider-empty">Chưa có khóa học nào.</div>
             ) : (
                 <div className="slider-body">
-                    <button
+                    {/* <button
                         className="slider-nav slider-nav-left"
                         onClick={() => handleScroll('left')}
                         disabled={!canScrollLeft}
                         aria-label="Previous courses"
                     >
                         <LeftOutlined />
-                    </button>
-                    <div className="slider-window">
+                    </button> */}
+                    <div className="slider-window overflow">
                         <div className="slider-track" ref={trackRef}>
                             {courses.map((course, index) => (
                                 <div className={`course-card theme-${(index % 6) + 1}`} key={course.id}>
                                     <div className="course-card-content">
                                         <div className="course-card-title">{course.title}</div>
-                                        <div className="course-card-description">{course.description || '—'}</div>
+                                        <div className="course-card-description max-2-lines">
+                                            {course.description || '—'}
+                                        </div>
                                     </div>
                                     <div className="course-card-footer">
                                         <span className="course-card-label">Course #{index + 1}</span>
@@ -97,14 +101,14 @@ const CourseSlider = ({ courses, loading, onManageClick, onExploreCourse }: Cour
                             ))}
                         </div>
                     </div>
-                    <button
+                    {/* <button
                         className="slider-nav slider-nav-right"
                         onClick={() => handleScroll('right')}
                         disabled={!canScrollRight}
                         aria-label="Next courses"
                     >
                         <RightOutlined />
-                    </button>
+                    </button> */}
                 </div>
             )}
         </div>
@@ -112,4 +116,3 @@ const CourseSlider = ({ courses, loading, onManageClick, onExploreCourse }: Cour
 };
 
 export default CourseSlider;
-

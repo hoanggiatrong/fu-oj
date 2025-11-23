@@ -89,20 +89,36 @@
     font-size: var(--base-size-28);
 }
 
+.mt-4 {
+    margin-top: var(--base-size-4) !important;
+}
+
+.mr-4 {
+    margin-right: var(--base-size-4) !important;
+}
+
+.mb-4 {
+    margin-bottom: var(--base-size-4) !important;
+}
+
+.ml-4 {
+    margin-left: var(--base-size-4) !important;
+}
+
 .mt-8 {
-    margin-top: var(--base-size-8);
+    margin-top: var(--base-size-8) !important;
 }
 
 .mr-8 {
-    margin-right: var(--base-size-8);
+    margin-right: var(--base-size-8) !important;
 }
 
 .mb-8 {
-    margin-bottom: var(--base-size-8);
+    margin-bottom: var(--base-size-8) !important;
 }
 
 .ml-8 {
-    margin-left: var(--base-size-8);
+    margin-left: var(--base-size-8) !important;
 }
 
 .pt-8 {
@@ -228,4 +244,41 @@
 
 .color-text-secondary {
     color: var(--color-text-secondary);
+}
+
+.max-2-lines {
+    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    /* autoprefixer: off*/
+    -webkit-box-orient: vertical;
+}
+
+.overflow {
+    overflow: auto;
+
+    /* Scrollbar Chrome/Safari/Edge */
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent; // macOS sẽ không đổi màu
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-text-muted);
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--color-text-muted);
+    }
+
+    /* Scrollbar Firefox (cú pháp đúng) */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-text-muted) transparent;
 }

@@ -325,6 +325,7 @@ const Exercise = observer(() => {
                                         {response?.data?.results?.map((item: any, index: any) => {
                                             return (
                                                 <div
+                                                    key={`test-case-result-item-${index}`}
                                                     className={classnames('btn', {
                                                         selected: index + 1 == selectedCaseResult
                                                     })}
@@ -400,6 +401,69 @@ const Exercise = observer(() => {
                     )}
                 </div>
             );
+        } else if (component == 'testcase') {
+            return (
+                <div className="testResult">
+                    {response && !loading && submittedData && (
+                        <div className="response">
+                            <div className="response-content">
+                                <div className="group-testcases">
+                                    <div className="btns">
+                                        {submittedData.data.submissionResults.map((item: any, index: any) => {
+                                            return (
+                                                <div
+                                                    key={`test-case-result-item-${index}`}
+                                                    className={classnames('btn', {
+                                                        selected: index + 1 == selectedCaseResult
+                                                    })}
+                                                    onClick={() => setSelectedCaseResult(index + 1)}
+                                                >
+                                                    <img
+                                                        src={
+                                                            item.passed
+                                                                ? '/sources/icons/green-check.svg'
+                                                                : '/sources/icons/red-xmark.svg'
+                                                        }
+                                                    />
+                                                    {`Case ${index + 1}`}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="testcase">
+                                        {submittedData.data.submissionResults.map((item: any, index: any) => {
+                                            return (
+                                                <div
+                                                    className={classnames('io', {
+                                                        hide: index + 1 != selectedCaseResult
+                                                    })}
+                                                >
+                                                    <div className="input wrapper">
+                                                        <div className="label">Input</div>
+                                                        <div className="content">{item.input}</div>
+                                                    </div>
+                                                    <div className="expected-output wrapper">
+                                                        <div className="label">Expected Output</div>
+                                                        <div className="content">{item.expectedOutput}</div>
+                                                    </div>
+                                                    <div
+                                                        className={classnames('actual-output wrapper', {
+                                                            match: item.passed
+                                                        })}
+                                                    >
+                                                        <div className="label">Actual Output</div>
+                                                        <div className="content">{item.actualOutput}</div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
         } else if (component === 'submissions') {
             return <Submissions id={id || exerciseId} submissionId={submissionId} />;
         } else if (component === 'ai-assistant') {
@@ -443,7 +507,9 @@ const Exercise = observer(() => {
                 onMessage: ({ body }) => {
                     const result = JSON.parse(body);
 
-                    setResponse({ data: result });
+                    console.log('log:', result);
+
+                    setResponse({ data: { results: result } });
                 }
             });
         }

@@ -10,6 +10,7 @@ export type WindowSizeType = {
 
 class GlobalStore {
     windowSize: WindowSizeType = { width: 0, height: 0 };
+    windowLoading: boolean = false;
     isLROpen: boolean = true;
     drawerKey: string = '';
     openNotificationWithIcon: ((type: NotificationType, message?: string, description?: string) => void) | null = null;
@@ -19,6 +20,7 @@ class GlobalStore {
     constructor() {
         makeObservable(this, {
             windowSize: observable,
+            windowLoading: observable,
             isLROpen: observable,
             drawerKey: observable,
             openNotificationWithIcon: observable,
@@ -26,6 +28,7 @@ class GlobalStore {
             isDetailPopupOpen: observable,
 
             setWindowSize: action,
+            setWindowLoading: action,
             setLROpen: action,
             setDrawerKey: action,
             setTheme: action,
@@ -49,6 +52,10 @@ class GlobalStore {
         this.windowSize = windowSize;
     };
 
+    setWindowLoading = (status: boolean) => {
+        this.windowLoading = status;
+    };
+
     setLROpen(status: boolean) {
         if (!authentication.isAuthenticated) {
             this.isLROpen = true;
@@ -66,8 +73,13 @@ class GlobalStore {
     }
 
     setTheme = (theme: 'theme-dark' | 'theme-light') => {
-        this.theme = theme;
+        this.setWindowLoading(true);
         localStorage.setItem('theme', theme);
+
+        setTimeout(() => {
+            this.theme = theme;
+            window.location.reload();
+        }, 1000);
     };
 
     setOpenDetailPopup = (status: boolean) => {

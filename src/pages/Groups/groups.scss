@@ -162,7 +162,7 @@
         align-items: center;
         margin-top: var(--base-size-24);
 
-        & > .member {
+        .member {
             width: var(--base-size-24);
             height: var(--base-size-24);
             border: 1px solid var(--color-border); // giúp tách nhẹ viền giữa các avatar

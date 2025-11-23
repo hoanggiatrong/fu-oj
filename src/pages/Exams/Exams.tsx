@@ -390,12 +390,13 @@ const Exams = observer(() => {
             });
 
         // Lấy danh sách exercises
-        http.get('/exercises')
+        http.get('/exercises?pageSize=9999999')
             .then((res) => {
                 setExercises(
-                    res.data.map((exercise: { id: string; title?: string; code?: string }) => ({
+                    res.data.map((exercise: any) => ({
                         value: exercise.id,
-                        label: exercise.title || exercise.code || ''
+                        label: exercise.title || exercise.code || '',
+                        ...exercise
                     }))
                 );
             })

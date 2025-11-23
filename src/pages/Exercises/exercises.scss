@@ -43,15 +43,16 @@
         }
 
         .slider-window {
-            overflow: hidden;
+            // overflow: hidden;
             width: 100%;
         }
 
         .slider-track {
             display: flex;
             gap: var(--base-size-16);
+            // padding-bottom: var(--base-size-8);
+            // padding-right: var(--base-size-8);
             padding-bottom: var(--base-size-8);
-            padding-right: var(--base-size-8);
         }
 
         .course-card {
@@ -128,11 +129,7 @@
 
         @for $i from 1 through 6 {
             .theme-#{$i} {
-                background: linear-gradient(
-                    135deg,
-                    adjust-hue(#5c6ac4, $i * 15),
-                    adjust-hue(#9c6ade, $i * 20)
-                );
+                background: linear-gradient(135deg, adjust-hue(#5c6ac4, $i * 15), adjust-hue(#9c6ade, $i * 20));
             }
         }
     }

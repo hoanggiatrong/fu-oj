@@ -229,7 +229,7 @@
 
         & > li.selected {
             background: var(--color-fpt);
-            pointer-events: none;
+            // pointer-events: none;
 
             & > .action-item {
                 color: var(--color-bg) !important;

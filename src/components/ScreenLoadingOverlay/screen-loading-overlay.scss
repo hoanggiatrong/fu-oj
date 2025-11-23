@@ -1,5 +1,6 @@
-.loading-overlay {
+.screen-loading-overlay {
     position: relative;
+    min-height: 100vh;
 
     & > .loading-container {
         position: absolute;
@@ -8,7 +9,8 @@
         width: 100%;
         height: 100%;
         // background-color: rgba(26, 26, 26, 0.6);
-        background-color: rgba(var(--color-bg), 0.6);
+        // background-color: rgba(var(--color-bg), 0.1);
+        background-color: var(--color-bg);
         display: flex;
         align-items: center;
         justify-content: center;

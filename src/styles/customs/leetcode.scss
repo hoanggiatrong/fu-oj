@@ -24,6 +24,7 @@
                 right: 0;
                 display: flex;
                 gap: var(--base-size-8);
+                margin-right: var(--base-size-4);
             }
 
             & > .random {
@@ -325,6 +326,7 @@
 
     .left {
         flex: 1;
+        overflow: hidden;
     }
 
     .right {

@@ -100,13 +100,52 @@
         padding: var(--base-size-8) var(--base-size-4);
         min-width: 400px;
 
+        & > .ant-select.custom {
+            flex: 1.5;
+            border: 1px solid var(--color-border);
+            border-radius: var(--borderRadius-medium);
+
+            & > .ant-select-selector {
+                & > .ant-select-selection-wrap {
+                    & > .ant-select-selection-search {
+                        & > input {
+                            background: #262626 !important;
+                            color: white !important;
+                        }
+                    }
+
+                    & > .ant-select-selection-item {
+                        color: var(--c-cyan) !important;
+                        opacity: 1;
+                    }
+                }
+            }
+        }
+
         & > .custom {
             flex: 1;
             background: #262626 !important;
+            color: white !important;
+
+            &::placeholder {
+                color: var(--color-text-muted); /* Màu trắng */
+                opacity: 1; /* đảm bảo hiển thị rõ */
+            }
 
             & > .ant-picker-input {
                 & > input {
                     background: #262626 !important;
+                    color: white !important;
+
+                    &::placeholder {
+                        color: var(--color-text-muted); /* Màu trắng */
+                        opacity: 1; /* đảm bảo hiển thị rõ */
+                    }
+                }
+
+                & > .ant-picker-suffix {
+                    color: var(--color-text-muted);
+                    opacity: 0.5;
                 }
             }
         }
@@ -147,6 +186,17 @@
 
         .submission.odd {
             background: #2c2c2c;
+        }
+    }
+}
+
+.ant-picker {
+    .ant-picker-clear {
+        color: var(--color-text-muted) !important;
+        opacity: 1 !important;
+
+        &:hover {
+            color: var(--color-fpt) !important;
         }
     }
 }

@@ -1,18 +1,29 @@
-import { observer } from 'mobx-react-lite';
-import { useState, useEffect } from 'react';
-import * as http from '../../../lib/httpRequest';
-import './tabset.scss';
-import { Input, DatePicker } from 'antd';
-import utils from '../../../utils/utils';
+import { DatePicker, Select } from 'antd';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import * as http from '../../../lib/httpRequest';
 import routesConfig from '../../../routes/routesConfig';
+import utils from '../../../utils/utils';
+import './tabset.scss';
 
 const Submissions = observer(({ id, submissionId }: { id: string | undefined; submissionId: string | undefined }) => {
     const navigate = useNavigate();
     const [datas, setDatas] = useState([]);
-    datas;
     const [displayDatas, setDisplayDatas] = useState([]);
+    const [filters, setFilters] = useState<any>({
+        from: null,
+        to: null,
+        result: null
+    });
+
+    const handleFilterChange = (key: string, value: any) => {
+        setFilters((prev: any) => ({
+            ...prev,
+            [key]: value
+        }));
+    };
 
     const getExerciseCompletionListByExerciseId = () => {
         http.get(`/submissions?exercise=${id}&pageSize=99999`).then((res) => {
@@ -25,12 +36,53 @@ const Submissions = observer(({ id, submissionId }: { id: string | undefined; su
         getExerciseCompletionListByExerciseId();
     }, []);
 
+    const applyFilter = () => {
+        let filtered = [...datas];
+
+        if (filters.from) {
+            const fromDate = filters.from.startOf('day').toDate(); // nếu filters.from là moment
+            filtered = filtered.filter((d: any) => new Date(d.exercise.updatedTimestamp) >= fromDate);
+        }
+
+        if (filters.to) {
+            const toDate = filters.to.endOf('day').toDate(); // đảm bảo bao gồm cả ngày cuối
+            filtered = filtered.filter((d: any) => new Date(d.exercise.updatedTimestamp) <= toDate);
+        }
+
+        if (filters.result !== null && filters.result !== undefined) {
+            filtered = filtered.filter((d: any) => d.isAccepted === filters.result);
+        }
+
+        setDisplayDatas(filtered);
+    };
+
+    useEffect(() => {
+        applyFilter();
+    }, [filters]);
+
     return (
         <div className="submissions">
             <div className="search">
-                <Input className="custom" placeholder="Tìm theo ngày" />
-                <DatePicker className="custom" placeholder="Từ ngày" />
-                <DatePicker className="custom" placeholder="Đến ngày" />
+                <DatePicker
+                    className="custom"
+                    placeholder="Từ ngày"
+                    onChange={(date) => handleFilterChange('from', date)}
+                />
+                <DatePicker
+                    className="custom"
+                    placeholder="Đến ngày"
+                    onChange={(date) => handleFilterChange('to', date)}
+                />
+                <Select
+                    className="custom"
+                    allowClear
+                    placeholder="Chọn kết quả"
+                    onChange={(value) => handleFilterChange('result', value)}
+                    options={[
+                        { value: true, label: 'Đã thông qua' },
+                        { value: false, label: 'Chưa thông qua' }
+                    ]}
+                />
             </div>
             <div className="container">
                 {displayDatas.map((d: any, index: number) => {

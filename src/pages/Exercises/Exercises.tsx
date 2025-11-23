@@ -3,7 +3,6 @@ import {
     AppstoreAddOutlined,
     DeleteOutlined,
     FilterOutlined,
-    HeartOutlined,
     RobotOutlined,
     SettingOutlined,
     UnorderedListOutlined
@@ -15,11 +14,11 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from 'react-router-dom';
+import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
@@ -112,31 +111,45 @@ const Exercises = observer(() => {
             render: (topics: any[]) => {
                 if (!topics) return null;
 
-                return topics.map((topic, index) => {
-                    const text = topic.name.trim().toUpperCase();
-                    const colors = [
-                        'cyan',
-                        'magenta',
-                        'red',
-                        'volcano',
-                        'orange',
-                        'gold',
-                        'lime',
-                        'green',
-                        'blue',
-                        'geekblue',
-                        'purple'
-                    ];
-                    const color = colors[index];
+                return (
+                    <div className="cell gap">
+                        {topics.map((topic, index) => {
+                            const text = topic.name.trim().toUpperCase();
+                            const colors = [
+                                'cyan',
+                                'magenta',
+                                'red',
+                                'volcano',
+                                'orange',
+                                'gold',
+                                'lime',
+                                'green',
+                                'blue',
+                                'geekblue',
+                                'purple'
+                            ];
+                            const color = colors[index];
 
-                    return (
-                        <div className="cell" key={`topic-${index}`}>
-                            <Tag color={color} key={text} style={{ marginBottom: 8 }}>
-                                {text}
-                            </Tag>
-                        </div>
-                    );
-                });
+                            if (index > 3) {
+                                return <></>;
+                            }
+
+                            const temp = topics.map((t) => t.name.trim().toUpperCase());
+
+                            return index == 3 ? (
+                                <Tag>
+                                    <TooltipWrapper tooltipText={temp.slice(3).join(', ')} position="left">
+                                        ...
+                                    </TooltipWrapper>
+                                </Tag>
+                            ) : (
+                                <Tag color={color} key={text} style={{ marginBottom: 8 }}>
+                                    {text}
+                                </Tag>
+                            );
+                        })}
+                    </div>
+                );
             }
         },
         {
@@ -147,9 +160,9 @@ const Exercises = observer(() => {
             render: (_: any, record: any) => {
                 return (
                     <div className="actions-row cell" onClick={(e) => e.stopPropagation()}>
-                        <TooltipWrapper tooltipText="Thêm vào yêu thích" position="left">
+                        {/* <TooltipWrapper tooltipText="Thêm vào yêu thích" position="left">
                             <HeartOutlined className="action-row-btn" />
-                        </TooltipWrapper>
+                        </TooltipWrapper> */}
 
                         <ProtectedElement acceptRoles={['INSTRUCTOR']}>
                             <TooltipWrapper tooltipText="Chỉnh sửa" position="left">
@@ -186,6 +199,113 @@ const Exercises = observer(() => {
                                 </Popconfirm>
                             </TooltipWrapper>
                         </ProtectedElement>
+                    </div>
+                );
+            }
+        }
+    ];
+
+    const studentCols = [
+        {
+            title: 'Mã bài tập',
+            width: 150,
+            dataIndex: 'code',
+            key: 'code',
+            sorter: (a: any, b: any) => (a.code || '').localeCompare(b.code || ''),
+            render: (code: string) => {
+                return (
+                    <div className="cell">
+                        <Highlighter
+                            highlightClassName="highlight"
+                            searchWords={[search]}
+                            autoEscape={true}
+                            textToHighlight={code}
+                        />
+                    </div>
+                );
+            }
+        },
+        {
+            title: 'Tiêu đề',
+            width: 200,
+            dataIndex: 'title',
+            key: 'title',
+            sorter: (a: any, b: any) => (a.title || '').localeCompare(b.title || ''),
+            render: (title: string) => {
+                return (
+                    <div className="cell">
+                        <Highlighter
+                            highlightClassName="highlight"
+                            searchWords={[search]}
+                            autoEscape={true}
+                            textToHighlight={title}
+                        />
+                    </div>
+                );
+            }
+        },
+        // {
+        //     title: 'Mô tả',
+        //     dataIndex: 'description',
+        //     key: 'description',
+        //     render: (description: string) => {
+        //         return <div className="cell">{description}</div>;
+        //     }
+        // },
+        {
+            title: 'Độ khó',
+            width: 100,
+            dataIndex: 'difficulty',
+            key: 'difficulty',
+            render: (difficulty: string) => {
+                return <div className="cell">{utils.getDifficultyClass(difficulty)}</div>;
+            }
+        },
+        {
+            title: 'Chủ đề',
+            width: 100,
+            dataIndex: 'topics',
+            key: 'topics',
+            render: (topics: any[]) => {
+                if (!topics) return null;
+
+                return (
+                    <div className="cell gap">
+                        {topics.map((topic, index) => {
+                            const text = topic.name.trim().toUpperCase();
+                            const colors = [
+                                'cyan',
+                                'magenta',
+                                'red',
+                                'volcano',
+                                'orange',
+                                'gold',
+                                'lime',
+                                'green',
+                                'blue',
+                                'geekblue',
+                                'purple'
+                            ];
+                            const color = colors[index];
+
+                            if (index > 3) {
+                                return <></>;
+                            }
+
+                            const temp = topics.map((t) => t.name.trim().toUpperCase());
+
+                            return index == 3 ? (
+                                <Tag>
+                                    <TooltipWrapper tooltipText={temp.slice(3).join(', ')} position="left">
+                                        ...
+                                    </TooltipWrapper>
+                                </Tag>
+                            ) : (
+                                <Tag color={color} key={text} style={{ marginBottom: 8 }}>
+                                    {text}
+                                </Tag>
+                            );
+                        })}
                     </div>
                 );
             }
@@ -658,7 +778,7 @@ const Exercises = observer(() => {
                                     showTotal: (total, range) => `${range[0]}-${range[1]} trên ${total} bài tập`
                                 }}
                                 dataSource={displayDatas}
-                                columns={columns}
+                                columns={authentication?.account?.data?.role == 'INSTRUCTOR' ? columns : studentCols}
                                 rowClassName={(_record, index) =>
                                     index % 2 === 0 ? 'custom-row row-even' : 'custom-row row-odd'
                                 }

@@ -134,13 +134,14 @@ const Groups = observer(() => {
                     <div className="filters">
                         <Input placeholder="Tìm kiếm nhóm" onChange={(e) => setSearch(e.target.value)} />
 
-                        <ProtectedElement acceptRoles={['STUDENT']}>
-                            <TooltipWrapper tooltipText="Nhập mã tham gia nhóm" position="top">
-                                <div className="custom-circle-ico" onClick={() => setJoinDialogOpen(true)}>
+                        <div className="group-create">
+                            <ProtectedElement acceptRoles={['STUDENT']}>
+                                <div className="custom-btn-ico" onClick={() => setJoinDialogOpen(true)}>
                                     <MessageOutlined className="custom-ant-ico color-gold" />
+                                    Nhập mã tham gia nhóm
                                 </div>
-                            </TooltipWrapper>
-                        </ProtectedElement>
+                            </ProtectedElement>
+                        </div>
 
                         <div className="group-create">
                             <ProtectedElement acceptRoles={['INSTRUCTOR']}>
@@ -154,7 +155,7 @@ const Groups = observer(() => {
 
                     <div className="body">
                         <LoadingOverlay loading={loading}>
-                            <div className="content mb-36">
+                            <div className={classnames('content mb-36', { 'ml-16 mr-16': !globalStore.isBelow1300 })}>
                                 <Row gutter={[16, 16]}>
                                     {displayDatas.length ? (
                                         displayDatas.map((item: any) => (
@@ -266,11 +267,17 @@ const Groups = observer(() => {
                                                         </div> */}
                                                         <div className="members">
                                                             {item.alittleStudent?.map((i: any) => {
-                                                                console.log('log:', i);
                                                                 return (
-                                                                    <div className="member">
-                                                                        <Avatar src={i.avatar.url} />
-                                                                    </div>
+                                                                    <TooltipWrapper
+                                                                        tooltipText={`${i.firstName || ''} ${
+                                                                            i.lastName || ''
+                                                                        }`}
+                                                                        position="top"
+                                                                    >
+                                                                        <div className="member">
+                                                                            <Avatar src={i.avatar.url} />
+                                                                        </div>
+                                                                    </TooltipWrapper>
                                                                 );
                                                             }) || (
                                                                 <div className="member">
@@ -279,26 +286,6 @@ const Groups = observer(() => {
                                                                     />
                                                                 </div>
                                                             )}
-                                                            {/* <div className="member">
-                                                                <Avatar
-                                                                    src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
-                                                                />
-                                                            </div>
-                                                            <div className="member">
-                                                                <Avatar
-                                                                    src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
-                                                                />
-                                                            </div>
-                                                            <div className="member">
-                                                                <Avatar
-                                                                    src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
-                                                                />
-                                                            </div>
-                                                            <div className="member">
-                                                                <Avatar
-                                                                    src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
-                                                                />
-                                                            </div> */}
                                                             {item.alittleStudent.length > 5 ? (
                                                                 <div className="member">
                                                                     `+${item.alittleStudent.length - 5}`
