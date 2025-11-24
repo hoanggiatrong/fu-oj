@@ -13,7 +13,7 @@ const LayoutHeader = observer(() => {
                 <div className="brand-name">
                     <img src="/sources/logo-fullname.png" alt="Everything" />
                 </div>
-                <QuickAction />
+                {authentication.isAuthenticated && <QuickAction />}
             </div>
             <div className="right">
                 <Switch
