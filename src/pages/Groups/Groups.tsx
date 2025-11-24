@@ -275,7 +275,12 @@ const Groups = observer(() => {
                                                                         position="top"
                                                                     >
                                                                         <div className="member">
-                                                                            <Avatar src={i.avatar.url} />
+                                                                            <Avatar
+                                                                                src={
+                                                                                    i?.avatar?.url ||
+                                                                                    '/sources/thaylam.jpeg'
+                                                                                }
+                                                                            />
                                                                         </div>
                                                                     </TooltipWrapper>
                                                                 );
