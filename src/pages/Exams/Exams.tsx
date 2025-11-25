@@ -1,6 +1,6 @@
 import { AppstoreAddOutlined, FilterOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Button, Form, Input, Popover, Table, Tabs, Tag, Select, DatePicker } from 'antd';
+import { Button, Form, Input, Popover, Tabs, Tag, Select, DatePicker } from 'antd';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -12,47 +12,15 @@ import { useNavigate } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
-import ConfirmStartExamModal from './components/ConfirmStartExamModal';
 import ExamFormModal from './components/ExamFormModal';
 import ExamTable from './components/ExamTable';
 import type { ExamData, SelectOption } from './types';
 import { filterDataByTab, getExamStatus } from './utils';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
-
-interface CompletedExamData {
-    id: string;
-    createdBy: string;
-    createdTimestamp: string;
-    updatedBy: string;
-    updatedTimestamp: string;
-    deletedTimestamp: string | null;
-    user: {
-        id: string;
-        email: string;
-        role: string;
-    };
-    exam: {
-        examId: string;
-        examCode: string;
-        examTitle: string;
-        startTime: number;
-        endTime: number;
-        userId: string;
-        userName: string | null;
-        submissions: unknown;
-        totalScore: number | null;
-        totalExercises: number | null;
-        completedExercises: number | null;
-        timeLimit: number | null;
-    };
-    totalScore: number | null;
-    completed: boolean;
-}
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -68,20 +36,22 @@ const Exams = observer(() => {
     const [updateId, setUpdateId] = useState<string | null>(null);
     const [editingRecord, setEditingRecord] = useState<ExamData | null>(null);
     const [activeTab, setActiveTab] = useState<string>('all');
-    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-    const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
-    const [selectedExamRecord, setSelectedExamRecord] = useState<ExamData | null>(null);
-    const [completedExams, setCompletedExams] = useState<CompletedExamData[]>([]);
-    const [loadingCompletedExams, setLoadingCompletedExams] = useState(false);
-    const [ongoingExams, setOngoingExams] = useState<CompletedExamData[]>([]);
-    const [loadingOngoingExams, setLoadingOngoingExams] = useState(false);
-    const [examRankingsMap, setExamRankingsMap] = useState<Map<string, CompletedExamData>>(new Map());
     const [isFilterOpen, setFilterOpen]: any = useState(false);
     const [filters, setFilters] = useState({
         status: null,
         startTime: null,
         endTime: null
     });
+
+    useEffect(() => {
+        if (!authentication.isInstructor) {
+            navigate(`/${routesConfig.groups}`);
+        }
+    }, [navigate]);
+
+    if (!authentication.isInstructor) {
+        return null;
+    }
 
     const [form] = Form.useForm();
 
@@ -117,69 +87,6 @@ const Exams = observer(() => {
 
         setDisplayDatas(filtered);
         setFilterOpen(false);
-    };
-
-    const handleConfirmStartExam = async () => {
-        if (!selectedExamId) return;
-
-        try {
-            const userId = authentication.account?.data?.id;
-            if (!userId) {
-                globalStore.triggerNotification('error', 'Không tìm thấy thông tin người dùng!', '');
-                setConfirmModalOpen(false);
-                setSelectedExamId(null);
-                setSelectedExamRecord(null);
-                return;
-            }
-
-            // Lấy số lượng bài tập từ selectedExamRecord hoặc fetch lại nếu không có
-            let numberOfExercises = 0;
-            if (selectedExamRecord?.exercises) {
-                numberOfExercises = selectedExamRecord.exercises.length;
-            } else {
-                // Nếu không có record, fetch lại exam detail
-                try {
-                    const examRes = await http.get(`/exams/${selectedExamId}`);
-                    numberOfExercises = examRes.data?.exercises?.length || 0;
-                } catch (err) {
-                    console.error('Error fetching exam detail:', err);
-                }
-            }
-
-            await http.post('/exam-rankings', {
-                examId: selectedExamId,
-                userId: userId,
-                numberOfExercises: numberOfExercises
-            });
-
-            // Refresh exam rankings để cập nhật trạng thái làm bài
-            if (!authentication.isInstructor) {
-                http.get(`/exam-rankings?userId=${userId}`)
-                    .then((res) => {
-                        const map = new Map<string, CompletedExamData>();
-                        (res.data || []).forEach((exam: CompletedExamData) => {
-                            map.set(exam.exam.examId, exam);
-                        });
-                        setExamRankingsMap(map);
-                    })
-                    .catch((error) => {
-                        console.error('Error refreshing exam rankings:', error);
-                    });
-            }
-
-            setConfirmModalOpen(false);
-            setSelectedExamId(null);
-            setSelectedExamRecord(null);
-            navigate(`/${routesConfig.exam}`.replace(':id', selectedExamId));
-        } catch (error) {
-            const errorMessage =
-                (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-                'Có lỗi xảy ra khi bắt đầu làm bài!';
-            globalStore.triggerNotification('error', errorMessage, '');
-            setConfirmModalOpen(false);
-            setSelectedExamId(null);
-            setSelectedExamRecord(null);
-        }
     };
 
     const onFinish: FormProps['onFinish'] = (values) => {
@@ -319,39 +226,8 @@ const Exams = observer(() => {
             }
         });
 
-        // Thêm cột "Trạng thái làm bài của sinh viên" chỉ cho sinh viên
-        if (!authentication.isInstructor) {
-            baseColumns.push({
-                title: 'Trạng thái làm bài',
-                dataIndex: 'studentStatus',
-                key: 'studentStatus',
-                render: (_: unknown, record: ExamData) => {
-                    const examRanking = examRankingsMap.get(record.id);
-                    if (!examRanking) {
-                        return (
-                            <div className="cell">
-                                <Tag color="default">Chưa bắt đầu</Tag>
-                            </div>
-                        );
-                    }
-                    if (examRanking.completed) {
-                        return (
-                            <div className="cell">
-                                <Tag color="green">Đã hoàn thành</Tag>
-                            </div>
-                        );
-                    }
-                    return (
-                        <div className="cell">
-                            <Tag color="orange">Đang làm</Tag>
-                        </div>
-                    );
-                }
-            });
-        }
-
         return baseColumns;
-    }, [search, examRankingsMap]);
+    }, [search]);
 
     const getExams = () => {
         setLoading(true);
@@ -404,23 +280,6 @@ const Exams = observer(() => {
                 console.error('Error fetching exercises:', error);
             });
 
-        // Lấy exam rankings cho sinh viên để hiển thị trạng thái làm bài
-        if (!authentication.isInstructor) {
-            const userId = authentication.account?.data?.id;
-            if (userId) {
-                http.get(`/exam-rankings?userId=${userId}`)
-                    .then((res) => {
-                        const map = new Map<string, CompletedExamData>();
-                        (res.data || []).forEach((exam: CompletedExamData) => {
-                            map.set(exam.exam.examId, exam);
-                        });
-                        setExamRankingsMap(map);
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching exam rankings:', error);
-                    });
-            }
-        }
     }, []);
 
     useEffect(() => {
@@ -428,125 +287,8 @@ const Exams = observer(() => {
         setDisplayDatas(filtered);
     }, [search, datas, activeTab]);
 
-    // Tự động load dữ liệu khi chuyển sang tab "Bài đã làm"
-    useEffect(() => {
-        if (activeTab === 'completed-exams' && !authentication.isInstructor) {
-            const loadCompletedExams = async () => {
-                setLoadingCompletedExams(true);
-
-                try {
-                    const userId = authentication.account?.data?.id;
-                    if (!userId) {
-                        setLoadingCompletedExams(false);
-                        return;
-                    }
-
-                    const response = await http.get(`/exam-rankings?userId=${userId}`);
-                    // Lọc những bài đã hoàn thành (completed = true)
-                    const completed = (response.data || []).filter((exam: CompletedExamData) => {
-                        return exam.completed === true;
-                    });
-                    setCompletedExams(completed);
-                } catch (error) {
-                    console.error('Error fetching completed exams:', error);
-                    globalStore.triggerNotification('error', 'Không thể tải danh sách bài đã làm!', '');
-                    setCompletedExams([]);
-                } finally {
-                    setLoadingCompletedExams(false);
-                }
-            };
-
-            loadCompletedExams();
-        }
-    }, [activeTab]);
-
-    // Tự động load dữ liệu khi chuyển sang tab "Bài đang làm"
-    useEffect(() => {
-        if (activeTab === 'ongoing-exams' && !authentication.isInstructor) {
-            const loadOngoingExams = async () => {
-                setLoadingOngoingExams(true);
-
-                try {
-                    const userId = authentication.account?.data?.id;
-                    if (!userId) {
-                        setLoadingOngoingExams(false);
-                        return;
-                    }
-
-                    const response = await http.get(`/exam-rankings?userId=${userId}`);
-                    // Lọc những bài đang làm (completed = false)
-                    const ongoing = (response.data || []).filter((exam: CompletedExamData) => {
-                        return exam.completed === false;
-                    });
-                    setOngoingExams(ongoing);
-                } catch (error) {
-                    console.error('Error fetching ongoing exams:', error);
-                    globalStore.triggerNotification('error', 'Không thể tải danh sách bài đang làm!', '');
-                    setOngoingExams([]);
-                } finally {
-                    setLoadingOngoingExams(false);
-                }
-            };
-
-            loadOngoingExams();
-        }
-    }, [activeTab]);
-
-    const handleRowClick = async (record: ExamData) => {
-        // Instructor: navigate trực tiếp
-        if (authentication.isInstructor) {
-            navigate(`/${routesConfig.exam}`.replace(':id', record.id));
-            return;
-        }
-
-        // Student hoặc user khác: check xem đã làm bài chưa
-        const userId = authentication.account?.data?.id;
-        if (!userId) {
-            globalStore.triggerNotification('error', 'Không tìm thấy thông tin người dùng!', '');
-            return;
-        }
-
-        // Kiểm tra trạng thái bài thi
-        const examStatus = getExamStatus(record.startTime, record.endTime);
-
-        // Nếu bài thi đã kết thúc, chỉ cho phép xem kết quả (nếu đã làm)
-        if (examStatus.status === 'completed') {
-            try {
-                const res = await http.get(`/exam-rankings?userId=${userId}&examId=${record.id}`);
-                if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-                    // Đã làm bài, chuyển sang trang kết quả
-                    navigate(`/${routesConfig.examResult}`.replace(':examId', record.id));
-                } else {
-                    globalStore.triggerNotification('info', 'Bài thi đã kết thúc và bạn chưa tham gia!', '');
-                }
-            } catch (error) {
-                console.error('Error checking exam ranking:', error);
-                globalStore.triggerNotification('info', 'Bài thi đã kết thúc và bạn chưa tham gia!', '');
-            }
-            return;
-        }
-
-        try {
-            // Check xem user đã làm bài thi này chưa
-            const res = await http.get(`/exam-rankings?userId=${userId}&examId=${record.id}`);
-
-            // Nếu đã có data (đã join/làm bài), navigate thẳng
-            if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-                navigate(`/${routesConfig.exam}`.replace(':id', record.id));
-                return;
-            }
-
-            // Nếu chưa có data, mở popup xác nhận (cho cả bài "sắp tới" và "đang diễn ra")
-            setSelectedExamId(record.id);
-            setSelectedExamRecord(record);
-            setConfirmModalOpen(true);
-        } catch (error) {
-            // Nếu có lỗi, vẫn mở popup để user có thể thử lại
-            console.error('Error checking exam ranking:', error);
-            setSelectedExamId(record.id);
-            setSelectedExamRecord(record);
-            setConfirmModalOpen(true);
-        }
+    const handleRowClick = (record: ExamData) => {
+        navigate(`/${routesConfig.exam}`.replace(':id', record.id));
     };
 
     const handleEdit = (record: ExamData) => {
@@ -567,131 +309,6 @@ const Exams = observer(() => {
         });
         globalStore.setOpenDetailPopup(true);
     };
-
-    // const handleViewCompletedExams = () => {
-    //     setActiveTab('completed-exams');
-    // };
-
-    const handleViewExamDetail = (examId: string, isCompleted: boolean = false) => {
-        if (isCompleted) {
-            navigate(`/${routesConfig.examResult}`.replace(':examId', examId));
-            return;
-        }
-
-        navigate(`/${routesConfig.exam}`.replace(':id', examId));
-    };
-
-    const completedExamsColumns = [
-        {
-            title: 'Mã bài thi',
-            dataIndex: ['exam', 'examCode'],
-            key: 'examCode',
-            render: (examCode: string) => {
-                return <div className="cell">{examCode}</div>;
-            }
-        },
-        {
-            title: 'Tiêu đề',
-            dataIndex: ['exam', 'examTitle'],
-            key: 'examTitle',
-            render: (examTitle: string) => {
-                return <div className="cell">{examTitle}</div>;
-            }
-        },
-        {
-            title: 'Điểm số',
-            dataIndex: 'totalScore',
-            key: 'totalScore',
-            render: (score: number | null) => {
-                return <div className="cell">{score !== null ? score.toFixed(1) : '-'}</div>;
-            }
-        },
-        {
-            title: 'Thời gian bắt đầu',
-            dataIndex: ['exam', 'startTime'],
-            key: 'startTime',
-            render: (startTime: number) => {
-                return <div className="cell">{startTime ? dayjs.unix(startTime).format('DD/MM/YYYY HH:mm') : '-'}</div>;
-            }
-        },
-        {
-            title: 'Thời gian kết thúc',
-            dataIndex: ['exam', 'endTime'],
-            key: 'endTime',
-            render: (endTime: number) => {
-                return <div className="cell">{endTime ? dayjs.unix(endTime).format('DD/MM/YYYY HH:mm') : '-'}</div>;
-            }
-        },
-        {
-            title: 'Hành động',
-            key: 'action',
-            render: (_: unknown, record: CompletedExamData) => {
-                return (
-                    <div className="cell">
-                        <Button type="link" onClick={() => handleViewExamDetail(record.exam.examId, true)}>
-                            Xem kết quả
-                        </Button>
-                    </div>
-                );
-            }
-        }
-    ];
-
-    const ongoingExamsColumns = [
-        {
-            title: 'Mã bài thi',
-            dataIndex: ['exam', 'examCode'],
-            key: 'examCode',
-            render: (examCode: string) => {
-                return <div className="cell">{examCode}</div>;
-            }
-        },
-        {
-            title: 'Tiêu đề',
-            dataIndex: ['exam', 'examTitle'],
-            key: 'examTitle',
-            render: (examTitle: string) => {
-                return <div className="cell">{examTitle}</div>;
-            }
-        },
-        {
-            title: 'Thời gian bắt đầu',
-            dataIndex: ['exam', 'startTime'],
-            key: 'startTime',
-            render: (startTime: number) => {
-                return <div className="cell">{startTime ? dayjs.unix(startTime).format('DD/MM/YYYY HH:mm') : '-'}</div>;
-            }
-        },
-        {
-            title: 'Thời gian kết thúc',
-            dataIndex: ['exam', 'endTime'],
-            key: 'endTime',
-            render: (endTime: number) => {
-                return <div className="cell">{endTime ? dayjs.unix(endTime).format('DD/MM/YYYY HH:mm') : '-'}</div>;
-            }
-        },
-        {
-            title: 'Thời gian làm bài',
-            dataIndex: ['exam', 'timeLimit'],
-            key: 'timeLimit',
-            render: (timeLimit: number | null) => {
-                return <div className="cell">{timeLimit !== null ? `${timeLimit} phút` : '-'}</div>;
-            }
-        },
-        {
-            title: 'Hành động',
-            key: 'action',
-            render: (_: unknown, record: CompletedExamData) => {
-                return (
-                    <div className="cell">
-                        <Button type="link" onClick={() => handleViewExamDetail(record.exam.examId)}>
-                            Tiếp tục làm bài
-                        </Button>
-                    </div>
-                );
-            }
-        }
-    ];
 
     return (
         <div className={classnames('leetcode', globalStore.isBelow1300 ? 'col' : 'row')}>
@@ -796,71 +413,23 @@ const Exams = observer(() => {
                                 {
                                     key: 'completed',
                                     label: 'Đã kết thúc'
-                                },
-                                ...(!authentication.isInstructor
-                                    ? [
-                                          {
-                                              key: 'ongoing-exams',
-                                              label: 'Bài đang làm'
-                                          },
-                                          {
-                                              key: 'completed-exams',
-                                              label: 'Bài đã làm'
-                                          }
-                                      ]
-                                    : [])
+                                }
                             ]}
                             style={{ marginBottom: 16 }}
                         />
                         <LoadingOverlay loading={loading}>
-                            {activeTab === 'ongoing-exams' ? (
-                                <Table
-                                    columns={ongoingExamsColumns}
-                                    dataSource={ongoingExams}
-                                    rowKey="id"
-                                    loading={loadingOngoingExams}
-                                    pagination={{ pageSize: 10 }}
-                                    rowClassName={(record, index) => {
-                                        record;
-                                        return index % 2 === 0 ? 'custom-row row-even' : 'custom-row row-odd';
-                                    }}
-                                />
-                            ) : activeTab === 'completed-exams' ? (
-                                <Table
-                                    columns={completedExamsColumns}
-                                    dataSource={completedExams}
-                                    rowKey="id"
-                                    loading={loadingCompletedExams}
-                                    pagination={{ pageSize: 10 }}
-                                    rowClassName={(record, index) => {
-                                        record;
-                                        return index % 2 === 0 ? 'custom-row row-even' : 'custom-row row-odd';
-                                    }}
-                                />
-                            ) : (
-                                <ExamTable
-                                    columns={columns}
-                                    displayDatas={displayDatas}
-                                    loading={loading}
-                                    onRowClick={handleRowClick}
-                                    onEdit={handleEdit}
-                                    onCopy={handleCopy}
-                                    onRefresh={getExams}
-                                />
-                            )}
+                            <ExamTable
+                                columns={columns}
+                                displayDatas={displayDatas}
+                                loading={loading}
+                                onRowClick={handleRowClick}
+                                onEdit={handleEdit}
+                                onCopy={handleCopy}
+                                onRefresh={getExams}
+                            />
                         </LoadingOverlay>
                     </div>
                 </div>
-                <ConfirmStartExamModal
-                    open={confirmModalOpen}
-                    onCancel={() => {
-                        setConfirmModalOpen(false);
-                        setSelectedExamId(null);
-                        setSelectedExamRecord(null);
-                    }}
-                    onConfirm={handleConfirmStartExam}
-                    examRecord={selectedExamRecord}
-                />
                 <ExamFormModal
                     open={globalStore.isDetailPopupOpen}
                     updateId={updateId}
@@ -876,9 +445,6 @@ const Exams = observer(() => {
             <div className="right">
                 <CustomCalendar />
             </div>
-            <ProtectedElement acceptRoles={['STUDENT']}>
-                <AIAssistant />
-            </ProtectedElement>
         </div>
     );
 });

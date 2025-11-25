@@ -44,7 +44,7 @@ const menuItems = [
         name: 'Bài thi',
         icon: <ContainerFilled />,
         to: '/exams',
-        allowedRoles: ['STUDENT', 'INSTRUCTOR']
+        allowedRoles: ['INSTRUCTOR']
     },
     {
         id: 'ranking',

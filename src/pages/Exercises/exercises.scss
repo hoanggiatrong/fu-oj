@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .exercises {
     // padding: var(--base-size-24);
 
@@ -129,7 +131,7 @@
 
         @for $i from 1 through 6 {
             .theme-#{$i} {
-                background: linear-gradient(135deg, adjust-hue(#5c6ac4, $i * 15), adjust-hue(#9c6ade, $i * 20));
+                background: linear-gradient(135deg, color.adjust(#5c6ac4, $hue: $i * 15deg), color.adjust(#9c6ade, $hue: $i * 20deg));
             }
         }
     }

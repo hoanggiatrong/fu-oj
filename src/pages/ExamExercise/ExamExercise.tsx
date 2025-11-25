@@ -113,6 +113,7 @@ const ExamExercise = observer(() => {
     const [pendingPath, setPendingPath] = useState<string | null>(null);
     const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
     const isNavigatingRef = useRef(false);
+    const [groupExamId, setGroupExamId] = useState<string | null>(null);
 
     const getDefaultTemplate = (lang: string): string => {
         switch (lang) {
@@ -147,6 +148,35 @@ const ExamExercise = observer(() => {
 
     const selectedLang = programmingLanguages.find((lang) => lang.id === language);
     const editorLanguage = selectedLang?.editorValue || 'javascript';
+
+    useEffect(() => {
+        if (!examId || authentication.isInstructor) {
+            return;
+        }
+        const userId = authentication.account?.data?.id;
+        if (!userId) {
+            setGroupExamId(null);
+            return;
+        }
+        http.get(`/exam-rankings?userId=${userId}&examId=${examId}`)
+            .then((res) => {
+                if (Array.isArray(res.data) && res.data.length > 0) {
+                    const ranking = res.data[0];
+                    const groupExamId =
+                        ranking.groupExamId ||
+                        ranking.groupExam?.groupExamId ||
+                        ranking.groupExam?.id ||
+                        null;
+                    setGroupExamId(groupExamId);
+                } else {
+                    setGroupExamId(null);
+                }
+            })
+            .catch((err) => {
+                console.error('Error fetching exam ranking:', err);
+                setGroupExamId(null);
+            });
+    }, [examId]);
 
     const testRun = () => {
         setError('');
@@ -183,8 +213,14 @@ const ExamExercise = observer(() => {
         // Đảm bảo response đã được clear
         setResponse(null);
 
+        if (!groupExamId) {
+            globalStore.triggerNotification('error', 'Không tìm thấy thông tin bài thi trong nhóm!', '');
+            setLoading(false);
+            return;
+        }
+
         const payload = {
-            examId: examId,
+            groupExamId,
             exerciseId: exerciseId,
             sourceCode: editorValue,
             languageCode: language

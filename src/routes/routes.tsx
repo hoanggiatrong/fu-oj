@@ -102,7 +102,7 @@ const router: {
     {
         path: routesConfig.exams,
         element: (
-            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR']} allowedPermissions={[]}>
+            <ProtectedElementRoute allowedRoles={['INSTRUCTOR']} allowedPermissions={[]}>
                 <Exams />
             </ProtectedElementRoute>
         )
