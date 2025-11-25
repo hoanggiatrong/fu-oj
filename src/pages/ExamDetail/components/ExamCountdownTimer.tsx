@@ -7,8 +7,13 @@ import authentication from '../../../shared/auth/authentication';
 interface ExamRankingData {
     id: string;
     createdTimestamp: string; // ISO 8601 format UTC
-    exam: {
+    groupExam?: {
+        groupExamId: string;
         examId: string;
+        examCode: string;
+        examTitle: string;
+        groupId: string;
+        groupName: string;
         startTime: number;
         endTime: number;
         timeLimit: number | null;
@@ -47,7 +52,7 @@ const ExamCountdownTimer = observer(({ examId, compact = false, onTimeExpired }:
                 }
 
                 const examRanking = data[0];
-                const timeLimit = examRanking.exam.timeLimit ?? 90; // Mặc định 90 phút nếu null hoặc undefined
+                const timeLimit = examRanking.groupExam?.timeLimit ?? 90; // Mặc định 90 phút nếu null hoặc undefined
                 
                 // Lấy thời điểm bắt đầu làm bài từ createdTimestamp (UTC ISO string)
                 // createdTimestamp là thời điểm user bắt đầu làm bài, không phải thời điểm exam bắt đầu

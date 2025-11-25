@@ -53,46 +53,6 @@ const StudentsProgressTable = ({ examId, groupId }: StudentsProgressTableProps) 
     }, [examId, groupId]);
 
     // Tạo columns cho bảng exercises trong expanded row
-    const exerciseColumns = [
-        {
-            title: 'STT',
-            dataIndex: 'order',
-            key: 'order',
-            width: 60,
-            align: 'center' as const
-        },
-        {
-            title: 'Mã bài tập',
-            dataIndex: 'exerciseCode',
-            key: 'exerciseCode',
-            width: 100
-        },
-        {
-            title: 'Tên bài tập',
-            dataIndex: 'exerciseTitle',
-            key: 'exerciseTitle'
-        },
-        {
-            title: 'Điểm',
-            dataIndex: 'score',
-            key: 'score',
-            width: 100,
-            align: 'center' as const,
-            render: (score: number) => score.toFixed(1)
-        },
-        {
-            title: 'Trạng thái',
-            key: 'hasSubmitted',
-            width: 120,
-            align: 'center' as const,
-            render: (_: unknown, record: SubmissionExercise) => (
-                <Tag color={record.hasSubmitted ? 'green' : 'default'}>
-                    {record.hasSubmitted ? 'Đã nộp' : 'Chưa nộp'}
-                </Tag>
-            )
-        }
-    ];
-
     const columns = [
         {
             title: 'Email',
@@ -155,23 +115,7 @@ const StudentsProgressTable = ({ examId, groupId }: StudentsProgressTableProps) 
             columns={columns}
             loading={loading}
             pagination={{ pageSize: 10 }}
-            expandable={{
-                expandedRowRender: (record: StudentProgress) => {
-                    if (!record.hasJoined || record.submissionExercises.length === 0) {
-                        return <div style={{ padding: '16px' }}>Chưa có bài tập nào được nộp</div>;
-                    }
-                    return (
-                        <Table
-                            dataSource={record.submissionExercises}
-                            columns={exerciseColumns}
-                            pagination={false}
-                            size="small"
-                            rowKey="exerciseId"
-                        />
-                    );
-                },
-                rowExpandable: (record: StudentProgress) => record.hasJoined && record.submissionExercises.length > 0
-            }}
+            expandable={undefined}
         />
     );
 };
