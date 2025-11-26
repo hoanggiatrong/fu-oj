@@ -231,12 +231,12 @@ const ExamExercise = observer(() => {
                 // KHÔNG set response để không hiển thị kết quả
                 // Đảm bảo response vẫn là null
                 setResponse(null);
-                
+
                 // Nếu nộp bài thành công (status 201), quay lại trang bài tập ngay lập tức
                 // KHÔNG set response để không hiển thị kết quả
                 // Đảm bảo response vẫn là null
                 setResponse(null);
-                
+
                 // Nếu nộp bài thành công (status 201), quay lại trang bài tập ngay lập tức
                 if (res.status === 201 && examId) {
                     navigate(`/${routesConfig.exam}`.replace(':id', examId));
@@ -565,8 +565,8 @@ const ExamExercise = observer(() => {
                             </div>
                             {examId && !authentication.isInstructor && (
                                 <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
-                                    <ExamCountdownTimer 
-                                        examId={examId} 
+                                    <ExamCountdownTimer
+                                        examId={examId}
                                         compact={true}
                                         onTimeExpired={() => {
                                             // Tự động quay về trang danh sách bài tập khi hết thời gian

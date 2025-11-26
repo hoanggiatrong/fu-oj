@@ -1,14 +1,12 @@
 import { BookOutlined, CalendarOutlined, CopyOutlined, UserOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Avatar, Button, Col, Row, Tabs, Form } from 'antd';
+import { Avatar, Button, Col, Form, Row, Tabs } from 'antd';
 import classnames from 'classnames';
+import dayjs from 'dayjs';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
-import dayjs from 'dayjs';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import globalStore from '../../components/GlobalComponent/globalStore';
-import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
 import authentication from '../../shared/auth/authentication';
@@ -368,9 +366,6 @@ const GroupDetail = observer(() => {
                 setEditingRecord={(_record) => undefined}
                 onCancel={handleCloseExamModal}
             />
-            <ProtectedElement acceptRoles={['STUDENT']}>
-                <AIAssistant />
-            </ProtectedElement>
         </div>
     );
 });

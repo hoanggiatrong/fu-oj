@@ -2,7 +2,6 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import * as http from '../../lib/httpRequest';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import { Button, Input, Table, Form, Modal } from 'antd';
 import type { FormProps } from 'antd';
 import Line from '../../components/Line/Line';
@@ -132,10 +131,10 @@ const Topics = observer(() => {
     useEffect(() => {
         const filtered = search
             ? datas.filter(
-                  (data: TopicData) =>
-                      (data?.name || '').toLowerCase().includes(search.toLowerCase()) ||
-                      (data?.description || '').toLowerCase().includes(search.toLowerCase())
-              )
+                (data: TopicData) =>
+                    (data?.name || '').toLowerCase().includes(search.toLowerCase()) ||
+                    (data?.description || '').toLowerCase().includes(search.toLowerCase())
+            )
             : datas;
         setDisplayDatas(filtered);
     }, [search, datas]);
@@ -251,9 +250,6 @@ const Topics = observer(() => {
                     </div>
                 </Modal>
             </div>
-            <ProtectedElement acceptRoles={['STUDENT']}>
-                <AIAssistant />
-            </ProtectedElement>
         </ProtectedElement>
     );
 });

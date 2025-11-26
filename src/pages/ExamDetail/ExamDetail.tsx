@@ -366,10 +366,10 @@ const ExamDetail = observer(() => {
                                             style={
                                                 isCompleted
                                                     ? {
-                                                          color: '#999',
-                                                          opacity: 0.7,
-                                                          cursor: 'default'
-                                                      }
+                                                        color: '#999',
+                                                        opacity: 0.7,
+                                                        cursor: 'default'
+                                                    }
                                                     : {}
                                             }
                                         >

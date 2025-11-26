@@ -5,7 +5,6 @@ import { Table, Avatar, Tag } from 'antd';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import classnames from 'classnames';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import { TrophyOutlined } from '@ant-design/icons';
 
@@ -60,15 +59,15 @@ const Ranking = observer(() => {
             .then((res: ScoresResponse) => {
                 const allData = res.data || [];
                 setAllDatas(allData);
-                
+
                 // Top 3 cho podium
                 const top3 = allData.slice(0, 3);
                 setTopThree(top3);
-                
+
                 // Dữ liệu cho bảng (từ người thứ 4 trở đi)
                 const tableData = allData.slice(3);
                 setTableDatas(tableData);
-                
+
                 setPagination({
                     current: 1,
                     pageSize: 10,
@@ -168,10 +167,10 @@ const Ranking = observer(() => {
             dataIndex: 'user',
             key: 'user',
             render: (user: User) => {
-                const displayName = user.firstName && user.lastName 
-                    ? `${user.firstName} ${user.lastName}` 
+                const displayName = user.firstName && user.lastName
+                    ? `${user.firstName} ${user.lastName}`
                     : user.email?.split('@')[0] || 'Unknown';
-                
+
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <Avatar src={user.avatar} size={40}>
@@ -343,9 +342,6 @@ const Ranking = observer(() => {
                     />
                 </LoadingOverlay>
             </div>
-            <ProtectedElement acceptRoles={['STUDENT']}>
-                <AIAssistant />
-            </ProtectedElement>
         </div>
     );
 });

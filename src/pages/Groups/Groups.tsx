@@ -11,7 +11,6 @@ import globalStore from '../../components/GlobalComponent/globalStore';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import * as http from '../../lib/httpRequest';
 import authentication from '../../shared/auth/authentication';
 
@@ -103,10 +102,10 @@ const Groups = observer(() => {
     useEffect(() => {
         const displayDatas = search
             ? datas.filter(
-                  (data: any) =>
-                      data?.name.toLowerCase().includes(search.toLowerCase()) ||
-                      data?.description.toLowerCase().includes(search.toLowerCase())
-              )
+                (data: any) =>
+                    data?.name.toLowerCase().includes(search.toLowerCase()) ||
+                    data?.description.toLowerCase().includes(search.toLowerCase())
+            )
             : datas;
 
         setDisplayDatas(displayDatas);
@@ -186,62 +185,62 @@ const Groups = observer(() => {
                                                     actions={
                                                         authentication.isInstructor
                                                             ? [
-                                                                  <EditOutlined
-                                                                      key="edit"
-                                                                      onClick={(e) => {
-                                                                          e.stopPropagation();
-                                                                          globalStore.setOpenDetailPopup(true);
+                                                                <EditOutlined
+                                                                    key="edit"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        globalStore.setOpenDetailPopup(true);
 
-                                                                          form.setFieldsValue({
-                                                                              name: item.name,
-                                                                              description: item.description,
-                                                                              isPublic: item.public
-                                                                          });
+                                                                        form.setFieldsValue({
+                                                                            name: item.name,
+                                                                            description: item.description,
+                                                                            isPublic: item.public
+                                                                        });
 
-                                                                          setUpdateId(item.id);
-                                                                      }}
-                                                                  />,
-                                                                  <Popconfirm
-                                                                      // title="Are you sure you want to delete this exercise?"
-                                                                      title="Bạn có chắc chắn muốn xóa nhóm này?"
-                                                                      okText="Có"
-                                                                      cancelText="Không"
-                                                                      onConfirm={() => {
-                                                                          http.deleteById('/groups', item.id).then(
-                                                                              (res) => {
-                                                                                  globalStore.triggerNotification(
-                                                                                      'success',
-                                                                                      res.message ||
-                                                                                          'Delete successfully!',
-                                                                                      ''
-                                                                                  );
-                                                                                  getGroups();
-                                                                              }
-                                                                          );
-                                                                      }}
-                                                                  >
-                                                                      <DeleteOutlined
-                                                                          key="ellipsis"
-                                                                          onClick={(e) => e.stopPropagation()}
-                                                                      />
-                                                                  </Popconfirm>,
-                                                                  <SettingOutlined key="setting" />
-                                                              ]
+                                                                        setUpdateId(item.id);
+                                                                    }}
+                                                                />,
+                                                                <Popconfirm
+                                                                    // title="Are you sure you want to delete this exercise?"
+                                                                    title="Bạn có chắc chắn muốn xóa nhóm này?"
+                                                                    okText="Có"
+                                                                    cancelText="Không"
+                                                                    onConfirm={() => {
+                                                                        http.deleteById('/groups', item.id).then(
+                                                                            (res) => {
+                                                                                globalStore.triggerNotification(
+                                                                                    'success',
+                                                                                    res.message ||
+                                                                                    'Delete successfully!',
+                                                                                    ''
+                                                                                );
+                                                                                getGroups();
+                                                                            }
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <DeleteOutlined
+                                                                        key="ellipsis"
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                    />
+                                                                </Popconfirm>,
+                                                                <SettingOutlined key="setting" />
+                                                            ]
                                                             : [
-                                                                  <div className="max-width pl-8 pr-8">
-                                                                      <Button
-                                                                          className="max-width"
-                                                                          type="primary"
-                                                                          disabled={item.joined}
-                                                                          onClick={(e) => {
-                                                                              e.stopPropagation();
-                                                                              onJoin({ joinCode: item.code });
-                                                                          }}
-                                                                      >
-                                                                          {item.joined ? 'Đã tham gia' : 'Tham gia'}
-                                                                      </Button>
-                                                                  </div>
-                                                              ]
+                                                                <div className="max-width pl-8 pr-8">
+                                                                    <Button
+                                                                        className="max-width"
+                                                                        type="primary"
+                                                                        disabled={item.joined}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            onJoin({ joinCode: item.code });
+                                                                        }}
+                                                                    >
+                                                                        {item.joined ? 'Đã tham gia' : 'Tham gia'}
+                                                                    </Button>
+                                                                </div>
+                                                            ]
                                                     }
                                                 >
                                                     <Meta
@@ -269,9 +268,8 @@ const Groups = observer(() => {
                                                             {item.alittleStudent?.map((i: any) => {
                                                                 return (
                                                                     <TooltipWrapper
-                                                                        tooltipText={`${i.firstName || ''} ${
-                                                                            i.lastName || ''
-                                                                        }`}
+                                                                        tooltipText={`${i.firstName || ''} ${i.lastName || ''
+                                                                            }`}
                                                                         position="top"
                                                                     >
                                                                         <div className="member">
@@ -285,12 +283,12 @@ const Groups = observer(() => {
                                                                     </TooltipWrapper>
                                                                 );
                                                             }) || (
-                                                                <div className="member">
-                                                                    <Avatar
-                                                                        src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
-                                                                    />
-                                                                </div>
-                                                            )}
+                                                                    <div className="member">
+                                                                        <Avatar
+                                                                            src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item}`}
+                                                                        />
+                                                                    </div>
+                                                                )}
                                                             {item.alittleStudent.length > 5 ? (
                                                                 <div className="member">
                                                                     `+${item.alittleStudent.length - 5}`
@@ -403,9 +401,6 @@ const Groups = observer(() => {
             <div className="right">
                 <CustomCalendar />
             </div>
-            <ProtectedElement acceptRoles={['STUDENT']}>
-                <AIAssistant />
-            </ProtectedElement>
         </div>
     );
 });

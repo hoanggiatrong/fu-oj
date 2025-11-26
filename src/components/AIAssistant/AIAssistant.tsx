@@ -2,7 +2,7 @@ import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import { Avatar, Input } from 'antd';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import * as http from '../../lib/httpRequest';
 import './ai-assistant.scss';
 
@@ -13,7 +13,13 @@ interface Message {
     timestamp: Date;
 }
 
-const AIAssistant = observer(({ defaultOpen }: { defaultOpen?: boolean }) => {
+interface AIAssistantProps {
+    defaultOpen?: boolean;
+    exerciseId?: string;
+    autoMessage?: string;
+}
+
+const AIAssistant = observer(({ defaultOpen, exerciseId, autoMessage }: AIAssistantProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -25,6 +31,7 @@ const AIAssistant = observer(({ defaultOpen }: { defaultOpen?: boolean }) => {
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [hasAutoSent, setHasAutoSent] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -36,23 +43,29 @@ const AIAssistant = observer(({ defaultOpen }: { defaultOpen?: boolean }) => {
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSendMessage = async () => {
-        if (!inputValue.trim() || isTyping) return;
+    const handleSendMessage = useCallback(async (messageText?: string, skipUserMessage: boolean = false) => {
+        const textToSend = messageText ? messageText.trim() : inputValue.trim();
+        if (!textToSend || isTyping) return;
 
-        const messageText = inputValue.trim();
-        const userMessage: Message = {
-            id: Date.now().toString(),
-            text: messageText,
-            isUser: true,
-            timestamp: new Date()
-        };
+        if (!skipUserMessage) {
+            const userMessage: Message = {
+                id: Date.now().toString(),
+                text: textToSend,
+                isUser: true,
+                timestamp: new Date()
+            };
+            setMessages((prev) => [...prev, userMessage]);
+            setInputValue('');
+        }
 
-        setMessages((prev) => [...prev, userMessage]);
-        setInputValue('');
         setIsTyping(true);
 
         try {
-            const response = await http.post('/chat', { message: messageText });
+            const requestBody: any = { message: textToSend };
+            if (exerciseId) {
+                requestBody.exerciseId = exerciseId;
+            }
+            const response = await http.post('/chat', requestBody);
             const aiMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 text:
@@ -76,7 +89,7 @@ const AIAssistant = observer(({ defaultOpen }: { defaultOpen?: boolean }) => {
         } finally {
             setIsTyping(false);
         }
-    };
+    }, [inputValue, isTyping, exerciseId]);
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -90,6 +103,18 @@ const AIAssistant = observer(({ defaultOpen }: { defaultOpen?: boolean }) => {
             setIsOpen(true);
         }
     }, [defaultOpen]);
+
+    // Tự động gửi message khi tab được mở và có autoMessage
+    useEffect(() => {
+        if (defaultOpen && autoMessage && !hasAutoSent && isOpen) {
+            setHasAutoSent(true);
+            // Delay một chút để đảm bảo UI đã render
+            const timer = setTimeout(() => {
+                handleSendMessage(autoMessage, false);
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [defaultOpen, autoMessage, isOpen, hasAutoSent, handleSendMessage]);
 
     return (
         <div className="ai-assistant-container">
@@ -193,7 +218,7 @@ const AIAssistant = observer(({ defaultOpen }: { defaultOpen?: boolean }) => {
                                     className={classnames('ai-assistant-send', {
                                         'ai-assistant-send-disabled': !inputValue.trim() || isTyping
                                     })}
-                                    onClick={handleSendMessage}
+                                    onClick={() => handleSendMessage()}
                                     style={{
                                         display: 'inline-flex',
                                         alignItems: 'center',

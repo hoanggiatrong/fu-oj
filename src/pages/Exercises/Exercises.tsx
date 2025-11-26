@@ -14,10 +14,9 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from 'react-router-dom';
-import Shepherd from 'shepherd.js';
 import type { StepOptions } from 'shepherd.js';
+import Shepherd from 'shepherd.js';
 import 'shepherd.js/dist/css/shepherd.css';
-import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
@@ -28,7 +27,6 @@ import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import CourseSlider, { type CourseSliderItem } from './components/CourseSlider';
-
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
@@ -470,7 +468,7 @@ const Exercises = observer(() => {
     // Create tour guide
     const createTour = useCallback(() => {
         const isInstructor = authentication.isInstructor;
-        
+
         const studentSteps: StepOptions[] = [
             {
                 id: 'course-slider',
@@ -784,7 +782,7 @@ const Exercises = observer(() => {
         ];
 
         const steps = isInstructor ? instructorSteps : studentSteps;
-        
+
         const tour = new Shepherd.Tour({
             useModalOverlay: true,
             defaultStepOptions: {
@@ -818,12 +816,12 @@ const Exercises = observer(() => {
         const isStudent = authentication.isStudent;
         const tourKey = isInstructor ? 'exercises-instructor-tour-completed' : 'exercises-tour-completed';
         const hasCompletedTour = localStorage.getItem(tourKey);
-        
+
         if ((isStudent || isInstructor) && !hasCompletedTour && !loading && datas.length > 0) {
             // Delay to ensure DOM is ready
             let retryCount = 0;
             const maxRetries = 10;
-            
+
             const checkElements = () => {
                 if (isInstructor) {
                     const aiCreateBtn = document.querySelector('[data-tourid="ai-create-btn"]');
@@ -832,7 +830,7 @@ const Exercises = observer(() => {
                     const filterBtn = document.querySelector('[data-tourid="filter-btn"]');
                     const exercisesTable = document.querySelector('[data-tourid="exercises-table"]');
                     const tableActions = document.querySelector('[data-tourid="table-actions"]');
-                    
+
                     if (aiCreateBtn && createBtn && searchInput && filterBtn && exercisesTable && tableActions) {
                         if (!tourRef.current) {
                             tourRef.current = createTour();
@@ -848,7 +846,7 @@ const Exercises = observer(() => {
                     const filterBtn = document.querySelector('[data-tourid="filter-btn"]');
                     const randomBtn = document.querySelector('[data-tourid="random-btn"]');
                     const exercisesTable = document.querySelector('[data-tourid="exercises-table"]');
-                    
+
                     if (courseSlider || searchInput || filterBtn || randomBtn || exercisesTable) {
                         if (!tourRef.current) {
                             tourRef.current = createTour();
@@ -1064,8 +1062,8 @@ const Exercises = observer(() => {
                     })}
                 >
                     <div className="filters">
-                        <Input 
-                            placeholder="Tìm kiếm bài tập" 
+                        <Input
+                            placeholder="Tìm kiếm bài tập"
                             onChange={(e) => setSearch(e.target.value)}
                             data-tourid="search-input"
                         />
@@ -1167,8 +1165,8 @@ const Exercises = observer(() => {
                                     <RobotOutlined className="custom-ant-ico color-purple" />
                                     Tạo câu hỏi với AI
                                 </div>
-                                <div 
-                                    className="custom-btn-ico" 
+                                <div
+                                    className="custom-btn-ico"
                                     onClick={() => globalStore.setOpenDetailPopup(true)}
                                     data-tourid="create-btn"
                                 >
@@ -1219,9 +1217,6 @@ const Exercises = observer(() => {
             <div className="right">
                 <CustomCalendar />
             </div>
-            <ProtectedElement acceptRoles={['STUDENT']}>
-                <AIAssistant />
-            </ProtectedElement>
         </div>
     );
 });

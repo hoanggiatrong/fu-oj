@@ -31,6 +31,7 @@ import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import Submissions from './components/Submissions';
 import AIAssistant from './components/AIAssistant';
+import Comments from './components/Comments';
 
 const json = {
     global: { tabSetEnableClose: false },
@@ -59,6 +60,12 @@ const json = {
                         name: 'AI Assistant',
                         component: 'ai-assistant',
                         icon: '/sources/icons/ai-assistant-ico.svg'
+                    },
+                    {
+                        type: 'tab',
+                        name: 'Comment',
+                        component: 'comments',
+                        icon: '/sources/icons/list-ico.svg'
                     }
                 ]
             },
@@ -476,11 +483,9 @@ const Exercise = observer(() => {
                 </div>
             );
         } else if (component === 'ai-assistant') {
-            return (
-                <div data-tourid="ai-assistant-tab">
-                    <AIAssistant />
-                </div>
-            );
+            return <AIAssistant />;
+        } else if (component === 'comments') {
+            return <Comments exerciseId={id || exerciseId} />;
         }
         return null;
     };
@@ -722,14 +727,14 @@ const Exercise = observer(() => {
         if (authentication.isStudent && exercise) {
             const tourKey = 'exercise-tour-completed';
             const hasCompletedTour = localStorage.getItem(tourKey);
-            
+
             if (!hasCompletedTour) {
                 // Delay to ensure DOM and FlexLayout are ready
                 setTimeout(() => {
                     // Double check that elements exist before starting tour
                     const descriptionEl = document.querySelector('[data-tourid="exercise-description"]');
                     const editorEl = document.querySelector('[data-tourid="code-editor"]');
-                    
+
                     if (descriptionEl && editorEl) {
                         if (!tourRef.current) {
                             tourRef.current = createTour();
