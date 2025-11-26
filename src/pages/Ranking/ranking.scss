@@ -21,6 +21,11 @@
         padding: var(--base-size-32) 0;
         background: var(--color-background);
         border-radius: var(--borderRadius-medium);
+        border: 1px solid var(--color-border);
+
+        background-image: url('/sources/bg-world.png');
+        background-size: cover;
+        background-repeat: no-repeat;
     }
 
     .podium-container {
@@ -52,7 +57,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: var(--base-size-8);
+            // gap: var(--base-size-8);
             position: relative;
             z-index: 2;
             margin-bottom: var(--base-size-8);
@@ -60,9 +65,11 @@
             .podium-avatar {
                 border: 4px solid #fff;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                margin-bottom: var(--base-size-8);
             }
 
             .podium-name {
+                margin-bottom: var(--base-size-8);
                 font-size: var(--base-size-16);
                 font-weight: var(--base-text-weight-semibold);
                 text-align: center;
@@ -79,11 +86,52 @@
                 color: #1890ff;
             }
 
-            .podium-trophy {
+            .podium-trophy-1 {
                 margin-top: var(--base-size-8);
                 img {
-                    width: 48px;
-                    height: 48px;
+                    width: var(--base-size-80);
+                    height: var(--base-size-80);
+                }
+            }
+
+            .podium-trophy-2 {
+                margin-top: var(--base-size-8);
+                img {
+                    width: var(--base-size-60);
+                    height: var(--base-size-60);
+                }
+            }
+
+            .podium-trophy-3 {
+                margin-top: var(--base-size-8);
+                img {
+                    width: var(--base-size-50);
+                    height: var(--base-size-50);
+                }
+            }
+
+            & > .ant-avatar {
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    z-index: 0;
+                    opacity: 0.08;
+                    background-image: radial-gradient(#ffffff40, #fff0 40%),
+                        radial-gradient(
+                            hsl(44, 100%, 66%) 30%,
+                            hsl(338, 68%, 65%),
+                            hsla(338, 68%, 65%, 0.4) 41%,
+                            transparent 52%
+                        ),
+                        radial-gradient(hsl(272, 100%, 60%) 37%, transparent 46%),
+                        linear-gradient(155deg, transparent 65%, hsl(142, 70%, 49%) 95%),
+                        linear-gradient(45deg, #0065e0, #0f8bff);
+                    background-size: 200% 200%, 285% 500%, 285% 500%, cover, cover;
+                    background-position: bottom left, 109% 68%, 109% 68%, center, center;
                 }
             }
         }
@@ -104,6 +152,29 @@
                 height: 4px;
                 background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
             }
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 0;
+                opacity: 0.08;
+                background-image: radial-gradient(#ffffff40, #fff0 40%),
+                    radial-gradient(
+                        hsl(44, 100%, 66%) 30%,
+                        hsl(338, 68%, 65%),
+                        hsla(338, 68%, 65%, 0.4) 41%,
+                        transparent 52%
+                    ),
+                    radial-gradient(hsl(272, 100%, 60%) 37%, transparent 46%),
+                    linear-gradient(155deg, transparent 65%, hsl(142, 70%, 49%) 95%),
+                    linear-gradient(45deg, #0065e0, #0f8bff);
+                background-size: 200% 200%, 285% 500%, 285% 500%, cover, cover;
+                background-position: bottom left, 109% 68%, 109% 68%, center, center;
+            }
         }
 
         &.first-place {
@@ -112,7 +183,7 @@
             }
 
             .podium-number {
-                color: #FFD700;
+                color: #ffd700;
                 opacity: 0.5;
             }
         }
@@ -123,7 +194,7 @@
             }
 
             .podium-number {
-                color: #C0C0C0;
+                color: #c0c0c0;
                 opacity: 0.5;
             }
         }
@@ -134,7 +205,7 @@
             }
 
             .podium-number {
-                color: #CD7F32;
+                color: #cd7f32;
                 opacity: 0.5;
             }
         }
@@ -143,7 +214,6 @@
     .body {
         background: var(--color-background);
         border-radius: var(--borderRadius-medium);
-        padding: var(--base-size-16);
+        // padding: var(--base-size-16);
     }
 }
-

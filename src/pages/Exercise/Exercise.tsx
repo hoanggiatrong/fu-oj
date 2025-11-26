@@ -410,7 +410,10 @@ const Exercise = observer(() => {
                                         : 'wrong'
                                 )}
                             >
-                                <div className="header">{utils.capitalizeFirstLetter(response?.data?.verdict)}</div>
+                                <div className="header">
+                                    {response?.data?.verdict == 'PROCESSING' && <LoadingOutlined className="mr-8" />}
+                                    {utils.capitalizeFirstLetter(response?.data?.verdict)}
+                                </div>
                             </div>
                             <div className="solution">
                                 <div className="header">Gợi ý lời giải</div>

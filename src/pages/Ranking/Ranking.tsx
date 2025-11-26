@@ -12,7 +12,7 @@ interface User {
     email: string;
     firstName: string | null;
     lastName: string | null;
-    avatar: string | null;
+    avatar: any;
     rollNumber: string | null;
 }
 
@@ -250,11 +250,11 @@ const Ranking = observer(() => {
                 <div className="podium-section">
                     <div className="podium-container">
                         {/* Hạng 2 - Bên trái */}
-                        {topThree[1] && (
+                        {
                             <div className="podium-item second-place">
-                                <div className="podium-number">2</div>
+                                {/* <div className="podium-number">2</div> */}
                                 <div className="podium-content">
-                                    <Avatar src={topThree[1]?.user?.avatar} size={80} className="podium-avatar">
+                                    <Avatar src={topThree[1]?.user?.avatar?.url} size={80} className="podium-avatar">
                                         {topThree[1]?.user?.firstName?.[0] ||
                                             topThree[1]?.user?.email?.[0]?.toUpperCase() ||
                                             '?'}
@@ -265,20 +265,20 @@ const Ranking = observer(() => {
                                             : topThree[1]?.user?.email?.split('@')[0] || 'Unknown'}
                                     </div>
                                     <div className="podium-score">{topThree[1]?.totalScore?.toFixed(1) || '0.0'}</div>
-                                    <div className="podium-trophy">
+                                    <div className="podium-trophy-2">
                                         <img src="/sources/ranks/rank2.png" alt="Rank 2" />
                                     </div>
                                 </div>
                                 <div className="podium-base"></div>
                             </div>
-                        )}
+                        }
 
                         {/* Hạng 1 - Ở giữa (cao nhất) */}
-                        {topThree[0] && (
+                        {
                             <div className="podium-item first-place">
-                                <div className="podium-number">1</div>
+                                {/* <div className="podium-number">1</div> */}
                                 <div className="podium-content">
-                                    <Avatar src={topThree[0]?.user?.avatar} size={100} className="podium-avatar">
+                                    <Avatar src={topThree[0]?.user?.avatar?.url} size={100} className="podium-avatar">
                                         {topThree[0]?.user?.firstName?.[0] ||
                                             topThree[0]?.user?.email?.[0]?.toUpperCase() ||
                                             '?'}
@@ -289,20 +289,20 @@ const Ranking = observer(() => {
                                             : topThree[0]?.user?.email?.split('@')[0] || 'Unknown'}
                                     </div>
                                     <div className="podium-score">{topThree[0]?.totalScore?.toFixed(1) || '0.0'}</div>
-                                    <div className="podium-trophy">
+                                    <div className="podium-trophy-1">
                                         <img src="/sources/ranks/rank1.png" alt="Rank 1" />
                                     </div>
                                 </div>
                                 <div className="podium-base"></div>
                             </div>
-                        )}
+                        }
 
                         {/* Hạng 3 - Bên phải */}
-                        {topThree[2] && (
+                        {
                             <div className="podium-item third-place">
-                                <div className="podium-number">3</div>
+                                {/* <div className="podium-number">3</div> */}
                                 <div className="podium-content">
-                                    <Avatar src={topThree[2]?.user?.avatar} size={80} className="podium-avatar">
+                                    <Avatar src={topThree[2]?.user?.avatar?.url} size={80} className="podium-avatar">
                                         {topThree[2]?.user?.firstName?.[0] ||
                                             topThree[2]?.user?.email?.[0]?.toUpperCase() ||
                                             '?'}
@@ -313,13 +313,13 @@ const Ranking = observer(() => {
                                             : topThree[2]?.user?.email?.split('@')[0] || 'Unknown'}
                                     </div>
                                     <div className="podium-score">{topThree[2]?.totalScore?.toFixed(1) || '0.0'}</div>
-                                    <div className="podium-trophy">
+                                    <div className="podium-trophy-3">
                                         <img src="/sources/ranks/rank3.png" alt="Rank 3" />
                                     </div>
                                 </div>
                                 <div className="podium-base"></div>
                             </div>
-                        )}
+                        }
                     </div>
                 </div>
             )}
