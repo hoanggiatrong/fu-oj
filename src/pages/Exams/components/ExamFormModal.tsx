@@ -23,6 +23,7 @@ interface ExamFormModalProps {
     form: any;
     setUpdateId: (id: string | null) => void;
     setEditingRecord: (record: ExamData | null) => void;
+    onCancel?: () => void;
 }
 
 const ExamFormModal = observer(
@@ -35,7 +36,8 @@ const ExamFormModal = observer(
         onFinish,
         form,
         setUpdateId,
-        setEditingRecord
+        setEditingRecord,
+        onCancel
     }: ExamFormModalProps) => {
         const [originalDatas, setOriginalDatas] = useState<any>(null);
         const [displayDatas, setDisplayDatas] = useState<any>(null);
@@ -113,7 +115,11 @@ const ExamFormModal = observer(
             form.resetFields();
             setUpdateId(null);
             setEditingRecord(null);
-            globalStore.setOpenDetailPopup(false);
+            if (onCancel) {
+                onCancel();
+            } else {
+                globalStore.setOpenDetailPopup(false);
+            }
         };
 
         return (

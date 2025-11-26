@@ -29,6 +29,7 @@
     "react-mosaic-component": "^6.1.1",
     "react-router-dom": "^7.9.4",
     "react-toastify": "^11.0.5",
+    "shepherd.js": "^14.5.1",
     "vite-plugin-monaco-editor": "^1.1.0"
   },
   "devDependencies": {

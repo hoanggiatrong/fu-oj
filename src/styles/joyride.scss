@@ -1,0 +1,116 @@
+// Joyride tour guide styles using system theme variables
+.react-joyride__tooltip {
+    background: var(--color-tooltip-bg) !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text-secondary) !important;
+    box-shadow: 0 4px 12px var(--box-shadow-color) !important;
+    z-index: 10000 !important;
+}
+
+.react-joyride__tooltip__header {
+    color: var(--color-text-secondary) !important;
+}
+
+.react-joyride__tooltip__content {
+    color: var(--color-text-secondary) !important;
+}
+
+.react-joyride__tooltip__footer {
+    border-top: 1px solid var(--color-border) !important;
+}
+
+// Button styles
+.react-joyride__button {
+    &--primary {
+        background: var(--color-link) !important;
+        color: #ffffff !important;
+        border: none !important;
+        
+        &:hover {
+            background: var(--color-link) !important;
+            opacity: 0.9;
+            color: #ffffff !important;
+        }
+        
+        &:focus {
+            background: var(--color-link) !important;
+            color: #ffffff !important;
+        }
+    }
+    
+    &--back {
+        color: #ffffff !important;
+        background: var(--color-link) !important;
+        
+        &:hover {
+            color: #ffffff !important;
+            background: var(--color-link) !important;
+        }
+    }
+    
+    &--skip {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        
+        &:hover {
+            color: #ffffff !important;
+            opacity: 0.8;
+        }
+    }
+    
+    &--close {
+        color: #ffffff !important;
+        background: var(--color-link) !important;
+        
+        &:hover {
+            color: #ffffff !important;
+            background: var(--color-link) !important;
+        }
+    }
+}
+
+// Skip button color for dark mode
+body.theme-dark .react-joyride__button--skip {
+    color: var(--color-link) !important;
+    
+    &:hover {
+        color: var(--color-link) !important;
+        opacity: 0.8;
+    }
+}
+
+// Overlay and spotlight
+.react-joyride__overlay {
+    fill: rgba(0, 0, 0, 0.5) !important;
+}
+
+.react-joyride__spotlight {
+    fill: transparent !important;
+}
+
+// Beacon
+.react-joyride__beacon {
+    &__inner {
+        background: var(--color-link) !important;
+    }
+    
+    &__outer {
+        border-color: var(--color-link) !important;
+    }
+}
+
+// Ensure z-index is high enough
+.react-joyride__overlay,
+.react-joyride__spotlight {
+    z-index: 9999 !important;
+}
+
+// Override any inline styles that might be set
+[class*='react-joyride'] {
+    button[class*='button'][class*='primary'] {
+        background-color: var(--color-link) !important;
+        color: #ffffff !important;
+        border-color: var(--color-link) !important;
+    }
+}
+

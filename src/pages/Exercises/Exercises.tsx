@@ -11,9 +11,12 @@ import type { FormProps } from 'antd';
 import { Button, Form, Input, InputNumber, Modal, Popconfirm, Popover, Select, Steps, Table, Tag } from 'antd';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from 'react-router-dom';
+import Shepherd from 'shepherd.js';
+import type { StepOptions } from 'shepherd.js';
+import 'shepherd.js/dist/css/shepherd.css';
 import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 import globalStore from '../../components/GlobalComponent/globalStore';
@@ -25,6 +28,7 @@ import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import CourseSlider, { type CourseSliderItem } from './components/CourseSlider';
+
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
@@ -46,6 +50,7 @@ const Exercises = observer(() => {
     const [courses, setCourses] = useState<CourseSliderItem[]>([]);
     const [coursesLoading, setCoursesLoading] = useState(false);
     const [form] = Form.useForm();
+    const tourRef = useRef<InstanceType<typeof Shepherd.Tour> | null>(null);
 
     const columns = [
         {
@@ -159,7 +164,7 @@ const Exercises = observer(() => {
             width: 100,
             render: (_: any, record: any) => {
                 return (
-                    <div className="actions-row cell" onClick={(e) => e.stopPropagation()}>
+                    <div className="actions-row cell" onClick={(e) => e.stopPropagation()} data-tourid="table-actions">
                         {/* <TooltipWrapper tooltipText="Thêm vào yêu thích" position="left">
                             <HeartOutlined className="action-row-btn" />
                         </TooltipWrapper> */}
@@ -462,6 +467,411 @@ const Exercises = observer(() => {
         }
     }, [isDetailPopupOpen, form]);
 
+    // Create tour guide
+    const createTour = useCallback(() => {
+        const isInstructor = authentication.isInstructor;
+        
+        const studentSteps: StepOptions[] = [
+            {
+                id: 'course-slider',
+                text: 'Đây là phần khóa học nổi bật. Bạn có thể chọn khóa học phù hợp để luyện tập theo lộ trình, tương tự như LeetCode study plan.',
+                attachTo: {
+                    element: '[data-tourid="course-slider"]',
+                    on: 'bottom' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'search-input',
+                text: 'Bạn có thể tìm kiếm bài tập theo mã bài tập hoặc tiêu đề ở đây.',
+                attachTo: {
+                    element: '[data-tourid="search-input"]',
+                    on: 'bottom' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'filter-btn',
+                text: 'Nút bộ lọc cho phép bạn lọc bài tập theo độ khó, chủ đề và khả năng hiển thị.',
+                attachTo: {
+                    element: '[data-tourid="filter-btn"]',
+                    on: 'bottom' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'random-btn',
+                text: 'Nút "Làm ngẫu nhiên" sẽ chọn ngẫu nhiên một bài tập từ danh sách để bạn luyện tập.',
+                attachTo: {
+                    element: '[data-tourid="random-btn"]',
+                    on: 'left' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'exercises-table',
+                text: 'Đây là danh sách tất cả các bài tập. Bạn có thể click vào một bài tập để bắt đầu làm. Bảng hiển thị mã bài tập, tiêu đề, độ khó và chủ đề.',
+                attachTo: {
+                    element: '[data-tourid="exercises-table"]',
+                    on: 'top' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Hoàn thành',
+                        action: () => {
+                            const tourKey = 'exercises-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.complete();
+                        }
+                    }
+                ]
+            }
+        ];
+
+        const instructorSteps: StepOptions[] = [
+            {
+                id: 'ai-create-btn',
+                text: 'Nút "Tạo câu hỏi với AI" cho phép bạn tạo bài tập mới một cách nhanh chóng với sự hỗ trợ của AI.',
+                attachTo: {
+                    element: '[data-tourid="ai-create-btn"]',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-instructor-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'create-btn',
+                text: 'Nút "Tạo mới" để tạo bài tập thủ công. Bạn sẽ điền thông tin bài tập và test cases trong modal.',
+                attachTo: {
+                    element: '[data-tourid="create-btn"]',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-instructor-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'search-input',
+                text: 'Bạn có thể tìm kiếm bài tập theo mã bài tập hoặc tiêu đề ở đây.',
+                attachTo: {
+                    element: '[data-tourid="search-input"]',
+                    on: 'bottom' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-instructor-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'filter-btn',
+                text: 'Nút bộ lọc cho phép bạn lọc bài tập theo độ khó, chủ đề và khả năng hiển thị.',
+                attachTo: {
+                    element: '[data-tourid="filter-btn"]',
+                    on: 'bottom' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-instructor-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'exercises-table',
+                text: 'Đây là danh sách tất cả các bài tập bạn đã tạo. Bảng hiển thị mã bài tập, tiêu đề, độ khó và chủ đề.',
+                attachTo: {
+                    element: '[data-tourid="exercises-table"]',
+                    on: 'top' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-instructor-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'table-actions',
+                text: 'Trong mỗi hàng bài tập, bạn có thể sử dụng nút chỉnh sửa (biểu tượng bánh răng) để cập nhật thông tin hoặc nút xóa (biểu tượng thùng rác) để xóa bài tập.',
+                attachTo: {
+                    element: '[data-tourid="table-actions"]',
+                    on: 'left' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            const tourKey = 'exercises-instructor-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Hoàn thành',
+                        action: () => {
+                            const tourKey = 'exercises-instructor-tour-completed';
+                            localStorage.setItem(tourKey, 'true');
+                            tourRef.current?.complete();
+                        }
+                    }
+                ]
+            }
+        ];
+
+        const steps = isInstructor ? instructorSteps : studentSteps;
+        
+        const tour = new Shepherd.Tour({
+            useModalOverlay: true,
+            defaultStepOptions: {
+                cancelIcon: {
+                    enabled: false
+                },
+                scrollTo: { behavior: 'smooth', block: 'center' }
+            }
+        });
+
+        steps.forEach((step) => {
+            tour.addStep(step);
+        });
+
+        tour.on('complete', () => {
+            const tourKey = isInstructor ? 'exercises-instructor-tour-completed' : 'exercises-tour-completed';
+            localStorage.setItem(tourKey, 'true');
+        });
+
+        tour.on('cancel', () => {
+            const tourKey = isInstructor ? 'exercises-instructor-tour-completed' : 'exercises-tour-completed';
+            localStorage.setItem(tourKey, 'true');
+        });
+
+        return tour;
+    }, []);
+
+    // Check if tour should run (for STUDENT or INSTRUCTOR, first time only)
+    useEffect(() => {
+        const isInstructor = authentication.isInstructor;
+        const isStudent = authentication.isStudent;
+        const tourKey = isInstructor ? 'exercises-instructor-tour-completed' : 'exercises-tour-completed';
+        const hasCompletedTour = localStorage.getItem(tourKey);
+        
+        if ((isStudent || isInstructor) && !hasCompletedTour && !loading && datas.length > 0) {
+            // Delay to ensure DOM is ready
+            let retryCount = 0;
+            const maxRetries = 10;
+            
+            const checkElements = () => {
+                if (isInstructor) {
+                    const aiCreateBtn = document.querySelector('[data-tourid="ai-create-btn"]');
+                    const createBtn = document.querySelector('[data-tourid="create-btn"]');
+                    const searchInput = document.querySelector('[data-tourid="search-input"]');
+                    const filterBtn = document.querySelector('[data-tourid="filter-btn"]');
+                    const exercisesTable = document.querySelector('[data-tourid="exercises-table"]');
+                    const tableActions = document.querySelector('[data-tourid="table-actions"]');
+                    
+                    if (aiCreateBtn && createBtn && searchInput && filterBtn && exercisesTable && tableActions) {
+                        if (!tourRef.current) {
+                            tourRef.current = createTour();
+                            tourRef.current.start();
+                        }
+                    } else if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(checkElements, 500);
+                    }
+                } else {
+                    const courseSlider = document.querySelector('[data-tourid="course-slider"]');
+                    const searchInput = document.querySelector('[data-tourid="search-input"]');
+                    const filterBtn = document.querySelector('[data-tourid="filter-btn"]');
+                    const randomBtn = document.querySelector('[data-tourid="random-btn"]');
+                    const exercisesTable = document.querySelector('[data-tourid="exercises-table"]');
+                    
+                    if (courseSlider || searchInput || filterBtn || randomBtn || exercisesTable) {
+                        if (!tourRef.current) {
+                            tourRef.current = createTour();
+                            tourRef.current.start();
+                        }
+                    } else if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(checkElements, 500);
+                    }
+                }
+            };
+
+            setTimeout(checkElements, 1500);
+        }
+
+        return () => {
+            if (tourRef.current) {
+                tourRef.current.cancel();
+                tourRef.current = null;
+            }
+        };
+    }, [loading, datas.length, createTour]);
+
     return (
         <div className={classnames('leetcode', globalStore.isBelow1300 ? 'col' : 'row')}>
             <div className={classnames('exercises left', { 'p-24': globalStore.isBelow1300 })}>
@@ -639,12 +1049,14 @@ const Exercises = observer(() => {
                     </div>
                 </div>
 
-                <CourseSlider
-                    courses={courses}
-                    loading={coursesLoading}
-                    onManageClick={() => navigate('/courses')}
-                    onExploreCourse={(courseId) => navigate(`/courses/${courseId}`)}
-                />
+                <div data-tourid="course-slider">
+                    <CourseSlider
+                        courses={courses}
+                        loading={coursesLoading}
+                        onManageClick={() => navigate('/courses')}
+                        onExploreCourse={(courseId) => navigate(`/courses/${courseId}`)}
+                    />
+                </div>
 
                 <div
                     className={classnames('wrapper flex', {
@@ -652,7 +1064,11 @@ const Exercises = observer(() => {
                     })}
                 >
                     <div className="filters">
-                        <Input placeholder="Tìm kiếm bài tập" onChange={(e) => setSearch(e.target.value)} />
+                        <Input 
+                            placeholder="Tìm kiếm bài tập" 
+                            onChange={(e) => setSearch(e.target.value)}
+                            data-tourid="search-input"
+                        />
 
                         {/* <TooltipWrapper tooltipText="Sắp xếp" position="top">
                             <Popover
@@ -724,7 +1140,7 @@ const Exercises = observer(() => {
                                 onOpenChange={(open) => setFilterOpen(open)}
                                 placement="bottom"
                             >
-                                <div className="custom-circle-ico">
+                                <div className="custom-circle-ico" data-tourid="filter-btn">
                                     <FilterOutlined className="custom-ant-ico" />
                                 </div>
                             </Popover>
@@ -746,11 +1162,16 @@ const Exercises = observer(() => {
                                 <div
                                     className="custom-btn-ico"
                                     onClick={() => navigate(`/${routesConfig.aiExercises}`)}
+                                    data-tourid="ai-create-btn"
                                 >
                                     <RobotOutlined className="custom-ant-ico color-purple" />
                                     Tạo câu hỏi với AI
                                 </div>
-                                <div className="custom-btn-ico" onClick={() => globalStore.setOpenDetailPopup(true)}>
+                                <div 
+                                    className="custom-btn-ico" 
+                                    onClick={() => globalStore.setOpenDetailPopup(true)}
+                                    data-tourid="create-btn"
+                                >
                                     <AppstoreAddOutlined className="custom-ant-ico color-cyan" />
                                     Tạo mới
                                 </div>
@@ -760,14 +1181,14 @@ const Exercises = observer(() => {
                         <div className="random">
                             <ProtectedElement acceptRoles={['STUDENT']}>
                                 <TooltipWrapper tooltipText="Làm ngẫu nhiên" position="left">
-                                    <div className="custom-circle-ico" onClick={selectRandom}>
+                                    <div className="custom-circle-ico" onClick={selectRandom} data-tourid="random-btn">
                                         <img className="" src="/sources/icons/random-ico.svg" />
                                     </div>
                                 </TooltipWrapper>
                             </ProtectedElement>
                         </div>
                     </div>
-                    <div className="body">
+                    <div className="body" data-tourid="exercises-table">
                         <LoadingOverlay loading={loading}>
                             <Table
                                 rowKey="id"

@@ -16,14 +16,18 @@ import classnames from 'classnames';
 import * as FlexLayout from 'flexlayout-react';
 import 'flexlayout-react/style/light.css';
 import { observer } from 'mobx-react-lite';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import Shepherd from 'shepherd.js';
+import type { StepOptions } from 'shepherd.js';
+import 'shepherd.js/dist/css/shepherd.css';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import { programmingLanguages } from '../../constants/languages';
 import * as http from '../../lib/httpRequest';
 import stompClientLib from '../../lib/stomp-client.lib';
 import routesConfig from '../../routes/routesConfig';
+import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import Submissions from './components/Submissions';
 import AIAssistant from './components/AIAssistant';
@@ -146,6 +150,7 @@ const Exercise = observer(() => {
     const [response, setResponse] = useState<any>(null);
     const [selectedCaseResult, setSelectedCaseResult] = useState<any>(1);
     const [solution, setSolution] = useState<string | null>(null);
+    const tourRef = useRef<InstanceType<typeof Shepherd.Tour> | null>(null);
 
     const getDefaultTemplate = (lang: string): string => {
         switch (lang) {
@@ -228,7 +233,7 @@ const Exercise = observer(() => {
         const component = node.getComponent();
         if (component === 'desc') {
             return (
-                <div className="exercise-description">
+                <div className="exercise-description" data-tourid="exercise-description">
                     <h2 className="header">{exercise?.title || 'Title'}</h2>
                     <div className="tags">
                         <div className="tag difficulty">
@@ -268,7 +273,7 @@ const Exercise = observer(() => {
             );
         } else if (component === 'editor') {
             return (
-                <div className="code">
+                <div className="code" data-tourid="code-editor">
                     <div className="actions">
                         <Select
                             value={language}
@@ -296,7 +301,7 @@ const Exercise = observer(() => {
             );
         } else if (component === 'testResult') {
             return (
-                <div className="testResult">
+                <div className="testResult" data-tourid="test-result-tab">
                     {loading && (
                         <>
                             <LoadingOutlined className="mb-px" style={{ color: '#555555', fontSize: 20 }} />
@@ -465,9 +470,17 @@ const Exercise = observer(() => {
                 </div>
             );
         } else if (component === 'submissions') {
-            return <Submissions id={id || exerciseId} submissionId={submissionId} />;
+            return (
+                <div data-tourid="submissions-tab">
+                    <Submissions id={id || exerciseId} submissionId={submissionId} />
+                </div>
+            );
         } else if (component === 'ai-assistant') {
-            return <AIAssistant />;
+            return (
+                <div data-tourid="ai-assistant-tab">
+                    <AIAssistant />
+                </div>
+            );
         }
         return null;
     };
@@ -541,6 +554,200 @@ const Exercise = observer(() => {
         if (response?.data?.exercise?.solution) setSolution(response?.data?.exercise?.solution);
     }, [response?.data?.exercise?.solution]);
 
+    // Create tour guide
+    const createTour = useCallback(() => {
+        const steps: StepOptions[] = [
+            {
+                id: 'exercise-description',
+                text: 'Đây là phần mô tả bài tập. Bạn có thể xem đề bài, độ khó và các ví dụ test case ở đây. Bạn có thể chuyển sang các tab khác như "Danh sách bài tập đã nộp" và "AI Assistant" ở phía trên.',
+                attachTo: {
+                    element: '[data-tourid="exercise-description"]',
+                    on: 'right' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            localStorage.setItem('exercise-tour-completed', 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'code-editor',
+                text: 'Đây là trình soạn thảo code. Bạn có thể chọn ngôn ngữ lập trình ở trên và viết code giải bài tập ở đây.',
+                attachTo: {
+                    element: '[data-tourid="code-editor"]',
+                    on: 'left' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            localStorage.setItem('exercise-tour-completed', 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'test-run-btn',
+                text: 'Nút "Test Run" (biểu tượng play) cho phép bạn chạy thử code với các test case mà không nộp bài. Kết quả sẽ hiển thị ở tab TestResult bên dưới.',
+                attachTo: {
+                    element: '[data-tourid="test-run-btn"]',
+                    on: 'bottom' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            localStorage.setItem('exercise-tour-completed', 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'submit-btn',
+                text: 'Nút "Nộp bài" để nộp bài làm của bạn. Sau khi nộp, hệ thống sẽ chấm điểm và hiển thị kết quả ở tab TestResult.',
+                attachTo: {
+                    element: '[data-tourid="submit-btn"]',
+                    on: 'bottom' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            localStorage.setItem('exercise-tour-completed', 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Tiếp theo',
+                        action: () => tourRef.current?.next()
+                    }
+                ]
+            },
+            {
+                id: 'test-result-tab',
+                text: 'Tab TestResult hiển thị kết quả sau khi bạn chạy test hoặc nộp bài. Bạn có thể xem từng test case đã pass hay fail và so sánh output của bạn với output mong đợi.',
+                attachTo: {
+                    element: '[data-tourid="test-result-tab"]',
+                    on: 'top' as const
+                },
+                buttons: [
+                    {
+                        text: 'Bỏ qua',
+                        action: () => {
+                            localStorage.setItem('exercise-tour-completed', 'true');
+                            tourRef.current?.cancel();
+                        },
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Quay lại',
+                        action: () => tourRef.current?.back(),
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Hoàn thành',
+                        action: () => {
+                            localStorage.setItem('exercise-tour-completed', 'true');
+                            tourRef.current?.complete();
+                        }
+                    }
+                ]
+            }
+        ];
+
+        const tour = new Shepherd.Tour({
+            useModalOverlay: true,
+            defaultStepOptions: {
+                cancelIcon: {
+                    enabled: false
+                },
+                scrollTo: { behavior: 'smooth', block: 'center' }
+            }
+        });
+
+        steps.forEach((step) => {
+            tour.addStep(step);
+        });
+
+        tour.on('complete', () => {
+            localStorage.setItem('exercise-tour-completed', 'true');
+        });
+
+        tour.on('cancel', () => {
+            localStorage.setItem('exercise-tour-completed', 'true');
+        });
+
+        return tour;
+    }, []);
+
+    // Check if tour should run (only for STUDENT and first time)
+    useEffect(() => {
+        if (authentication.isStudent && exercise) {
+            const tourKey = 'exercise-tour-completed';
+            const hasCompletedTour = localStorage.getItem(tourKey);
+            
+            if (!hasCompletedTour) {
+                // Delay to ensure DOM and FlexLayout are ready
+                setTimeout(() => {
+                    // Double check that elements exist before starting tour
+                    const descriptionEl = document.querySelector('[data-tourid="exercise-description"]');
+                    const editorEl = document.querySelector('[data-tourid="code-editor"]');
+                    
+                    if (descriptionEl && editorEl) {
+                        if (!tourRef.current) {
+                            tourRef.current = createTour();
+                            tourRef.current.start();
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        return () => {
+            if (tourRef.current) {
+                tourRef.current.cancel();
+                tourRef.current = null;
+            }
+        };
+    }, [exercise, createTour]);
+
     return (
         <div className="exercise">
             <div className="container">
@@ -584,11 +791,11 @@ const Exercise = observer(() => {
                                     <LoadingOutlined />
                                 </div>
                             ) : (
-                                <div className="icon" onClick={testRun}>
+                                <div className="icon" onClick={testRun} data-tourid="test-run-btn">
                                     <img src="/sources/icons/play-ico.svg" alt="" />
                                 </div>
                             )}
-                            <div className="icon submit-btn" onClick={submit}>
+                            <div className="icon submit-btn" onClick={submit} data-tourid="submit-btn">
                                 {loading ? (
                                     <LoadingOutlined style={{ fontSize: 18 }} />
                                 ) : (

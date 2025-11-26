@@ -1,10 +1,11 @@
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Table, Tag, Button } from 'antd';
 import * as http from '../../../../lib/httpRequest';
 import globalStore from '../../../../components/GlobalComponent/globalStore';
 import SubmissionDetailModal, { type SubmissionResult } from './SubmissionDetailModal';
+import stompClientLib from '../../../../lib/stomp-client.lib';
 
 interface SubmissionExercise {
     exerciseId: string;
@@ -37,8 +38,11 @@ const StudentsProgressTab = observer(() => {
     const [submissionResult, setSubmissionResult] = useState<SubmissionResult | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [loadingSubmission, setLoadingSubmission] = useState(false);
+    const [groupExamId, setGroupExamId] = useState<string | null>(null);
+    const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
+    const modalOpenRef = useRef(false);
 
-    useEffect(() => {
+    const fetchStudentsProgress = useCallback(() => {
         if (examId && groupId) {
             const url = `/exams/${examId}/groups/${groupId}/students-progress`;
             console.log('[API] GET', url, '- Fetching students progress for exam:', examId);
@@ -57,6 +61,68 @@ const StudentsProgressTab = observer(() => {
                 });
         }
     }, [examId, groupId]);
+
+    useEffect(() => {
+        fetchStudentsProgress();
+    }, [fetchStudentsProgress]);
+
+    useEffect(() => {
+        if (!groupId || !examId) {
+            setGroupExamId(null);
+            return;
+        }
+
+        const url = `/group-exams?groupId=${groupId}`;
+        http.get(url)
+            .then((res) => {
+                const groupExams = res.data || [];
+                const matchedExam = groupExams.find(
+                    (item: { groupExamId: string; id: string; exam?: { id?: string } }) =>
+                        item.groupExamId === examId || item.id === examId || item.exam?.id === examId
+                );
+                setGroupExamId(matchedExam?.groupExamId || null);
+            })
+            .catch((error) => {
+                console.error('[API] GET', url, '- Error:', error);
+                setGroupExamId(null);
+            });
+    }, [groupId, examId]);
+
+    // Subscribe to socket for real-time updates
+    useEffect(() => {
+        // Cleanup previous subscription
+        if (subscriptionRef.current) {
+            subscriptionRef.current.unsubscribe();
+            subscriptionRef.current = null;
+        }
+
+        // Subscribe to socket if groupExamId is available
+        if (groupExamId) {
+            subscriptionRef.current = stompClientLib.subscribe({
+                destination: `/topic/exam/groupExam/${groupExamId}`,
+                onMessage: () => {
+                    console.log('[Socket] Received update for groupExam:', groupExamId);
+                    // Only refresh data when modal is not open to avoid interrupting user
+                    if (!modalOpenRef.current) {
+                        fetchStudentsProgress();
+                    }
+                }
+            });
+        }
+
+        // Cleanup on unmount or when groupExamId changes
+        return () => {
+            if (subscriptionRef.current) {
+                subscriptionRef.current.unsubscribe();
+                subscriptionRef.current = null;
+            }
+        };
+    }, [groupExamId, fetchStudentsProgress]);
+
+    // Update ref when modalOpen changes
+    useEffect(() => {
+        modalOpenRef.current = modalOpen;
+    }, [modalOpen]);
 
     const handleViewSubmissions = (userId: string) => {
         setModalOpen(true);
