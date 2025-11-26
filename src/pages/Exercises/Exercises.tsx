@@ -11,10 +11,11 @@ import type { FormProps } from 'antd';
 import { Button, Form, Input, InputNumber, Modal, Popconfirm, Popover, Select, Steps, Table, Tag } from 'antd';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from 'react-router-dom';
 import Shepherd from 'shepherd.js';
+import type { StepOptions } from 'shepherd.js';
 import 'shepherd.js/dist/css/shepherd.css';
 import AIAssistant from '../../components/AIAssistant/AIAssistant';
 import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
@@ -49,7 +50,7 @@ const Exercises = observer(() => {
     const [courses, setCourses] = useState<CourseSliderItem[]>([]);
     const [coursesLoading, setCoursesLoading] = useState(false);
     const [form] = Form.useForm();
-    const tourRef = useRef<Shepherd.Tour | null>(null);
+    const tourRef = useRef<InstanceType<typeof Shepherd.Tour> | null>(null);
 
     const columns = [
         {
@@ -470,13 +471,13 @@ const Exercises = observer(() => {
     const createTour = useCallback(() => {
         const isInstructor = authentication.isInstructor;
         
-        const studentSteps = [
+        const studentSteps: StepOptions[] = [
             {
                 id: 'course-slider',
                 text: 'Đây là phần khóa học nổi bật. Bạn có thể chọn khóa học phù hợp để luyện tập theo lộ trình, tương tự như LeetCode study plan.',
                 attachTo: {
                     element: '[data-tourid="course-slider"]',
-                    on: 'bottom'
+                    on: 'bottom' as const
                 },
                 buttons: [
                     {
@@ -499,7 +500,7 @@ const Exercises = observer(() => {
                 text: 'Bạn có thể tìm kiếm bài tập theo mã bài tập hoặc tiêu đề ở đây.',
                 attachTo: {
                     element: '[data-tourid="search-input"]',
-                    on: 'bottom'
+                    on: 'bottom' as const
                 },
                 buttons: [
                     {
@@ -527,7 +528,7 @@ const Exercises = observer(() => {
                 text: 'Nút bộ lọc cho phép bạn lọc bài tập theo độ khó, chủ đề và khả năng hiển thị.',
                 attachTo: {
                     element: '[data-tourid="filter-btn"]',
-                    on: 'bottom'
+                    on: 'bottom' as const
                 },
                 buttons: [
                     {
@@ -555,7 +556,7 @@ const Exercises = observer(() => {
                 text: 'Nút "Làm ngẫu nhiên" sẽ chọn ngẫu nhiên một bài tập từ danh sách để bạn luyện tập.',
                 attachTo: {
                     element: '[data-tourid="random-btn"]',
-                    on: 'left'
+                    on: 'left' as const
                 },
                 buttons: [
                     {
@@ -583,7 +584,7 @@ const Exercises = observer(() => {
                 text: 'Đây là danh sách tất cả các bài tập. Bạn có thể click vào một bài tập để bắt đầu làm. Bảng hiển thị mã bài tập, tiêu đề, độ khó và chủ đề.',
                 attachTo: {
                     element: '[data-tourid="exercises-table"]',
-                    on: 'top'
+                    on: 'top' as const
                 },
                 buttons: [
                     {
@@ -612,7 +613,7 @@ const Exercises = observer(() => {
             }
         ];
 
-        const instructorSteps = [
+        const instructorSteps: StepOptions[] = [
             {
                 id: 'ai-create-btn',
                 text: 'Nút "Tạo câu hỏi với AI" cho phép bạn tạo bài tập mới một cách nhanh chóng với sự hỗ trợ của AI.',
@@ -669,7 +670,7 @@ const Exercises = observer(() => {
                 text: 'Bạn có thể tìm kiếm bài tập theo mã bài tập hoặc tiêu đề ở đây.',
                 attachTo: {
                     element: '[data-tourid="search-input"]',
-                    on: 'bottom'
+                    on: 'bottom' as const
                 },
                 buttons: [
                     {
@@ -697,7 +698,7 @@ const Exercises = observer(() => {
                 text: 'Nút bộ lọc cho phép bạn lọc bài tập theo độ khó, chủ đề và khả năng hiển thị.',
                 attachTo: {
                     element: '[data-tourid="filter-btn"]',
-                    on: 'bottom'
+                    on: 'bottom' as const
                 },
                 buttons: [
                     {
@@ -725,7 +726,7 @@ const Exercises = observer(() => {
                 text: 'Đây là danh sách tất cả các bài tập bạn đã tạo. Bảng hiển thị mã bài tập, tiêu đề, độ khó và chủ đề.',
                 attachTo: {
                     element: '[data-tourid="exercises-table"]',
-                    on: 'top'
+                    on: 'top' as const
                 },
                 buttons: [
                     {
@@ -753,7 +754,7 @@ const Exercises = observer(() => {
                 text: 'Trong mỗi hàng bài tập, bạn có thể sử dụng nút chỉnh sửa (biểu tượng bánh răng) để cập nhật thông tin hoặc nút xóa (biểu tượng thùng rác) để xóa bài tập.',
                 attachTo: {
                     element: '[data-tourid="table-actions"]',
-                    on: 'left'
+                    on: 'left' as const
                 },
                 buttons: [
                     {

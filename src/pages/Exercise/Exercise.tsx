@@ -16,9 +16,10 @@ import classnames from 'classnames';
 import * as FlexLayout from 'flexlayout-react';
 import 'flexlayout-react/style/light.css';
 import { observer } from 'mobx-react-lite';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Shepherd from 'shepherd.js';
+import type { StepOptions } from 'shepherd.js';
 import 'shepherd.js/dist/css/shepherd.css';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
@@ -149,7 +150,7 @@ const Exercise = observer(() => {
     const [response, setResponse] = useState<any>(null);
     const [selectedCaseResult, setSelectedCaseResult] = useState<any>(1);
     const [solution, setSolution] = useState<string | null>(null);
-    const tourRef = useRef<Shepherd.Tour | null>(null);
+    const tourRef = useRef<InstanceType<typeof Shepherd.Tour> | null>(null);
 
     const getDefaultTemplate = (lang: string): string => {
         switch (lang) {
@@ -555,13 +556,13 @@ const Exercise = observer(() => {
 
     // Create tour guide
     const createTour = useCallback(() => {
-        const steps = [
+        const steps: StepOptions[] = [
             {
                 id: 'exercise-description',
                 text: 'Đây là phần mô tả bài tập. Bạn có thể xem đề bài, độ khó và các ví dụ test case ở đây. Bạn có thể chuyển sang các tab khác như "Danh sách bài tập đã nộp" và "AI Assistant" ở phía trên.',
                 attachTo: {
                     element: '[data-tourid="exercise-description"]',
-                    on: 'right'
+                    on: 'right' as const
                 },
                 buttons: [
                     {
@@ -583,7 +584,7 @@ const Exercise = observer(() => {
                 text: 'Đây là trình soạn thảo code. Bạn có thể chọn ngôn ngữ lập trình ở trên và viết code giải bài tập ở đây.',
                 attachTo: {
                     element: '[data-tourid="code-editor"]',
-                    on: 'left'
+                    on: 'left' as const
                 },
                 buttons: [
                     {
@@ -610,7 +611,7 @@ const Exercise = observer(() => {
                 text: 'Nút "Test Run" (biểu tượng play) cho phép bạn chạy thử code với các test case mà không nộp bài. Kết quả sẽ hiển thị ở tab TestResult bên dưới.',
                 attachTo: {
                     element: '[data-tourid="test-run-btn"]',
-                    on: 'bottom'
+                    on: 'bottom' as const
                 },
                 buttons: [
                     {
@@ -637,7 +638,7 @@ const Exercise = observer(() => {
                 text: 'Nút "Nộp bài" để nộp bài làm của bạn. Sau khi nộp, hệ thống sẽ chấm điểm và hiển thị kết quả ở tab TestResult.',
                 attachTo: {
                     element: '[data-tourid="submit-btn"]',
-                    on: 'bottom'
+                    on: 'bottom' as const
                 },
                 buttons: [
                     {
@@ -664,7 +665,7 @@ const Exercise = observer(() => {
                 text: 'Tab TestResult hiển thị kết quả sau khi bạn chạy test hoặc nộp bài. Bạn có thể xem từng test case đã pass hay fail và so sánh output của bạn với output mong đợi.',
                 attachTo: {
                     element: '[data-tourid="test-result-tab"]',
-                    on: 'top'
+                    on: 'top' as const
                 },
                 buttons: [
                     {
