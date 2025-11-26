@@ -2,6 +2,9 @@ type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 import type { GetProp, UploadProps } from 'antd';
 import { message } from 'antd';
 import moment from 'moment';
+import globalDataStore from '../components/GlobalComponent/globalDataStore';
+import * as _ from 'lodash';
+import authentication from '../shared/auth/authentication';
 
 class Utils {
     capitalizeFirstLetter(word: string): string {
@@ -95,6 +98,47 @@ class Utils {
 
     copyToClipBoard = (str: string) => {
         navigator.clipboard.writeText(str);
+    };
+
+    getDates = () => {
+        let dates: string[] = [];
+
+        if (globalDataStore.submissions) {
+            dates = globalDataStore.submissions.map((submission: any) => {
+                return this.formatDate(submission.createdTimestamp, 'YYYY/MM/DD');
+            });
+        }
+
+        if (globalDataStore.exams) {
+            dates = globalDataStore.exams.map((exam: any) => {
+                return this.formatDate(exam.createdTimestamp, 'YYYY/MM/DD');
+            });
+        }
+
+        return dates;
+    };
+
+    s4 = () => {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    };
+
+    getGUID = () => {
+        return (
+            this.s4() +
+            this.s4() +
+            '-' +
+            this.s4() +
+            '-' +
+            this.s4() +
+            '-' +
+            this.s4() +
+            '-' +
+            this.s4() +
+            this.s4() +
+            this.s4()
+        );
     };
 }
 

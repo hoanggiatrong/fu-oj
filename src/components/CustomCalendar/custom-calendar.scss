@@ -1,3 +1,27 @@
+.big-title {
+    padding: var(--base-size-4);
+    // padding-top: var(--base-size-12);
+    display: flex;
+    gap: var(--base-size-4);
+    align-items: center;
+    position: relative;
+    color: var(--color-text-primary);
+    // font-family: 'Menlo';
+    font-weight: var(--base-text-weight-semibold);
+
+    & > .big-title-container {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-end;
+        gap: var(--base-size-8);
+
+        & > .ico {
+            width: var(--base-size-20);
+            height: var(--base-size-20);
+        }
+    }
+}
+
 .custom-calendar {
     width: 270px;
     background: var(--color-navbar);
@@ -99,6 +123,7 @@ abbr {
 .react-calendar__tile {
     color: #a0a1a3;
     aspect-ratio: 1 / 1;
+    pointer-events: none;
 
     &:hover {
         background: #3e3e3e !important;
@@ -107,6 +132,18 @@ abbr {
 }
 
 .react-calendar__tile--active {
+    border-radius: var(--borderRadius-full);
+    padding: var(--base-size-4) !important;
+    color: white;
+    background: #2cbc5d !important;
+
+    &:hover {
+        pointer-events: none;
+        background: #2cbc5d !important;
+    }
+}
+
+.react-calendar__tile--hasActive {
     border-radius: var(--borderRadius-full);
     padding: var(--base-size-4) !important;
     color: white;
@@ -143,4 +180,10 @@ abbr {
 
 .react-calendar__month-view__weekdays__weekday abbr[title] {
     title: ''; /* gỡ tooltip mặc định */
+}
+
+.highlight-day {
+    background: #ff9500 !important;
+    color: white !important;
+    border-radius: var(--borderRadius-full);
 }

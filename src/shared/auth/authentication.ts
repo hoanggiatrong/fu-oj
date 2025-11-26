@@ -2,6 +2,7 @@ import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { makeAutoObservable, runInAction } from 'mobx';
 import globalStore from '../../components/GlobalComponent/globalStore';
+import globalDataStore from '../../components/GlobalComponent/globalDataStore';
 
 const AUTH_TOKEN_KEY = 'authenticationToken';
 
@@ -80,6 +81,7 @@ class Authentication {
                 this.account = res.data;
                 // this.isAuthenticated = !!res.data?.activated;
                 this.sessionHasBeenFetched = true;
+                globalDataStore.init(res.data);
             });
         } catch (error: any) {
             runInAction(() => {

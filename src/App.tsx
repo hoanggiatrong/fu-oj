@@ -4,7 +4,6 @@ import 'react-calendar/dist/Calendar.css';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import GlobalComponent from './components/GlobalComponent/GlobalComponent';
-import globalDataStore from './components/GlobalComponent/globalDataStore';
 import globalStore from './components/GlobalComponent/globalStore';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import ScreenLoadingOverlay from './components/ScreenLoadingOverlay/ScreenLoadingOverlay';
@@ -19,7 +18,6 @@ import './styles/styles.scss';
 function App() {
     useEffect(() => {
         authentication.getAccount();
-        globalDataStore.init();
     }, []);
 
     return (

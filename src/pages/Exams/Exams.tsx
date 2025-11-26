@@ -21,6 +21,7 @@ import type { ExamData, SelectOption } from './types';
 import { filterDataByTab, getExamStatus } from './utils';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
+import utils from '../../utils/utils';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -446,7 +447,7 @@ const Exams = observer(() => {
                 />
             </div>
             <div className="right">
-                <CustomCalendar />
+                <CustomCalendar dateArr={utils.getDates()} />
             </div>
         </div>
     );

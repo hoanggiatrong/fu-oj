@@ -27,6 +27,7 @@ import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import CourseSlider, { type CourseSliderItem } from './components/CourseSlider';
+import globalDataStore from '../../components/GlobalComponent/globalDataStore';
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
@@ -390,7 +391,12 @@ const Exercises = observer(() => {
                     globalStore.triggerNotification('error', error.response?.data?.message, '');
                 });
         } else {
-            http.post('/exercises', { ...values, testCases: [], maxSubmissions: 99999 })
+            http.post('/exercises', {
+                ...values,
+                code: `EX_${new Date().getTime()}`,
+                testCases: [],
+                maxSubmissions: 99999
+            })
                 .then((res) => {
                     globalStore.triggerNotification('success', res.message, '');
                     getExercises();
@@ -932,7 +938,7 @@ const Exercises = observer(() => {
                                         name="code"
                                         rules={[{ required: true, message: 'Vui lòng nhập mã bài tập!' }]}
                                     >
-                                        <Input />
+                                        <Input disabled defaultValue={`EX_${new Date().getTime()}`} />
                                     </Form.Item>
 
                                     <Form.Item
@@ -1224,7 +1230,7 @@ const Exercises = observer(() => {
                 </div>
             </div>
             <div className="right">
-                <CustomCalendar />
+                <CustomCalendar dateArr={utils.getDates()} />
             </div>
         </div>
     );
