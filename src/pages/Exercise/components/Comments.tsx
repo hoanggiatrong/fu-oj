@@ -4,12 +4,19 @@ import { Avatar, Button, Input, List, message as antMessage } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 import * as http from '../../../lib/httpRequest';
 import './tabset.scss';
+import utils from '../../../utils/utils';
 
 const { TextArea } = Input;
 
 interface Comment {
     id: string;
     content: string;
+    user: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+    };
     createdBy: {
         id: string;
         firstName: string;
@@ -17,6 +24,7 @@ interface Comment {
         email: string;
     };
     createdAt: string;
+    createdTimestamp: any;
     replies?: Comment[];
 }
 
@@ -97,14 +105,20 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                     </Avatar>
                                 }
                                 title={
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center'
+                                        }}
+                                    >
                                         <span style={{ color: '#fff', fontWeight: 500 }}>
-                                            {comment.createdBy?.firstName && comment.createdBy?.lastName
-                                                ? `${comment.createdBy.firstName} ${comment.createdBy.lastName}`
-                                                : comment.createdBy?.email || 'Anonymous'}
+                                            {comment.user?.firstName && comment.user?.lastName
+                                                ? `${comment.user.firstName} ${comment.user.lastName}`
+                                                : comment.user?.email || 'Anonymous'}
                                         </span>
                                         <span style={{ color: '#999', fontSize: '12px' }}>
-                                            {formatDate(comment.createdAt)}
+                                            {utils.formatDate(comment.createdTimestamp, 'DD/MM/YYYY HH:mm')}
                                         </span>
                                     </div>
                                 }
@@ -158,13 +172,14 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                     )}
                 />
             </div>
-            <div style={{ borderTop: '1px solid #333', padding: '16px' }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <TextArea
+            <div className="pt-8 border-top">
+                <div className="flex gap p-4">
+                    <Input.TextArea
+                        className="overflow"
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Viết comment của bạn..."
-                        rows={3}
+                        rows={2}
                         style={{
                             backgroundColor: '#2a2a2a',
                             color: '#fff',
@@ -176,6 +191,8 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                             e.preventDefault();
                             handleSubmitComment();
                         }}
+                        showCount
+                        maxLength={255}
                     />
                     <Button
                         type="primary"
@@ -194,4 +211,3 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
 });
 
 export default Comments;
-
