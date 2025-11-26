@@ -266,9 +266,10 @@ const Groups = observer(() => {
                                                             </div>
                                                         </div> */}
                                                         <div className="members">
-                                                            {item.alittleStudent?.map((i: any) => {
+                                                            {item.alittleStudent?.map((i: any, index: any) => {
                                                                 return (
                                                                     <TooltipWrapper
+                                                                        key={`alittleStudent-${index}`}
                                                                         tooltipText={`${i.firstName || ''} ${
                                                                             i.lastName || ''
                                                                         }`}

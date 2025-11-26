@@ -149,7 +149,7 @@ const Exercises = observer(() => {
                             const temp = topics.map((t) => t.name.trim().toUpperCase());
 
                             return index == 1 ? (
-                                <Tag>
+                                <Tag key={text}>
                                     <TooltipWrapper tooltipText={temp.slice(1).join(', ')} position="left">
                                         ...
                                     </TooltipWrapper>
@@ -307,7 +307,7 @@ const Exercises = observer(() => {
                             const temp = topics.map((t) => t.name.trim().toUpperCase());
 
                             return index == 1 ? (
-                                <Tag>
+                                <Tag key={text}>
                                     <TooltipWrapper tooltipText={temp.slice(1).join(', ')} position="left">
                                         ...
                                     </TooltipWrapper>
