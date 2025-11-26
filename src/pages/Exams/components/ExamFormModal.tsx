@@ -44,13 +44,12 @@ const ExamFormModal = observer(
         const [topics, setTopics] = useState([]);
         const [filters, setFilters] = useState({
             difficulty: null,
-            topicIds: []
+            topicIds: [],
+            visibility: null
         });
 
         const applyFilter = () => {
             if (!originalDatas) return;
-
-            console.log('log:', originalDatas);
 
             const filtered = originalDatas.filter((item: any) => {
                 if (filters.difficulty && item.difficulty !== filters.difficulty) {
@@ -63,6 +62,10 @@ const ExamFormModal = observer(
                     const hasMatch = filters.topicIds.some((id: any) => itemTopicIds.includes(id));
 
                     if (!hasMatch) return false;
+                }
+
+                if (filters.visibility && item.visibility !== filters.visibility) {
+                    return false;
                 }
 
                 return true;
@@ -252,6 +255,19 @@ const ExamFormModal = observer(
                                     { value: 'EASY', label: 'EASY' },
                                     { value: 'MEDIUM', label: 'MEDIUM' },
                                     { value: 'HARD', label: 'HARD' }
+                                ]}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Lọc bài tập theo khả năng hiển thị" name="visibility">
+                            <Select
+                                allowClear
+                                style={{ width: '100%' }}
+                                placeholder="Chọn khả năng hiển thị"
+                                onChange={(value) => handleFilterChange('visibility', value)}
+                                options={[
+                                    { value: 'PUBLIC', label: 'PUBLIC' },
+                                    { value: 'PRIVATE', label: 'PRIVATE' }
                                 ]}
                             />
                         </Form.Item>

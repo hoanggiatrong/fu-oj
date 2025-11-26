@@ -6,12 +6,11 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import Line from '../../components/Line/Line';
+import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import * as http from '../../lib/httpRequest';
-import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import MultiCircleChart from './components/MultiCircleChart';
-import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 

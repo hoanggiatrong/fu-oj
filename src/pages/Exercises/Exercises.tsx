@@ -107,6 +107,15 @@ const Exercises = observer(() => {
             }
         },
         {
+            title: 'Trạng thái',
+            width: 100,
+            dataIndex: 'visibility',
+            key: 'visibility',
+            render: (visibility: string) => {
+                return <div className="cell">{utils.getVisibilityClass(visibility)}</div>;
+            }
+        },
+        {
             title: 'Chủ đề',
             width: 100,
             dataIndex: 'topics',
@@ -133,15 +142,15 @@ const Exercises = observer(() => {
                             ];
                             const color = colors[index];
 
-                            if (index > 3) {
+                            if (index > 1) {
                                 return <></>;
                             }
 
                             const temp = topics.map((t) => t.name.trim().toUpperCase());
 
-                            return index == 3 ? (
+                            return index == 1 ? (
                                 <Tag>
-                                    <TooltipWrapper tooltipText={temp.slice(3).join(', ')} position="left">
+                                    <TooltipWrapper tooltipText={temp.slice(1).join(', ')} position="left">
                                         ...
                                     </TooltipWrapper>
                                 </Tag>
@@ -291,15 +300,15 @@ const Exercises = observer(() => {
                             ];
                             const color = colors[index];
 
-                            if (index > 3) {
+                            if (index > 1) {
                                 return <></>;
                             }
 
                             const temp = topics.map((t) => t.name.trim().toUpperCase());
 
-                            return index == 3 ? (
+                            return index == 1 ? (
                                 <Tag>
-                                    <TooltipWrapper tooltipText={temp.slice(3).join(', ')} position="left">
+                                    <TooltipWrapper tooltipText={temp.slice(1).join(', ')} position="left">
                                         ...
                                     </TooltipWrapper>
                                 </Tag>

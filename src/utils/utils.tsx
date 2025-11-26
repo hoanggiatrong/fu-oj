@@ -30,6 +30,21 @@ class Utils {
         );
     };
 
+    getVisibilityClass = (visibility: string) => {
+        const formatted =
+            visibility.length > 6
+                ? this.capitalizeFirstLetter(visibility).slice(0, 6) + '.'
+                : this.capitalizeFirstLetter(visibility);
+
+        return visibility == 'PUBLIC' ? (
+            <div className="color-cyan">{formatted}</div>
+        ) : visibility == 'DRAFT' ? (
+            <div className="color-gold">{formatted}</div>
+        ) : (
+            <div className="color-red">{formatted}</div>
+        );
+    };
+
     getColor = (str: string) => {
         if (str == 'ACCEPTED') return <span className="p-4 br-medium light-bold bg-cyan color-white">{str}</span>;
 

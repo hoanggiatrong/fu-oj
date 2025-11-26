@@ -7,9 +7,9 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
+import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
-import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import ExamFormModal from '../Exams/components/ExamFormModal';
 import type { SelectOption } from '../Exams/types';
@@ -252,54 +252,64 @@ const GroupDetail = observer(() => {
                             </div>
                         </div>
                     </div>
-                    <div className="group-infos">
-                        <Row gutter={24}>
-                            <Col span={6}>
-                                <div className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}>
-                                    <div className="header">
-                                        <UserOutlined className="ico" />
-                                        <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
-                                            Tổng số sinh viên
+                    <ProtectedElement acceptRoles={['INSTRUCTOR']}>
+                        <div className="group-infos">
+                            <Row gutter={24}>
+                                <Col span={6}>
+                                    <div
+                                        className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}
+                                    >
+                                        <div className="header">
+                                            <UserOutlined className="ico" />
+                                            <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
+                                                Tổng số sinh viên
+                                            </div>
                                         </div>
+                                        <div className="content">{dashboardData.totalStudents}</div>
                                     </div>
-                                    <div className="content">{dashboardData.totalStudents}</div>
-                                </div>
-                            </Col>
-                            <Col span={6}>
-                                <div className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}>
-                                    <div className="header">
-                                        <CalendarOutlined className="ico" />
-                                        <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
-                                            Tổng số bài kiểm tra
+                                </Col>
+                                <Col span={6}>
+                                    <div
+                                        className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}
+                                    >
+                                        <div className="header">
+                                            <CalendarOutlined className="ico" />
+                                            <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
+                                                Tổng số bài kiểm tra
+                                            </div>
                                         </div>
+                                        <div className="content">{dashboardData.totalExams}</div>
                                     </div>
-                                    <div className="content">{dashboardData.totalExams}</div>
-                                </div>
-                            </Col>
-                            <Col span={6}>
-                                <div className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}>
-                                    <div className="header">
-                                        <BookOutlined className="ico" />
-                                        <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
-                                            Tổng số bài tập
+                                </Col>
+                                <Col span={6}>
+                                    <div
+                                        className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}
+                                    >
+                                        <div className="header">
+                                            <BookOutlined className="ico" />
+                                            <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
+                                                Tổng số bài tập
+                                            </div>
                                         </div>
+                                        <div className="content">{dashboardData.totalExercises}</div>
                                     </div>
-                                    <div className="content">{dashboardData.totalExercises}</div>
-                                </div>
-                            </Col>
-                            <Col span={6}>
-                                <div className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}>
-                                    <div className="header">
-                                        <CalendarOutlined className="ico" />
-                                        <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
-                                            Bài kiểm tra sắp tới
+                                </Col>
+                                <Col span={6}>
+                                    <div
+                                        className={classnames('info-cell', { 'r-info-cell': globalStore.isBelow1000 })}
+                                    >
+                                        <div className="header">
+                                            <CalendarOutlined className="ico" />
+                                            <div className={classnames('text', { hide: globalStore.isBelow1300 })}>
+                                                Bài kiểm tra sắp tới
+                                            </div>
                                         </div>
+                                        <div className="content">{dashboardData.examsComing}</div>
                                     </div>
-                                    <div className="content">{dashboardData.examsComing}</div>
-                                </div>
-                            </Col>
-                        </Row>
-                    </div>
+                                </Col>
+                            </Row>
+                        </div>
+                    </ProtectedElement>
                 </div>
             </div>
             <div className="body">

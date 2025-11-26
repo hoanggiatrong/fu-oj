@@ -1,5 +1,5 @@
-import { MoonOutlined, SlackOutlined } from '@ant-design/icons';
-import { Avatar } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import { Avatar, Input } from 'antd';
 import { observer } from 'mobx-react-lite';
 import globalStore from '../../../components/GlobalComponent/globalStore';
 import Switch from '../../../components/Switch/Switch';
@@ -24,15 +24,17 @@ const LayoutHeader = observer(() => {
 
                         globalStore.setTheme(theme ? 'theme-dark' : 'theme-light');
                     }}
-                    iconOn={<MoonOutlined />}
-                    iconOff={<SlackOutlined />}
+                    iconOn={<img src="/sources/icons/moon-ico.svg" />}
+                    iconOff={<img src="/sources/icons/sun-ico.svg" />}
+                    tooltipTextOn="Chuyển sang chế độ tối"
+                    tooltipTextOff="Chuyển sang chế độ sáng"
                 />
 
-                {/* {globalStore.windowSize.width < 1000 ? (
+                {globalStore.windowSize.width < 1000 ? (
                     <SearchOutlined className="global-search-icon" />
                 ) : (
                     <Input className="global-search" placeholder={'Tìm kiếm bất cứ thông tin gì'} />
-                )} */}
+                )}
 
                 <div className="profile" onClick={() => globalStore.setDrawerKey('user')}>
                     <Avatar src={authentication.account?.data?.avatar?.url} style={{ height: 25, width: 25 }} />

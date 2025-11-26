@@ -1,12 +1,11 @@
+import { TrophyOutlined } from '@ant-design/icons';
+import { Avatar, Table, Tag } from 'antd';
+import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
-import * as http from '../../lib/httpRequest';
-import { Table, Avatar, Tag } from 'antd';
-import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import globalStore from '../../components/GlobalComponent/globalStore';
-import classnames from 'classnames';
-import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
-import { TrophyOutlined } from '@ant-design/icons';
+import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
+import * as http from '../../lib/httpRequest';
 
 interface User {
     id: string;
@@ -79,7 +78,11 @@ const Ranking = observer(() => {
                 setAllDatas([]);
                 setTopThree([]);
                 setTableDatas([]);
-                globalStore.triggerNotification('error', error.response?.data?.message || 'Có lỗi xảy ra khi tải bảng xếp hạng!', '');
+                globalStore.triggerNotification(
+                    'error',
+                    error.response?.data?.message || 'Có lỗi xảy ra khi tải bảng xếp hạng!',
+                    ''
+                );
             })
             .finally(() => {
                 setTimeout(() => {
@@ -167,9 +170,10 @@ const Ranking = observer(() => {
             dataIndex: 'user',
             key: 'user',
             render: (user: User) => {
-                const displayName = user.firstName && user.lastName
-                    ? `${user.firstName} ${user.lastName}`
-                    : user.email?.split('@')[0] || 'Unknown';
+                const displayName =
+                    user.firstName && user.lastName
+                        ? `${user.firstName} ${user.lastName}`
+                        : user.email?.split('@')[0] || 'Unknown';
 
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -194,9 +198,7 @@ const Ranking = observer(() => {
             width: 120,
             sorter: (a: ScoreData, b: ScoreData) => b.totalScore - a.totalScore,
             render: (score: number) => (
-                <div style={{ fontWeight: 'bold', fontSize: 16, color: '#1890ff' }}>
-                    {score.toFixed(1)}
-                </div>
+                <div style={{ fontWeight: 'bold', fontSize: 16, color: '#1890ff' }}>{score.toFixed(1)}</div>
             )
         },
         {
@@ -205,9 +207,7 @@ const Ranking = observer(() => {
             key: 'totalSolved',
             width: 100,
             sorter: (a: ScoreData, b: ScoreData) => b.totalSolved - a.totalSolved,
-            render: (total: number) => (
-                <Tag color="blue">{total}</Tag>
-            )
+            render: (total: number) => <Tag color="blue">{total}</Tag>
         },
         {
             title: 'Dễ',
@@ -215,9 +215,7 @@ const Ranking = observer(() => {
             key: 'solvedEasy',
             width: 80,
             sorter: (a: ScoreData, b: ScoreData) => b.solvedEasy - a.solvedEasy,
-            render: (count: number) => (
-                <Tag color="green">{count}</Tag>
-            )
+            render: (count: number) => <Tag color="green">{count}</Tag>
         },
         {
             title: 'Trung bình',
@@ -225,9 +223,7 @@ const Ranking = observer(() => {
             key: 'solvedMedium',
             width: 120,
             sorter: (a: ScoreData, b: ScoreData) => b.solvedMedium - a.solvedMedium,
-            render: (count: number) => (
-                <Tag color="orange">{count}</Tag>
-            )
+            render: (count: number) => <Tag color="orange">{count}</Tag>
         },
         {
             title: 'Khó',
@@ -235,9 +231,7 @@ const Ranking = observer(() => {
             key: 'solvedHard',
             width: 80,
             sorter: (a: ScoreData, b: ScoreData) => b.solvedHard - a.solvedHard,
-            render: (count: number) => (
-                <Tag color="red">{count}</Tag>
-            )
+            render: (count: number) => <Tag color="red">{count}</Tag>
         }
     ];
 
@@ -261,7 +255,9 @@ const Ranking = observer(() => {
                                 <div className="podium-number">2</div>
                                 <div className="podium-content">
                                     <Avatar src={topThree[1]?.user?.avatar} size={80} className="podium-avatar">
-                                        {topThree[1]?.user?.firstName?.[0] || topThree[1]?.user?.email?.[0]?.toUpperCase() || '?'}
+                                        {topThree[1]?.user?.firstName?.[0] ||
+                                            topThree[1]?.user?.email?.[0]?.toUpperCase() ||
+                                            '?'}
                                     </Avatar>
                                     <div className="podium-name">
                                         {topThree[1]?.user?.firstName && topThree[1]?.user?.lastName
@@ -283,7 +279,9 @@ const Ranking = observer(() => {
                                 <div className="podium-number">1</div>
                                 <div className="podium-content">
                                     <Avatar src={topThree[0]?.user?.avatar} size={100} className="podium-avatar">
-                                        {topThree[0]?.user?.firstName?.[0] || topThree[0]?.user?.email?.[0]?.toUpperCase() || '?'}
+                                        {topThree[0]?.user?.firstName?.[0] ||
+                                            topThree[0]?.user?.email?.[0]?.toUpperCase() ||
+                                            '?'}
                                     </Avatar>
                                     <div className="podium-name">
                                         {topThree[0]?.user?.firstName && topThree[0]?.user?.lastName
@@ -305,7 +303,9 @@ const Ranking = observer(() => {
                                 <div className="podium-number">3</div>
                                 <div className="podium-content">
                                     <Avatar src={topThree[2]?.user?.avatar} size={80} className="podium-avatar">
-                                        {topThree[2]?.user?.firstName?.[0] || topThree[2]?.user?.email?.[0]?.toUpperCase() || '?'}
+                                        {topThree[2]?.user?.firstName?.[0] ||
+                                            topThree[2]?.user?.email?.[0]?.toUpperCase() ||
+                                            '?'}
                                     </Avatar>
                                     <div className="podium-name">
                                         {topThree[2]?.user?.firstName && topThree[2]?.user?.lastName
@@ -347,4 +347,3 @@ const Ranking = observer(() => {
 });
 
 export default Ranking;
-

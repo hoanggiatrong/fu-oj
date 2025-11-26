@@ -246,6 +246,17 @@
     color: var(--color-text-secondary);
 }
 
+.max-1-line {
+    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    /* autoprefixer: off*/
+    -webkit-box-orient: vertical;
+}
+
 .max-2-lines {
     display: block;
     display: -webkit-box;
@@ -281,4 +292,19 @@
     /* Scrollbar Firefox (cú pháp đúng) */
     scrollbar-width: thin;
     scrollbar-color: var(--color-text-muted) transparent;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.hover-scale {
+    &:hover {
+        cursor: pointer;
+        transform: scale(1.05);
+    }
+}
+
+.uppercase {
+    text-transform: uppercase;
 }

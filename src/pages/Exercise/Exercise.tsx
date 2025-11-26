@@ -41,7 +41,7 @@ const json = {
         children: [
             {
                 type: 'tabset',
-                weight: 35,
+                weight: 40,
                 children: [
                     {
                         type: 'tab',
@@ -71,7 +71,7 @@ const json = {
             },
             {
                 type: 'column',
-                weight: 65,
+                weight: 60,
                 children: [
                     {
                         type: 'tabset',
@@ -243,13 +243,26 @@ const Exercise = observer(() => {
                 <div className="exercise-description" data-tourid="exercise-description">
                     <h2 className="header">{exercise?.title || 'Title'}</h2>
                     <div className="tags">
-                        <div className="tag difficulty">
+                        <div className="tag difficulty pointer hover-scale">
                             {utils.capitalizeFirstLetter(exercise?.difficulty) || 'Difficulty'}
                         </div>
-                        <div className="topics">
-                            {exercise?.topics.map((topic: any) => {
-                                return (
-                                    <div key={topic.id} className="tag topic">
+                        <div className="topics flex gap">
+                            {exercise?.topics.map((topic: any, index: any) => {
+                                const temp = exercise?.topics.map((t: any) => t.name);
+
+                                if (index == 3)
+                                    return (
+                                        <div key={topic.id} className="tag topic pointer hover-scale">
+                                            <TooltipWrapper tooltipText={temp.slice(3).join(', ')} position="top">
+                                                ...
+                                            </TooltipWrapper>
+                                        </div>
+                                    );
+
+                                return index > 2 ? (
+                                    <></>
+                                ) : (
+                                    <div key={topic.id} className="tag topic pointer hover-scale">
                                         {topic.name}
                                     </div>
                                 );
