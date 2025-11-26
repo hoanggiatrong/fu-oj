@@ -42,7 +42,7 @@ const ExamCountdownTimer = observer(({ examId, compact = false, onTimeExpired }:
                     return;
                 }
 
-                const response = await http.get(`/exam-rankings?userId=${userId}&examId=${examId}`);
+                const response = await http.get(`/exam-rankings?userId=${userId}&groupExamId=${examId}`);
                 const data: ExamRankingData[] = response.data || [];
 
                 if (data.length === 0) {

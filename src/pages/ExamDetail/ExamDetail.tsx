@@ -89,7 +89,7 @@ interface ExamResultData {
 }
 
 const ExamDetail = observer(() => {
-    const { id } = useParams();
+    const { groupExamId } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [examData, setExamData] = useState<ExamData | null>(null);
@@ -98,11 +98,12 @@ const ExamDetail = observer(() => {
     const [submissionsMap, setSubmissionsMap] = useState<Map<string, SubmissionData>>(new Map());
     const timeCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const autoSubmittedRef = useRef<boolean>(false);
+    const [examId, setExamId] = useState<string | null>(null);
 
     const getExamDetail = () => {
-        if (!id) return;
+        if (!examId) return;
         setLoading(true);
-        http.get(`/exams/${id}`)
+        http.get(`/exams/${examId}`)
             .then((res) => {
                 setExamData(res.data);
             })
@@ -118,20 +119,49 @@ const ExamDetail = observer(() => {
     };
 
     useEffect(() => {
+        if (!groupExamId) {
+            setExamId(null);
+            return;
+        }
+
+        http.get(`/group-exams?groupExamId=${groupExamId}`)
+            .then((res) => {
+                const payload = res?.data;
+                console.log(res)
+                console.log('payload', payload);
+                const groupExam = Array.isArray(payload) ? payload[0] : payload;
+                const derivedExamId = groupExam?.exam?.id || null;
+
+                if (!derivedExamId) {
+                    globalStore.triggerNotification('error', 'Không tìm thấy thông tin bài thi!', '');
+                    setExamId(null);
+                    return;
+                }
+
+                setExamId(derivedExamId);
+            })
+            .catch((error) => {
+                console.error('Error fetching group exam detail:', error);
+                globalStore.triggerNotification('error', 'Không thể tải thông tin group exam!', '');
+                setExamId(null);
+            });
+    }, [groupExamId]);
+
+    useEffect(() => {
         getExamDetail();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
+    }, [examId]);
 
     // Lấy danh sách bài tập đã làm
     useEffect(() => {
-        if (!id || authentication.isInstructor) return;
+        if (!groupExamId || authentication.isInstructor) return;
 
         const getExamResults = async () => {
             try {
                 const userId = authentication.account?.data?.id;
                 if (!userId) return;
 
-                const response = await http.get(`/exams/submissions/results?userId=${userId}&examId=${id}`);
+                const response = await http.get(`/exams/submissions/results?userId=${userId}&groupExamId=${groupExamId}`);
                 const data: ExamResultData = response.data;
 
                 if (data && data.submissions) {
@@ -148,7 +178,7 @@ const ExamDetail = observer(() => {
         };
 
         getExamResults();
-    }, [id]);
+    }, [groupExamId]);
 
     useEffect(() => {
         if (examData && examData.exercises.length > 0 && !selectedExercise) {
@@ -159,14 +189,14 @@ const ExamDetail = observer(() => {
 
     // Check thời gian làm bài (chỉ check một lần khi mount, sau đó dùng local timer)
     useEffect(() => {
-        if (!id || authentication.isInstructor) return;
+        if (!groupExamId || authentication.isInstructor) return;
 
         const loadTimeRemaining = async () => {
             try {
                 const userId = authentication.account?.data?.id;
                 if (!userId) return;
 
-                const response = await http.get(`/exam-rankings?userId=${userId}&examId=${id}`);
+                const response = await http.get(`/exam-rankings?userId=${userId}&groupExamId=${groupExamId}`);
                 const data = response.data || [];
 
                 if (data.length === 0) {
@@ -213,11 +243,19 @@ const ExamDetail = observer(() => {
                 timeCheckIntervalRef.current = null;
             }
         };
-    }, [id]);
+    }, [groupExamId]);
 
     // Tự động nộp bài khi hết thời gian
     useEffect(() => {
-        if (!id || authentication.isInstructor || !examData || !isTimeExpired || autoSubmittedRef.current) return;
+        if (
+            !groupExamId ||
+            !examId ||
+            authentication.isInstructor ||
+            !examData ||
+            !isTimeExpired ||
+            autoSubmittedRef.current
+        )
+            return;
 
         const autoSubmitUncompletedExercises = async () => {
             // Đảm bảo chỉ nộp một lần
@@ -225,7 +263,7 @@ const ExamDetail = observer(() => {
 
             // Hàm retry với số lần tối đa
             const submitWithRetry = async (
-                payload: { examId: string; exerciseId: string; sourceCode: string; languageCode: number },
+                payload: { groupExamId: string; exerciseId: string; sourceCode: string; languageCode: number },
                 maxRetries: number = 10,
                 delay: number = 2000
             ): Promise<boolean> => {
@@ -233,9 +271,14 @@ const ExamDetail = observer(() => {
                     try {
                         await http.post('/exams/submissions', payload);
                         return true; // Thành công
-                    } catch (error: any) {
-                        const statusCode = error?.response?.status;
-                        const isServerError = statusCode === 500 || (statusCode >= 502 && statusCode <= 504);
+                    } catch (error: unknown) {
+                        const statusCode =
+                            typeof error === 'object' && error !== null && 'response' in error
+                                ? ((error as { response?: { status?: number } }).response?.status ?? undefined)
+                                : undefined;
+                        const isServerError =
+                            typeof statusCode === 'number' &&
+                            (statusCode === 500 || (statusCode >= 502 && statusCode <= 504));
 
                         if (isServerError && attempt < maxRetries) {
                             // Nếu là lỗi 500 và chưa hết số lần retry, đợi rồi thử lại
@@ -267,7 +310,7 @@ const ExamDetail = observer(() => {
                 // Nộp từng bài chưa làm với retry
                 const submitPromises = uncompletedExercises.map((exercise) => {
                     const payload = {
-                        examId: id,
+                        groupExamId: groupExamId,
                         exerciseId: exercise.id,
                         sourceCode: '// Start coding here',
                         languageCode: 45
@@ -282,7 +325,9 @@ const ExamDetail = observer(() => {
                 const userId = authentication.account?.data?.id;
                 if (userId) {
                     try {
-                        const response = await http.get(`/exams/submissions/results?userId=${userId}&examId=${id}`);
+                        const response = await http.get(
+                            `/exams/submissions/results?userId=${userId}&groupExamId=${groupExamId}`
+                        );
                         const data: ExamResultData = response.data;
                         if (data && data.submissions) {
                             const map = new Map<string, SubmissionData>();
@@ -303,7 +348,7 @@ const ExamDetail = observer(() => {
         };
 
         autoSubmitUncompletedExercises();
-    }, [isTimeExpired, examData, id, submissionsMap]);
+    }, [isTimeExpired, examData, groupExamId, examId, submissionsMap]);
 
     const handleExerciseClick = (exercise: Exercise) => {
         setSelectedExercise(exercise);
@@ -314,9 +359,9 @@ const ExamDetail = observer(() => {
             globalStore.triggerNotification('warning', 'Đã hết thời gian làm bài, không thể làm bài nữa!', '');
             return;
         }
-        if (selectedExercise && id) {
+        if (selectedExercise && examId) {
             navigate(
-                `/${routesConfig.examExercise}`.replace(':examId', id).replace(':exerciseId', selectedExercise.id)
+                `/${routesConfig.examExercise}`.replace(':examId', examId).replace(':exerciseId', selectedExercise.id)
             );
         }
     };
@@ -400,9 +445,9 @@ const ExamDetail = observer(() => {
                                                 </div>
                                                 <h1 className="exercise-title">{selectedExercise.title}</h1>
                                             </div>
-                                            {!authentication.isInstructor && id && (
+                                            {!authentication.isInstructor && groupExamId && (
                                                 <div style={{ marginLeft: 16, minWidth: '200px' }}>
-                                                    <ExamCountdownTimer examId={id} />
+                                                    <ExamCountdownTimer examId={groupExamId} />
                                                 </div>
                                             )}
                                         </div>

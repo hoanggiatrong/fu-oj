@@ -147,7 +147,7 @@ const ExamsTab = observer(() => {
             }
 
             await http.post('/exam-rankings', {
-                groupExamId: selectedExamRecord?.groupExamId || selectedExamId,
+                groupExamId: selectedExamRecord?.groupExamId || '',
                 userId: currentUserId,
                 numberOfExercises,
                 completed: false
@@ -156,7 +156,9 @@ const ExamsTab = observer(() => {
             setConfirmModalOpen(false);
             setSelectedExamId(null);
             setSelectedExamRecord(null);
-            navigate(`/${routesConfig.exam}`.replace(':id', selectedExamId));
+            // LINK TO EXAM DETAIL PAGE
+            console.log('selectedExamRecord?.groupExamId', selectedExamRecord?.groupExamId);
+            navigate(`/${routesConfig.exam}`.replace(':groupExamId', selectedExamRecord?.groupExamId || ''));
         } catch (error) {
             const errorMessage =
                 (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
@@ -214,7 +216,12 @@ const ExamsTab = observer(() => {
                     return;
                 }
 
-                navigate(`/${routesConfig.exam}`.replace(':id', record.id));
+                if(rankingRecord?.groupExam?.groupExamId) {
+                    navigate(`/${routesConfig.exam}`.replace(':groupExamId', rankingRecord?.groupExam?.groupExamId || 'hello'));
+                    return;
+                }
+
+                globalStore.triggerNotification('error', 'Không tìm thấy thông tin bài kiểm tra!', '');
                 return;
             }
 

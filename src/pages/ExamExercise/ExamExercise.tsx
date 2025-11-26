@@ -158,7 +158,7 @@ const ExamExercise = observer(() => {
             setGroupExamId(null);
             return;
         }
-        http.get(`/exam-rankings?userId=${userId}&examId=${examId}`)
+        http.get(`/exam-rankings?userId=${userId}&groupExamId=${examId}`)
             .then((res) => {
                 if (Array.isArray(res.data) && res.data.length > 0) {
                     const ranking = res.data[0];
@@ -217,7 +217,7 @@ const ExamExercise = observer(() => {
         }
 
         const payload = {
-            groupExamId,
+            groupExamId: groupExamId,
             exerciseId: exerciseId,
             sourceCode: editorValue,
             languageCode: language

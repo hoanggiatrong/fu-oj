@@ -85,7 +85,7 @@ const ExamResult = () => {
                     return;
                 }
 
-                const response = await http.get(`/exams/submissions/results?userId=${userId}&examId=${examId}`);
+                const response = await http.get(`/exams/submissions/results?userId=${userId}&groupExamId=${examId}`);
                 setResultData(response.data);
             } catch (error) {
                 console.error('Error fetching exam result:', error);

@@ -28,7 +28,7 @@ const SubmissionsTab = observer(() => {
 
     const handleExamChange = (examId: string) => {
         setSelectedExamId(examId);
-        const url = `/exam-rankings?examId=${examId}`;
+        const url = `/exam-rankings?groupExamId=${examId}`;
         console.log('[API] GET', url, '- Fetching exam rankings for exam:', examId);
         http.get(url)
             .then((res) => {
