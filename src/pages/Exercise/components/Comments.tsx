@@ -8,6 +8,7 @@ import * as http from '../../../lib/httpRequest';
 import authentication from '../../../shared/auth/authentication';
 import './tabset.scss';
 import utils from '../../../utils/utils';
+import classnames from 'classnames';
 
 interface UserProfile {
     id: string;
@@ -467,7 +468,11 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                 <List
                     loading={loading}
                     dataSource={commentListData}
-                    locale={{ emptyText: 'Chưa có comment nào. Hãy là người đầu tiên bình luận!' }}
+                    locale={{
+                        emptyText: (
+                            <p style={{ color: '#464646' }}>Chưa có comment nào. Hãy là người đầu tiên bình luận!</p>
+                        )
+                    }}
                     renderItem={(comment: CommentNode) => (
                         <List.Item
                             key={comment.id}
@@ -877,10 +882,10 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                     </Button>
                 </div>
             </Modal>
-            <div className="pt-8 border-top">
+            <div className="pt-8 border-top" style={{ borderColor: '#464646' }}>
                 <div className="flex gap p-4">
                     <Input.TextArea
-                        className="overflow"
+                        className="overflow lampnt"
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Viết comment của bạn..."
@@ -900,12 +905,15 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                         maxLength={255}
                     />
                     <Button
+                        className={classnames('ant-btn-send', { 'disabled-2': !newComment.trim() })}
                         type="primary"
                         icon={<SendOutlined />}
                         onClick={handleSubmitComment}
                         loading={submitting}
                         disabled={!newComment.trim()}
-                        style={{ alignSelf: 'flex-end' }}
+                        style={{
+                            alignSelf: 'flex-end'
+                        }}
                     >
                         Gửi
                     </Button>

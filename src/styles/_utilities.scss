@@ -312,3 +312,25 @@
 .border-top {
     border-top: 1px solid var(--color-border);
 }
+
+// LAMPNT
+.ant-btn-send.disabled-2 {
+    border-color: #464646 !important;
+    background: #373737 !important;
+    color: #696969 !important;
+}
+
+.lampnt .ant-input {
+    // color: #464646 !important; /* màu chữ chính */
+}
+
+/* Placeholder màu đỏ */
+.lampnt .ant-input::placeholder {
+    color: #464646 !important;
+    opacity: 1;
+}
+
+/* Bộ đếm ký tự (0/255) màu đỏ */
+.lampnt .ant-input-suffix .ant-input-data-count {
+    color: #898989 !important;
+}
