@@ -179,7 +179,7 @@ const Home = observer(() => {
                                         <div className="rank-item flex gap">
                                             <div className="left">
                                                 <img src="/sources/ranks/rank-frog.png" alt="" />
-                                                <Avatar src={'/sources/thaydat.jpg'} />
+                                                <Avatar src={t?.user?.avatar?.url || '/sources/thaydat.jpg'} />
                                             </div>
                                             <div className="right">
                                                 <div className="name">
@@ -195,7 +195,7 @@ const Home = observer(() => {
                                         <div className="rank-item flex gap">
                                             <div className="left">
                                                 <img src={`/sources/ranks/rank${index}.png`} alt="" />
-                                                <Avatar src={'/sources/thaytrong.png'} />
+                                                <Avatar src={t?.user?.avatar?.url || '/sources/thaytrong.png'} />
                                             </div>
                                             <div className="right">
                                                 <div className="name">
