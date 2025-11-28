@@ -67,7 +67,6 @@ const json = {
                         component: 'ai-assistant',
                         icon: '/sources/icons/ai-assistant-ico.svg'
                     }
-
                 ]
             },
             {
@@ -461,6 +460,7 @@ const Exercise = observer(() => {
                                     </div>
                                     <div className="testcase">
                                         {submittedData.data.submissionResults.map((item: any, index: any) => {
+                                            console.log('log:', item);
                                             return (
                                                 <div
                                                     className={classnames('io', {
@@ -469,11 +469,11 @@ const Exercise = observer(() => {
                                                 >
                                                     <div className="input wrapper">
                                                         <div className="label">Input</div>
-                                                        <div className="content">{item.input}</div>
+                                                        <div className="content">{item.testCase?.input}</div>
                                                     </div>
                                                     <div className="expected-output wrapper">
                                                         <div className="label">Expected Output</div>
-                                                        <div className="content">{item.expectedOutput}</div>
+                                                        <div className="content">{item.testCase?.output}</div>
                                                     </div>
                                                     <div
                                                         className={classnames('actual-output wrapper', {
@@ -569,7 +569,7 @@ const Exercise = observer(() => {
             setEditorValue('');
             setResponse(null);
         }
-        return () => { };
+        return () => {};
     }, [submissionId]);
 
     useEffect(() => {

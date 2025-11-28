@@ -418,11 +418,12 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
             style={{
                 marginTop: '12px',
                 padding: '12px',
-                backgroundColor: '#1f1f1f',
+                backgroundColor: 'inherit',
                 borderRadius: '8px'
             }}
         >
             <Input.TextArea
+                className="lampnt"
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 placeholder="Nhập nội dung trả lời..."
@@ -446,6 +447,7 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                     Hủy
                 </Button>
                 <Button
+                    className={classnames('ant-btn-send', { 'disabled-2': !replyContent.trim() })}
                     type="primary"
                     onClick={handleReplySubmit}
                     loading={replySubmitting}
@@ -463,8 +465,11 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
     const commentListData = useMemo(() => comments.slice(0, Math.max(visibleTopCount, 1)), [comments, visibleTopCount]);
 
     return (
-        <div className="comments-container" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+        <div
+            className="comments-container overflow"
+            style={{ height: '100%', display: 'flex', flexDirection: 'column', minWidth: 410 }}
+        >
+            <div className="overflow flex-1 p-16">
                 <List
                     loading={loading}
                     dataSource={commentListData}
@@ -496,9 +501,9 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                 <div style={{ flex: 1 }}>
                                     <div
                                         style={{
-                                            backgroundColor: '#1f1f1f',
+                                            // backgroundColor: '#1f1f1f',
                                             borderRadius: '16px',
-                                            padding: '12px 16px',
+                                            // padding: '12px 16px',
                                             color: '#fff'
                                         }}
                                     >
@@ -613,7 +618,7 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                     {activeReplyParent === comment.id && renderReplyInput(comment.id)}
 
                                     {(comment.replies ?? []).length > 0 && (
-                                        <div style={{ marginTop: '16px', paddingLeft: '24px' }}>
+                                        <div className="mt-24">
                                             {(() => {
                                                 const totalReplies = (comment.replies ?? []).length;
                                                 const visibleRepliesCount =
@@ -659,8 +664,7 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                                                         <div
                                                                             style={{
                                                                                 backgroundColor: '#262626',
-                                                                                borderRadius: '14px',
-                                                                                padding: '10px 14px'
+                                                                                borderRadius: '14px'
                                                                             }}
                                                                         >
                                                                             <div
@@ -694,6 +698,7 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                                                             {editingId === reply.id ? (
                                                                                 <>
                                                                                     <Input.TextArea
+                                                                                        className="lampnt"
                                                                                         value={editingContent}
                                                                                         onChange={(e) =>
                                                                                             setEditingContent(
@@ -726,6 +731,13 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                                                                             Hủy
                                                                                         </Button>
                                                                                         <Button
+                                                                                            className={classnames(
+                                                                                                'ant-btn-send',
+                                                                                                {
+                                                                                                    'disabled-2':
+                                                                                                        !editingContent.trim()
+                                                                                                }
+                                                                                            )}
                                                                                             type="primary"
                                                                                             onClick={handleSubmitEdit}
                                                                                             loading={editingSubmitting}
@@ -751,7 +763,6 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                                                         </div>
                                                                         <div
                                                                             style={{
-                                                                                marginTop: '6px',
                                                                                 display: 'flex',
                                                                                 gap: '16px'
                                                                             }}
@@ -789,10 +800,14 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                                                             )}
                                                                             {reply.user?.id !== currentUserId && (
                                                                                 <Button
+                                                                                    className="mt-4"
                                                                                     type="link"
                                                                                     size="small"
                                                                                     danger
-                                                                                    style={{ padding: 0 }}
+                                                                                    style={{
+                                                                                        padding: 0,
+                                                                                        marginLeft: -2
+                                                                                    }}
                                                                                     loading={reportingId === reply.id}
                                                                                     onClick={() =>
                                                                                         handleReportComment(reply.id)
@@ -812,7 +827,7 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                                             <Button
                                                                 type="link"
                                                                 size="small"
-                                                                style={{ padding: 0, marginLeft: '56px' }}
+                                                                style={{ padding: 0 }}
                                                                 onClick={() =>
                                                                     setReplyVisibleMap((prev) => {
                                                                         const current =
