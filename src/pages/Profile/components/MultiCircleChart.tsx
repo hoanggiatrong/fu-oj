@@ -74,7 +74,7 @@ const MultiCircleChart: React.FC<{ scores: ScoreProps }> = ({ scores }) => {
 
                 <div className="chart-center">
                     <div className="solved">
-                        <b>{scores.solvedEasy + scores.solvedMedium + scores.solvedHard}</b> / {total}
+                        <b>{scores.solvedEasy + scores.solvedMedium + scores.solvedHard}</b> / <div>{total}</div>
                     </div>
                     <div className="label">
                         <CheckOutlined className="ico" />
