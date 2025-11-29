@@ -359,9 +359,11 @@ const ExamDetail = observer(() => {
             globalStore.triggerNotification('warning', 'Đã hết thời gian làm bài, không thể làm bài nữa!', '');
             return;
         }
-        if (selectedExercise && examId) {
+
+        // LINK TO EXAM EXERCISE PAGE
+        if (selectedExercise && examId && groupExamId) {
             navigate(
-                `/${routesConfig.examExercise}`.replace(':examId', examId).replace(':exerciseId', selectedExercise.id)
+                `/${routesConfig.examExercise}`.replace(':examId', examId).replace(':exerciseId', selectedExercise.id).replace(':groupExamId', groupExamId)
             );
         }
     };
