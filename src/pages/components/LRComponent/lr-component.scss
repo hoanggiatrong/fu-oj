@@ -17,14 +17,28 @@
 
                 & > .left {
                     width: 33.333%;
+                    min-height: 500px;
 
                     & > .content {
+                        position: relative;
                         padding: 30px;
+                        height: 100%;
+                        padding-top: 50px;
+
+                        & > .logo {
+                            text-align: center;
+
+                            & > img {
+                                width: 140px;
+                                margin-bottom: 40px;
+                            }
+                        }
 
                         & > .header {
-                            padding-bottom: 24px;
-                            font-size: 18px;
+                            padding-bottom: 18px;
+                            font-size: 16px;
                             font-weight: 500;
+                            text-align: center;
                         }
 
                         & > .group-btn {
@@ -38,8 +52,23 @@
                             }
                         }
 
+                        & > .forget {
+                            // margin-top: 40px;
+                            font-size: 14px;
+                            text-align: right;
+                            text-transform: uppercase;
+
+                            & > a {
+                                color: #ff6900;
+
+                                &:hover {
+                                    opacity: 0.7;
+                                }
+                            }
+                        }
+
                         & > .register {
-                            margin-top: 40px;
+                            // margin-top: 40px;
                             font-size: 14px;
 
                             & > a {
@@ -49,6 +78,14 @@
                                     opacity: 0.7;
                                 }
                             }
+                        }
+
+                        & > .footer {
+                            position: absolute;
+                            width: calc(100% - 60px);
+                            bottom: 30px;
+                            font-size: var(--base-size-12);
+                            color: var(--color-text-muted);
                         }
                     }
                 }
@@ -210,7 +247,7 @@
     font-weight: 500;
     background: #ff6900;
     color: white;
-    margin-bottom: 48px;
+    // margin-bottom: 48px;
 
     &:hover {
         background: #ff6900 !important;
@@ -283,11 +320,45 @@
                         border-radius: 3px !important;
                         background: var(--color-bg);
                     }
+
+                    & > .ant-input-affix-wrapper {
+                        & > input {
+                            background: var(--color-bg) !important;
+                        }
+                    }
                 }
 
                 & > .ant-form-item-control-input-content::before {
                     font-weight: 600;
                     content: 'Password';
+                    font-size: 12px;
+                    position: absolute;
+                    left: 11px;
+                    top: 18px;
+                    transform: translateY(-50%);
+                    color: #999;
+                    pointer-events: none;
+                    z-index: 2;
+                }
+            }
+        }
+    }
+}
+
+.custom-input-email {
+    & > .ant-row {
+        & > .ant-col {
+            & > .ant-form-item-control-input {
+                & > .ant-form-item-control-input-content {
+                    & > input {
+                        z-index: 1;
+                        border-radius: 3px !important;
+                    }
+                }
+
+                & > .ant-form-item-control-input-content::before {
+                    font-weight: 600;
+                    content: 'Email';
                     font-size: 12px;
                     position: absolute;
                     left: 11px;

@@ -1,13 +1,14 @@
+import { LoadingOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
 import { Button, Checkbox, Form, Input, Modal } from 'antd';
+import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import globalStore from '../../../components/GlobalComponent/globalStore';
 import authentication from '../../../shared/auth/authentication';
 import './lr-component.scss';
-import { LoadingOutlined } from '@ant-design/icons';
-import classnames from 'classnames';
+import Line from '../../../components/Line/Line';
 
 const flexSliderItems = [
     {
@@ -37,6 +38,7 @@ type FieldType = {
 const LRComponent = observer(() => {
     const navigate = useNavigate();
     const [activeIndex, setActiveIndex] = useState(0);
+    const [step, setStep] = useState(0);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -61,12 +63,12 @@ const LRComponent = observer(() => {
                 onCancel={() => globalStore.setLROpen(false)}
                 footer={false}
             >
-                <div className="left">
-                    <LoginComponent />
+                <div className={classnames('left', { 'max-width': globalStore.isBelow1000 })}>
+                    {step == 0 ? <LoginComponent setStep={setStep} /> : <ForgetPasswordComponent setStep={setStep} />}
                 </div>
                 <div className="split"></div>
                 <div
-                    className="right"
+                    className={classnames('right', { hide: globalStore.isBelow1000 })}
                     style={{
                         backgroundImage: `url('${
                             globalStore.theme == 'theme-dark'
@@ -104,7 +106,70 @@ const LRComponent = observer(() => {
     );
 });
 
-const LoginComponent = observer(() => {
+const ForgetPasswordComponent = observer(({ setStep }: { setStep: any }) => {
+    const onFinish = (values: any) => {
+        const email = values.email;
+
+        globalStore.triggerNotification('success', 'Thầy làm thì thông báo bằng cái này nhé', '');
+    };
+
+    const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
+
+    return (
+        <div className="content">
+            <div className="logo">
+                <img className="logo" src="/sources/logo-fullname.png" alt="" />
+            </div>
+            <div className="header">YÊU CẦU MẬT KHẨU MỚI</div>
+            <Form
+                name="basic"
+                style={{ maxWidth: globalStore.isBelow1000 ? 1000 : 600 }}
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+                autoComplete="off"
+            >
+                <Form.Item
+                    name="email"
+                    rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
+                    className="custom-input-email"
+                >
+                    <Input style={{ height: 50, paddingTop: 24 }} placeholder="Nhập Email để nhận mật khẩu mới" />
+                </Form.Item>
+
+                <Line width={40} height={40} lineOnly />
+
+                <Form.Item label={null}>
+                    <Button
+                        className={classnames('login-btn', { disabled: authentication.loading })}
+                        block
+                        type="primary"
+                        htmlType="submit"
+                    >
+                        Gửi mật khẩu về email {authentication.loading && <LoadingOutlined />}
+                    </Button>
+                </Form.Item>
+            </Form>
+            <div className="forget">
+                <a
+                    href=""
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setStep(0);
+                    }}
+                >
+                    QUAY LẠI ĐĂNG NHẬP
+                </a>
+            </div>
+            <div className="footer">Copyright © 2025, FUOJ. All trademarks and copyrights belong to FUOJ.</div>
+        </div>
+    );
+});
+
+const LoginComponent = observer(({ setStep }: { setStep: any }) => {
     const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
         authentication.login(values.username || '', values.password || '', !!values.remember);
     };
@@ -115,12 +180,15 @@ const LoginComponent = observer(() => {
 
     return (
         <div className="content">
-            <div className="header">ĐĂNG NHẬP</div>
+            <div className="logo">
+                <img className="logo" src="/sources/logo-fullname.png" alt="" />
+            </div>
+            {/* <div className="header">ĐĂNG NHẬP</div> */}
             <Form
                 name="basic"
                 // labelCol={{ span: 8 }}
                 // wrapperCol={{ span: 16 }}
-                style={{ maxWidth: 600 }}
+                style={{ maxWidth: globalStore.isBelow1000 ? 1000 : 600 }}
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
@@ -128,7 +196,7 @@ const LoginComponent = observer(() => {
             >
                 <Form.Item<FieldType>
                     name="username"
-                    rules={[{ required: true, message: 'Please input your username!' }]}
+                    rules={[{ required: true, message: 'Vui lòng nhập tài khoản | Email!' }]}
                     className="custom-input-username"
                 >
                     <Input style={{ height: 50, paddingTop: 24 }} placeholder="Nhập tài khoản | Email" />
@@ -136,7 +204,7 @@ const LoginComponent = observer(() => {
 
                 <Form.Item<FieldType>
                     name="password"
-                    rules={[{ required: true, message: 'Please input your password!' }]}
+                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
                     className="custom-input-password"
                 >
                     <Input.Password style={{ height: 50, paddingTop: 24 }} placeholder="Nhập mật khẩu" />
@@ -157,7 +225,19 @@ const LoginComponent = observer(() => {
                     </Button>
                 </Form.Item>
             </Form>
-            <div className="split-content">Hoặc</div>
+            <div className="forget">
+                <a
+                    href=""
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setStep(1);
+                    }}
+                >
+                    Quên mật khẩu
+                </a>
+            </div>
+            {/* <div className="split-content">Hoặc</div>
             <div className="group-btn">
                 <Button>
                     <img src="/sources/login/google.webp" alt="" style={{ width: 20 }} />
@@ -167,11 +247,12 @@ const LoginComponent = observer(() => {
                     <img src="/sources/login/nbg-fb.png" alt="" style={{ width: 20 }} />
                     Facebook
                 </Button>
-            </div>
-            <div className="register">
-                {/** biome-ignore lint/a11y/useValidAnchor: the <a> is currently for decoration */}
+            </div> */}
+            {/** biome-ignore lint/a11y/useValidAnchor: the <a> is currently for decoration */}
+            {/* <div className="register">
                 Bạn chưa có tài khoản? <a>ĐĂNG KÝ</a>
-            </div>
+            </div> */}
+            <div className="footer">Copyright © 2025, FUOJ. All trademarks and copyrights belong to FUOJ.</div>
         </div>
     );
 });
