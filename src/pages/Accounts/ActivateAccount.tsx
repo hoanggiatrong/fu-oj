@@ -22,8 +22,8 @@ const ActivateAccount = observer(() => {
       return;
     }
 
-
-    http.get(`/auth/active-account/${encodeURIComponent(email)}`)
+    http
+      .get(`/auth/active-account/${encodeURIComponent(email)}`)
       .then(() => {
         setSuccess(true);
         globalStore.triggerNotification('success', 'Kích hoạt tài khoản thành công!', '');
@@ -42,6 +42,14 @@ const ActivateAccount = observer(() => {
 
   const handleGoToLogin = () => {
     navigate('/login');
+  };
+
+  const handleGoToChangePassword = () => {
+    if (email) {
+      navigate(`/change-password?email=${encodeURIComponent(email)}`);
+    } else {
+      navigate('/login');
+    }
   };
 
   if (loading) {
@@ -82,10 +90,10 @@ const ActivateAccount = observer(() => {
             status="success"
             icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
             title={<span style={{ color: '#ff8c42' }}>Kích hoạt tài khoản thành công!</span>}
-            subTitle="Tài khoản của bạn đã được kích hoạt thành công. Bạn có thể đăng nhập ngay bây giờ."
+            subTitle="Tài khoản của bạn đã được kích hoạt. Vui lòng đổi mật khẩu trước khi đăng nhập."
             extra={[
-              <Button type="primary" key="login" onClick={handleGoToLogin}>
-                Đăng nhập ngay
+              <Button type="primary" key="change-password" onClick={handleGoToChangePassword}>
+                Đổi mật khẩu
               </Button>
             ]}
           />

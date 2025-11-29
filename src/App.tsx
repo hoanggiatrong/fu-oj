@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import ScreenLoadingOverlay from './components/ScreenLoadingOverlay/ScreenLoadingOverlay';
 import DefaultLayout from './layouts/DefaultLayout/defaultLayout';
 import ActivateAccount from './pages/Accounts/ActivateAccount';
+import ChangePasswordFirstTime from './pages/Accounts/ChangePasswordFirstTime';
 import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import router, { groupRoutes } from './routes/routes';
@@ -48,6 +49,7 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/activate-account" element={<ActivateAccount />} />
                         <Route path="/auth/active-account" element={<ActivateAccount />} />
+                        <Route path="/change-password" element={<ChangePasswordFirstTime />} />
                     </Routes>
                 </BrowserRouter>
             </ConfigProvider>
