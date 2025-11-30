@@ -66,7 +66,7 @@ const QuickAction = observer(() => {
                         </div>
                     </li>
                 </ProtectedElement>
-                <li
+                {/* <li
                     onClick={() => {
                         globalStore.setWindowLoading(true);
                         authentication.logout();
@@ -110,7 +110,7 @@ const QuickAction = observer(() => {
                         <LogoutOutlined className="ico" />
                         {'->'} Student
                     </div>
-                </li>
+                </li> */}
             </ul>
         </div>
     );

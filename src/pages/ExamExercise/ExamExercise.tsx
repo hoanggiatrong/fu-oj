@@ -516,97 +516,97 @@ const ExamExercise = observer(() => {
         isNavigatingRef.current = false;
     }, [location.pathname]);
 
-    // useEffect(() => {
-    //     const blockKeys = (e: any) => {
-    //         // Chặn phím F1–F12
-    //         if (e.key.startsWith('F')) {
-    //             e.preventDefault();
-    //             console.log('⚠️ Chặn phím function:', e.key);
-    //             return;
-    //         }
+    useEffect(() => {
+        const blockKeys = (e: any) => {
+            // Chặn phím F1–F12
+            if (e.key.startsWith('F')) {
+                e.preventDefault();
+                console.log('⚠️ Chặn phím function:', e.key);
+                return;
+            }
 
-    //         // Chặn DevTools
-    //         if (
-    //             e.key === 'F12' ||
-    //             (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-    //             (e.metaKey && e.altKey && e.key === 'I')
-    //         ) {
-    //             e.preventDefault();
-    //             console.log('⚠️ Cố mở DevTools:', e.key);
-    //             return;
-    //         }
+            // Chặn DevTools
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                (e.metaKey && e.altKey && e.key === 'I')
+            ) {
+                e.preventDefault();
+                console.log('⚠️ Cố mở DevTools:', e.key);
+                return;
+            }
 
-    //         // Chặn tất cả tổ hợp Ctrl (copy, paste, save…)
-    //         if (e.ctrlKey || e.metaKey) {
-    //             e.preventDefault();
-    //             console.log('⚠️ Chặn tổ hợp:', e.key);
-    //             return;
-    //         }
-    //     };
+            // Chặn tất cả tổ hợp Ctrl (copy, paste, save…)
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                console.log('⚠️ Chặn tổ hợp:', e.key);
+                return;
+            }
+        };
 
-    //     const blockContext = (e: any) => {
-    //         e.preventDefault();
-    //         console.log('⚠️ Chuột phải bị chặn');
-    //     };
+        const blockContext = (e: any) => {
+            e.preventDefault();
+            console.log('⚠️ Chuột phải bị chặn');
+        };
 
-    //     const blockCopy = (e: any) => {
-    //         e.preventDefault();
-    //         console.log('⚠️ Copy bị chặn');
-    //     };
+        const blockCopy = (e: any) => {
+            e.preventDefault();
+            console.log('⚠️ Copy bị chặn');
+        };
 
-    //     const blockPaste = (e: any) => {
-    //         e.preventDefault();
-    //         console.log('⚠️ Paste bị chặn');
-    //     };
+        const blockPaste = (e: any) => {
+            e.preventDefault();
+            console.log('⚠️ Paste bị chặn');
+        };
 
-    //     const blockCut = (e: any) => {
-    //         e.preventDefault();
-    //         console.log('⚠️ Cut bị chặn');
-    //     };
+        const blockCut = (e: any) => {
+            e.preventDefault();
+            console.log('⚠️ Cut bị chặn');
+        };
 
-    //     const blockSelect = (e: any) => {
-    //         e.preventDefault();
-    //         console.log('⚠️ Chặn chọn văn bản');
-    //     };
+        const blockSelect = (e: any) => {
+            e.preventDefault();
+            console.log('⚠️ Chặn chọn văn bản');
+        };
 
-    //     // Phát hiện DevTools qua kích thước cửa sổ
-    //     let devtoolsOpen = false;
-    //     const detectDevTools = () => {
-    //         const threshold = 160;
-    //         if (
-    //             window.outerHeight - window.innerHeight > threshold ||
-    //             window.outerWidth - window.innerWidth > threshold
-    //         ) {
-    //             if (!devtoolsOpen) {
-    //                 devtoolsOpen = true;
-    //                 console.log('⚠️ DevTools vừa mở!');
-    //             }
-    //         } else {
-    //             devtoolsOpen = false;
-    //         }
-    //     };
+        // Phát hiện DevTools qua kích thước cửa sổ
+        let devtoolsOpen = false;
+        const detectDevTools = () => {
+            const threshold = 160;
+            if (
+                window.outerHeight - window.innerHeight > threshold ||
+                window.outerWidth - window.innerWidth > threshold
+            ) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    console.log('⚠️ DevTools vừa mở!');
+                }
+            } else {
+                devtoolsOpen = false;
+            }
+        };
 
-    //     window.addEventListener('keydown', blockKeys, true);
-    //     window.addEventListener('contextmenu', blockContext, true);
-    //     window.addEventListener('copy', blockCopy, true);
-    //     window.addEventListener('paste', blockPaste, true);
-    //     window.addEventListener('cut', blockCut, true);
-    //     window.addEventListener('selectstart', blockSelect, true);
-    //     window.addEventListener('resize', detectDevTools);
+        window.addEventListener('keydown', blockKeys, true);
+        window.addEventListener('contextmenu', blockContext, true);
+        window.addEventListener('copy', blockCopy, true);
+        window.addEventListener('paste', blockPaste, true);
+        window.addEventListener('cut', blockCut, true);
+        window.addEventListener('selectstart', blockSelect, true);
+        window.addEventListener('resize', detectDevTools);
 
-    //     const interval = setInterval(detectDevTools, 500);
+        const interval = setInterval(detectDevTools, 500);
 
-    //     return () => {
-    //         window.removeEventListener('keydown', blockKeys, true);
-    //         window.removeEventListener('contextmenu', blockContext, true);
-    //         window.removeEventListener('copy', blockCopy, true);
-    //         window.removeEventListener('paste', blockPaste, true);
-    //         window.removeEventListener('cut', blockCut, true);
-    //         window.removeEventListener('selectstart', blockSelect, true);
-    //         window.removeEventListener('resize', detectDevTools);
-    //         clearInterval(interval);
-    //     };
-    // }, []);
+        return () => {
+            window.removeEventListener('keydown', blockKeys, true);
+            window.removeEventListener('contextmenu', blockContext, true);
+            window.removeEventListener('copy', blockCopy, true);
+            window.removeEventListener('paste', blockPaste, true);
+            window.removeEventListener('cut', blockCut, true);
+            window.removeEventListener('selectstart', blockSelect, true);
+            window.removeEventListener('resize', detectDevTools);
+            clearInterval(interval);
+        };
+    }, []);
 
     return (
         <div className="exercise">
