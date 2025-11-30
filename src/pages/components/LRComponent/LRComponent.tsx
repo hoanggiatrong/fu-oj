@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import globalStore from '../../../components/GlobalComponent/globalStore';
 import authentication from '../../../shared/auth/authentication';
+import * as http from '../../../lib/httpRequest';
 import './lr-component.scss';
 import Line from '../../../components/Line/Line';
 
@@ -59,7 +60,7 @@ const LRComponent = observer(() => {
                 closable={{ 'aria-label': 'Custom Close Button' }}
                 // open={!authentication.isAuthenticated ? true : globalStore.isLROpen}
                 open={globalStore.isLROpen}
-                onOk={() => {}}
+                onOk={() => { }}
                 onCancel={() => globalStore.setLROpen(false)}
                 footer={false}
             >
@@ -70,11 +71,10 @@ const LRComponent = observer(() => {
                 <div
                     className={classnames('right', { hide: globalStore.isBelow1000 })}
                     style={{
-                        backgroundImage: `url('${
-                            globalStore.theme == 'theme-dark'
-                                ? '/sources/login/image.jpeg'
-                                : 'https://i.ex-cdn.com/mientay.giadinhonline.vn/files/content/2025/05/12/z6594050220643_b9164f734c54e153355c37e32d3de83f-1635.jpg'
-                        }')`
+                        backgroundImage: `url('${globalStore.theme == 'theme-dark'
+                            ? '/sources/login/image.jpeg'
+                            : 'https://i.ex-cdn.com/mientay.giadinhonline.vn/files/content/2025/05/12/z6594050220643_b9164f734c54e153355c37e32d3de83f-1635.jpg'
+                            }')`
                     }}
                 >
                     <img className="logo" src="/favicon.svg" alt="" />
@@ -107,10 +107,29 @@ const LRComponent = observer(() => {
 });
 
 const ForgetPasswordComponent = observer(({ setStep }: { setStep: any }) => {
-    const onFinish = (values: any) => {
+    const [loading, setLoading] = useState(false);
+    const [form] = Form.useForm();
+
+    const onFinish = async (values: any) => {
         const email = values.email;
 
-        globalStore.triggerNotification('success', 'Thầy làm thì thông báo bằng cái này nhé', '');
+        if (!email) {
+            globalStore.triggerNotification('error', 'Vui lòng nhập email!', '');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await http.get(`/auth/forget-password?to=${encodeURIComponent(email)}`);
+            globalStore.triggerNotification('success', 'Mật khẩu mới đã được gửi về email.', '');
+            form.setFieldsValue({ email: '' }); // Clear input email sau khi gửi thành công
+        } catch (error: any) {
+            const message =
+                error?.response?.data?.message || 'Có lỗi xảy ra khi gửi email. Vui lòng thử lại sau!';
+            globalStore.triggerNotification('error', message, '');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
@@ -124,6 +143,7 @@ const ForgetPasswordComponent = observer(({ setStep }: { setStep: any }) => {
             </div>
             <div className="header">YÊU CẦU MẬT KHẨU MỚI</div>
             <Form
+                form={form}
                 name="basic"
                 style={{ maxWidth: globalStore.isBelow1000 ? 1000 : 600 }}
                 initialValues={{ remember: true }}
@@ -143,12 +163,13 @@ const ForgetPasswordComponent = observer(({ setStep }: { setStep: any }) => {
 
                 <Form.Item label={null}>
                     <Button
-                        className={classnames('login-btn', { disabled: authentication.loading })}
+                        className={classnames('login-btn', { disabled: loading })}
                         block
                         type="primary"
                         htmlType="submit"
+                        loading={loading}
                     >
-                        Gửi mật khẩu về email {authentication.loading && <LoadingOutlined />}
+                        Gửi mật khẩu về email {loading && <LoadingOutlined />}
                     </Button>
                 </Form.Item>
             </Form>
