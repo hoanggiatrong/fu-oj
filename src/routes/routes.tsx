@@ -14,6 +14,7 @@ import Home from '../pages/Home/Home';
 import Profile from '../pages/Profile/Profile';
 import Ranking from '../pages/Ranking/Ranking';
 import Topics from '../pages/Topics/Topics';
+import ChangePassword from '../pages/ChangePassword/ChangePassword';
 import routesConfig from './routesConfig';
 import Accounts from '../pages/Accounts/Accounts';
 import Courses from '../pages/Courses/Courses';
@@ -159,7 +160,14 @@ const router: {
         path: routesConfig.profile,
         element: <Profile />
     },
-
+    {
+        path: routesConfig.changePassword,
+        element: (
+            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
+                <ChangePassword />
+            </ProtectedElementRoute>
+        )
+    },
     {
         path: routesConfig.accounts,
         element: (

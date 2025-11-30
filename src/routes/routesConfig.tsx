@@ -29,7 +29,8 @@ const routesConfig: IPageRoutes = {
     courseDetail: 'courses/:courseId',
     aiExercises: 'ai-exercises',
     certificates: 'certificates',
-    activateAccount: 'activate-account'
+    activateAccount: 'activate-account',
+    changePassword: 'change-password'
 };
 
 export default routesConfig;

@@ -1,6 +1,6 @@
 import { AppstoreAddOutlined, DeleteOutlined, EditOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Avatar, Button, Card, Checkbox, Col, Empty, Form, Input, Modal, Popconfirm, Row } from 'antd';
+import { Avatar, Button, Card, Checkbox, Col, Empty, Form, Input, Modal, Pagination, Popconfirm, Row } from 'antd';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
@@ -27,6 +27,11 @@ const Groups = observer(() => {
     const [datas, setDatas] = useState([]);
     const [displayDatas, setDisplayDatas] = useState([]);
     const [search, setSearch] = useState('');
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 6,
+        total: 0
+    });
     // const [groupCode, setGroupCode]: any = useState<string | null>(null);
     const [isJoinDialogOpen, setJoinDialogOpen]: any = useState<boolean>(false);
 
@@ -90,6 +95,11 @@ const Groups = observer(() => {
         http.get('/groups').then((res) => {
             setDatas(res.data);
             setDisplayDatas(res.data);
+            setPagination((prev) => ({
+                ...prev,
+                current: 1,
+                total: res.data.length
+            }));
             setTimeout(() => {
                 setLoading(false);
             }, 1000);
@@ -101,7 +111,7 @@ const Groups = observer(() => {
     }, []);
 
     useEffect(() => {
-        const displayDatas = search
+        const filtered = search
             ? datas.filter(
                   (data: any) =>
                       data?.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -109,8 +119,22 @@ const Groups = observer(() => {
               )
             : datas;
 
-        setDisplayDatas(displayDatas);
-    }, [search]);
+        setDisplayDatas(filtered);
+        setPagination((prev) => ({
+            ...prev,
+            current: 1,
+            total: filtered.length
+        }));
+    }, [search, datas]);
+
+    // Calculate paginated data
+    const getPaginatedData = () => {
+        const start = (pagination.current - 1) * pagination.pageSize;
+        const end = start + pagination.pageSize;
+        return displayDatas.slice(start, end);
+    };
+
+    const paginatedData = getPaginatedData();
 
     useEffect(() => {
         if (!globalStore.isDetailPopupOpen) {
@@ -164,8 +188,8 @@ const Groups = observer(() => {
                         <LoadingOverlay loading={loading}>
                             <div className={classnames('content mb-36')}>
                                 <Row gutter={[16, 16]}>
-                                    {displayDatas.length ? (
-                                        displayDatas.map((item: any) => (
+                                    {paginatedData.length ? (
+                                        paginatedData.map((item: any) => (
                                             <Col
                                                 key={item.id}
                                                 xs={24}
@@ -329,6 +353,27 @@ const Groups = observer(() => {
                                     )}
                                 </Row>
                             </div>
+                            {displayDatas.length > 0 && (
+                                <div className="pagination-wrapper">
+                                    <Pagination
+                                        current={pagination.current}
+                                        pageSize={pagination.pageSize}
+                                        total={pagination.total}
+                                        showSizeChanger={false}
+                                        showTotal={(total, range) =>
+                                            `${range[0]}-${range[1]} trên ${total} nhóm`
+                                        }
+                                        onChange={(page) => {
+                                            setPagination((prev) => ({
+                                                ...prev,
+                                                current: page
+                                            }));
+                                            // Scroll to top when page changes
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </LoadingOverlay>
                     </div>
                 </div>

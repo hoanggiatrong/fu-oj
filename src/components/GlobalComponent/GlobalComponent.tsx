@@ -1,6 +1,6 @@
 import type { WindowSizeType } from './globalStore';
 
-import { LogoutOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { LockOutlined, LogoutOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { Drawer, notification } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
@@ -112,6 +112,10 @@ const UserDrawer = observer(() => {
                         Danh sách bài tập đã hoàn thành
                     </div>
                 </ProtectedElement>
+                <div className="info action" onClick={() => (window.location.href = '/change-password')}>
+                    <LockOutlined />
+                    Đổi mật khẩu
+                </div>
                 <div className="logout action" onClick={() => authentication.logout()}>
                     <LogoutOutlined />
                     Đăng xuất
