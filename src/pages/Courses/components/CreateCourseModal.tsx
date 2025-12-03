@@ -1,4 +1,5 @@
-import { Form, Input, Modal, Button } from 'antd';
+import { Button, Form, Input, Modal, Select, Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd/es/form';
 
 interface CreateCourseModalProps {
@@ -7,9 +8,10 @@ interface CreateCourseModalProps {
     confirmLoading: boolean;
     onOk: () => void;
     onCancel: () => void;
+    exercises: any[];
 }
 
-const CreateCourseModal = ({ open, form, confirmLoading, onOk, onCancel }: CreateCourseModalProps) => {
+const CreateCourseModal = ({ open, form, confirmLoading, onOk, onCancel, exercises }: CreateCourseModalProps) => {
     return (
         <Modal
             className="detail-modal"
@@ -52,6 +54,33 @@ const CreateCourseModal = ({ open, form, confirmLoading, onOk, onCancel }: Creat
                         ]}
                     >
                         <Input.TextArea rows={4} placeholder="Mô tả ngắn gọn về khóa học" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Ảnh khóa học"
+                        name="file"
+                        valuePropName="fileList"
+                        getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                    >
+                        <Upload beforeUpload={() => false} maxCount={1} listType="picture">
+                            <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                        </Upload>
+                    </Form.Item>
+
+                    <Form.Item label="Bài tập trong khóa" name="exerciseIds">
+                        <Select
+                            mode="multiple"
+                            showSearch
+                            allowClear
+                            placeholder="Chọn bài tập để thêm vào khóa học"
+                            options={exercises.map((item) => ({
+                                value: item.value,
+                                label: item.label
+                            }))}
+                            filterOption={(input, option) =>
+                                (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+                            }
+                        />
                     </Form.Item>
 
                     <Form.Item label={null}>

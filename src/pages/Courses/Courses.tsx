@@ -19,6 +19,10 @@ export interface Course {
     id: string;
     title: string;
     description: string;
+    image?: {
+        url?: string;
+        fileName?: string;
+    } | null;
     createdBy?: string | null;
     createdTimestamp?: string;
     updatedBy?: string | null;
@@ -67,6 +71,7 @@ const Courses = () => {
     const [updateSubmitting, setUpdateSubmitting] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     const [courseExercises, setCourseExercises] = useState<CourseExercise[]>([]);
+    const [allExercises, setAllExercises] = useState<any[]>([]);
     const [courseExercisesLoading, setCourseExercisesLoading] = useState(false);
     const [removingExerciseId, setRemovingExerciseId] = useState<string | null>(null);
     const [pagination, setPagination] = useState({
@@ -111,6 +116,25 @@ const Courses = () => {
 
     useEffect(() => {
         fetchCourses();
+
+        // Lấy danh sách exercises (dùng cho tạo khóa học)
+        http.get('/exercises?pageSize=9999999')
+            .then((res) => {
+                let exercises = res.data || [];
+
+                exercises = exercises.filter((e: any) => !(e.visibility === 'DRAFT'));
+
+                setAllExercises(
+                    exercises.map((exercise: any) => ({
+                        value: exercise.id,
+                        label: exercise.title || exercise.code || '',
+                        ...exercise
+                    }))
+                );
+            })
+            .catch((error) => {
+                console.error('Error fetching exercises for courses:', error);
+            });
     }, []);
 
     const handleTableChange = (pager: TablePaginationConfig) => {
@@ -123,9 +147,26 @@ const Courses = () => {
         try {
             const values = await createForm.validateFields();
             setCreateSubmitting(true);
-            await http.post('/courses', {
+            const formData = new FormData();
+
+            const payload: any = {
                 title: values.title.trim(),
-                description: values.description?.trim() ?? ''
+                description: values.description?.trim() ?? '',
+                exerciseIds: values.exerciseIds || []
+            };
+
+            formData.append('course', JSON.stringify(payload));
+
+            const fileList = (values.file as any[]) || [];
+            const file = fileList[0]?.originFileObj;
+            if (file) {
+                formData.append('file', file);
+            }
+
+            await http.post('/courses', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
             globalStore.triggerNotification('success', 'Tạo khóa học thành công!', '');
             setCreateModalOpen(false);
@@ -375,6 +416,7 @@ const Courses = () => {
                 confirmLoading={createSubmitting}
                 onOk={handleCreateCourse}
                 onCancel={() => setCreateModalOpen(false)}
+                exercises={allExercises}
             />
 
             <AssignExercisesModal
@@ -393,6 +435,8 @@ const Courses = () => {
                 onOk={handleUpdateCourse}
                 onCancel={() => setUpdateModalOpen(false)}
                 courseTitle={selectedCourse?.title}
+                courseId={selectedCourse?.id}
+                courseImageUrl={(selectedCourse as any)?.image?.url}
                 exercises={courseExercises}
                 exercisesLoading={courseExercisesLoading}
                 removingExerciseId={removingExerciseId}

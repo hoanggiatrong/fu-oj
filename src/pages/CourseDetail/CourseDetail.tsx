@@ -1,14 +1,14 @@
 import {
-    ArrowLeftOutlined,
     BookOutlined,
     CheckCircleOutlined,
     FileTextOutlined,
-    ReloadOutlined
+    LeftOutlined,
+    ReloadOutlined,
+    ShareAltOutlined
 } from '@ant-design/icons';
-import { Button, Card, Empty, Progress, Radio, Switch, Tag, Typography } from 'antd';
+import { Button, Card, Empty, Progress, Typography } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import routesConfig from '../../routes/routesConfig';
@@ -31,6 +31,10 @@ interface CourseDetailData {
     updatedTimestamp?: string;
     createdBy?: string;
     progress?: CourseProgress | null;
+    image?: {
+        fileName?: string;
+        url?: string;
+    } | null;
 }
 
 interface CourseExercise {
@@ -51,7 +55,20 @@ const CourseDetail = () => {
     const [exercises, setExercises] = useState<CourseExercise[]>([]);
     const [exerciseLoading, setExerciseLoading] = useState(false);
     const [enrolling, setEnrolling] = useState(false);
-    const [showTags, setShowTags] = useState(false);
+
+    const handleShareCourse = () => {
+        try {
+            const url = window.location.href;
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(url);
+                globalStore.triggerNotification('success', 'Đã sao chép liên kết khóa học!', '');
+            } else {
+                void Promise.reject();
+            }
+        } catch {
+            globalStore.triggerNotification('error', 'Không thể sao chép liên kết. Vui lòng thử lại.', '');
+        }
+    };
 
     const fetchCourseDetail = async (id: string) => {
         setCourseLoading(true);
@@ -67,11 +84,35 @@ const CourseDetail = () => {
         }
     };
 
+    const [completedExerciseIds, setCompletedExerciseIds] = useState<Set<string>>(new Set());
+
     const fetchCourseExercises = async (id: string) => {
         setExerciseLoading(true);
         try {
             const response = await http.get(`/courses/${id}/exercises`);
-            setExercises(response?.data ?? []);
+            const data: CourseExercise[] = response?.data ?? [];
+            setExercises(data);
+
+            // Kiểm tra bài đã AC
+            const results = await Promise.all(
+                data.map(async (exercise) => {
+                    try {
+                        const submissionsResponse = await http.get(
+                            `/submissions?exercise=${exercise.id}&pageSize=99999`
+                        );
+                        const submissions = (submissionsResponse?.data ?? []) as { isAccepted?: boolean }[];
+                        const hasAccepted = Array.isArray(submissions)
+                            ? submissions.some((s) => s.isAccepted === true)
+                            : false;
+                        return { id: exercise.id, completed: hasAccepted };
+                    } catch {
+                        return { id: exercise.id, completed: false };
+                    }
+                })
+            );
+
+            const completedIds = results.filter((r) => r.completed).map((r) => r.id);
+            setCompletedExerciseIds(new Set(completedIds));
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
             const message = err?.response?.data?.message ?? 'Không thể tải danh sách bài tập của khóa.';
@@ -121,16 +162,25 @@ const CourseDetail = () => {
         <div className="course-detail-page">
             <div className="course-detail-content">
                 <div className="course-main">
-                    <Button
-                        className="back-button"
-                        icon={<ArrowLeftOutlined />}
-                        onClick={() => navigate(-1)}
-                        type="text"
+                    <div
+                        className="course-header"
+                        style={
+                            course?.image?.url
+                                ? {
+                                      backgroundImage: `url(${course.image.url})`
+                                  }
+                                : undefined
+                        }
                     >
-                        Trở lại
-                    </Button>
-
-                    <div className="course-header">
+                        <Button className="header-icon-button header-icon-button--back" onClick={() => navigate(-1)}>
+                            <LeftOutlined />
+                        </Button>
+                        <Button
+                            className="header-icon-button header-icon-button--share"
+                            onClick={handleShareCourse}
+                        >
+                            <ShareAltOutlined />
+                        </Button>
                         <div className="header-left">
                             <div className="course-logo">
                                 <BookOutlined />
@@ -186,15 +236,6 @@ const CourseDetail = () => {
                         </div>
                     </div>
 
-                    <div className="course-controls">
-                        <Switch
-                            checked={showTags}
-                            onChange={setShowTags}
-                            checkedChildren="Hiển thị tags"
-                            unCheckedChildren="Hiển thị tags"
-                        />
-                    </div>
-
                     <div className="course-layout">
                         <div className="course-problems">
                             <LoadingOverlay loading={exerciseLoading || courseLoading}>
@@ -210,35 +251,44 @@ const CourseDetail = () => {
                                                 {topicName}
                                             </Typography.Title>
                                             <div className="problem-list">
-                                                {topicExercises.map((exercise) => (
-                                                    <div key={exercise.id} className="problem-item">
-                                                        <Radio value={exercise.id} />
+                                                {topicExercises.map((exercise) => {
+                                                    const isCompleted = completedExerciseIds.has(exercise.id);
+                                                    const goToExercise = () =>
+                                                        navigate(
+                                                            `/${routesConfig.exercise.replace(':id?', exercise.id)}`
+                                                        );
+
+                                                    return (
+                                                        <div
+                                                            key={exercise.id}
+                                                            className={`problem-item${
+                                                                isCompleted ? ' problem-item--completed' : ''
+                                                            }`}
+                                                            onClick={() => {
+                                                                if (!isCompleted) {
+                                                                    goToExercise();
+                                                                }
+                                                            }}
+                                                        >
                                                         <div className="problem-content">
                                                             <div className="problem-title">{exercise.title}</div>
-                                                            {showTags &&
-                                                                exercise.topics &&
-                                                                exercise.topics.length > 0 && (
-                                                                    <div className="problem-tags">
-                                                                        {exercise.topics.map((topic) => (
-                                                                            <Tag key={topic.id}>
-                                                                                {topic.name}
-                                                                            </Tag>
-                                                                        ))}
-                                                                    </div>
-                                                                )}
+                                                            {exercise.description && (
+                                                                <div className="problem-description">
+                                                                    {exercise.description}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         <div className="problem-actions">
                                                             <Button
                                                                 type="link"
                                                                 icon={<FileTextOutlined />}
-                                                                onClick={() =>
-                                                                    navigate(
-                                                                        `/${routesConfig.exercise.replace(
-                                                                            ':id?',
-                                                                            exercise.id
-                                                                        )}`
-                                                                    )
-                                                                }
+                                                                disabled={isCompleted}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        if (!isCompleted) {
+                                                                            goToExercise();
+                                                                        }
+                                                                    }}
                                                             >
                                                                 Làm bài
                                                             </Button>
@@ -247,7 +297,8 @@ const CourseDetail = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     ))
@@ -256,9 +307,12 @@ const CourseDetail = () => {
                         </div>
 
                         <div className="course-sidebar">
-
                             <Card className="sidebar-card" title="Tóm tắt">
-                                {course?.description ? <p>{course?.description}</p> : <Empty description="Không có tóm tắt" image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+                                {course?.description ? (
+                                    <p>{course?.description}</p>
+                                ) : (
+                                    <Empty description="Không có tóm tắt" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                )}
                             </Card>
 
                             <Card className="sidebar-card" title="Phần thưởng">
@@ -268,31 +322,12 @@ const CourseDetail = () => {
                                     </div>
                                     <div className="award-text">
                                         <div className="award-title">{course?.title || 'Khóa học'}</div>
-                                        <div className="award-desc">Hoàn thành lộ trình học để nhận huy hiệu!</div>
-                                    </div>
-                                </div>
-                            </Card>
-
-                            <Card className="sidebar-card" title="Liên quan">
-                                <div className="related-list">
-                                    <div className="related-item">
-                                        <div className="related-icon">📚</div>
-                                        <div className="related-info">
-                                            <div className="related-title">LeetCode 75</div>
-                                            <div className="related-subtitle">Vượt qua phỏng vấn với 75 câu hỏi</div>
-                                        </div>
-                                    </div>
-                                    <div className="related-item">
-                                        <div className="related-icon">⭐</div>
-                                        <div className="related-info">
-                                            <div className="related-title">Top 100 Liked</div>
-                                            <div className="related-subtitle">100 bài tập được đánh giá cao nhất</div>
+                                        <div className="award-desc">
+                                            Khi bạn hoàn thành, bạn sẽ có được một <strong>chứng chỉ</strong>.
                                         </div>
                                     </div>
                                 </div>
                             </Card>
-
-                            <CustomCalendar />
                         </div>
                     </div>
                 </div>

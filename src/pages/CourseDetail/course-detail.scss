@@ -14,21 +14,20 @@
         gap: var(--base-size-16);
     }
 
-    .back-button {
-        margin-bottom: var(--base-size-8);
-    }
-
     .course-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         gap: var(--base-size-24);
         padding: var(--base-size-24);
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(10, 10, 10, 0.9);
+        background-size: cover;
+        background-position: center;
         border: 1px solid var(--color-border);
         border-radius: var(--borderRadius-large);
         position: relative;
         overflow: hidden;
+        min-height: 220px;
 
         &::before {
             content: '';
@@ -40,6 +39,33 @@
             background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
             background-size: 20px 20px;
             pointer-events: none;
+        }
+
+        .header-icon-button {
+            position: absolute;
+            top: var(--base-size-16);
+            z-index: 2;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 0 var(--base-size-10);
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.8);
+            }
+        }
+
+        .header-icon-button--back {
+            left: var(--base-size-16);
+        }
+
+        .header-icon-button--share {
+            right: var(--base-size-16);
         }
 
         .header-left {
@@ -167,17 +193,26 @@
         gap: var(--base-size-24);
 
         .problem-section {
+            margin-bottom: var(--base-size-16);
+            border-radius: var(--borderRadius-large);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            background: transparent;
+
             .section-title {
-                margin-bottom: var(--base-size-16) !important;
+                margin: 0 !important;
+                padding: var(--base-size-10) var(--base-size-16);
                 color: var(--color-text-primary);
-                font-size: var(--base-size-20) !important;
+                font-size: var(--base-size-14) !important;
                 font-weight: var(--base-text-weight-semibold) !important;
+                background: rgba(255, 255, 255, 0.04);
+                border-bottom: 1px solid var(--color-border);
             }
 
             .problem-list {
                 display: flex;
                 flex-direction: column;
-                gap: var(--base-size-4);
+                gap: 0;
             }
 
             .problem-item {
@@ -187,9 +222,23 @@
                 padding: var(--base-size-12) var(--base-size-16);
                 border-radius: var(--borderRadius-medium);
                 transition: background-color 0.2s ease;
+                border-bottom: 1px solid var(--color-border);
+                cursor: pointer;
+
+                &:last-child {
+                    border-bottom: none;
+                }
 
                 &:hover {
-                    background: rgba(255, 255, 255, 0.02);
+                    background: var(--color-border);
+                }
+
+                &.problem-item--completed {
+                    opacity: 0.5;
+
+                    .problem-actions button {
+                        pointer-events: none;
+                    }
                 }
 
                 .ant-radio {

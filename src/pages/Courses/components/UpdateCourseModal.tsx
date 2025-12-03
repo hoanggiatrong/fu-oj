@@ -1,8 +1,10 @@
-import { DeleteOutlined, FileTextOutlined, SearchOutlined } from '@ant-design/icons';
-import { Form, Input, Modal, Button, Empty, Spin } from 'antd';
+import { DeleteOutlined, FileTextOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
+import { Form, Input, Modal, Button, Empty, Spin, Upload } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { useEffect, useMemo, useState } from 'react';
 import type { CourseExercise } from '../Courses';
+import globalStore from '../../../components/GlobalComponent/globalStore';
+import httpRequest from '../../../lib/httpRequest';
 
 interface UpdateCourseModalProps {
     open: boolean;
@@ -11,6 +13,8 @@ interface UpdateCourseModalProps {
     onOk: () => void;
     onCancel: () => void;
     courseTitle?: string;
+    courseId?: string;
+    courseImageUrl?: string;
     exercises: CourseExercise[];
     exercisesLoading: boolean;
     removingExerciseId: string | null;
@@ -24,18 +28,74 @@ const UpdateCourseModal = ({
     onOk,
     onCancel,
     courseTitle,
+    courseId,
+    courseImageUrl,
     exercises,
     exercisesLoading,
     removingExerciseId,
     onRemoveExercise
 }: UpdateCourseModalProps) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [imageUploading, setImageUploading] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | undefined>(courseImageUrl);
 
     useEffect(() => {
         if (!open) {
             setSearchTerm('');
+            form.resetFields(['imageFile']);
         }
-    }, [open]);
+    }, [open, form]);
+
+    useEffect(() => {
+        setPreviewUrl(courseImageUrl);
+    }, [courseImageUrl]);
+
+    const handleUploadImage = async () => {
+        if (!courseId) {
+            globalStore.triggerNotification('error', 'Không xác định được khóa học để cập nhật ảnh.', '');
+            return;
+        }
+
+        const fileList = (form.getFieldValue('imageFile') as any[]) || [];
+        const file = fileList[0]?.originFileObj;
+
+        if (!file) {
+            globalStore.triggerNotification('error', 'Vui lòng chọn một ảnh trước khi cập nhật.', '');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            setImageUploading(true);
+            const res = await httpRequest.patch(`/courses/${courseId}/image`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            const raw: any = res;
+            const responseData = raw?.data ?? raw;
+            const message = responseData?.message || 'Cập nhật ảnh khóa học thành công!';
+            const newImageUrl =
+                responseData?.data?.image?.url ||
+                responseData?.data?.imageUrl ||
+                responseData?.image?.url ||
+                responseData?.imageUrl;
+
+            if (newImageUrl) {
+                setPreviewUrl(newImageUrl);
+            }
+
+            globalStore.triggerNotification('success', message, '');
+        } catch (error: any) {
+            const message =
+                error?.response?.data?.message || 'Không thể cập nhật ảnh khóa học. Vui lòng thử lại sau.';
+            globalStore.triggerNotification('error', message, '');
+        } finally {
+            setImageUploading(false);
+        }
+    };
 
     const filteredExercises = useMemo(() => {
         const keyword = searchTerm.trim().toLowerCase();
@@ -143,6 +203,33 @@ const UpdateCourseModal = ({
                             ]}
                         >
                             <Input.TextArea rows={4} placeholder="Nhập mô tả cho khóa học" />
+                        </Form.Item>
+
+                        {previewUrl && (
+                            <Form.Item label="Ảnh hiện tại">
+                                <img
+                                    src={previewUrl}
+                                    alt="Ảnh khóa học"
+                                    style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 8 }}
+                                />
+                            </Form.Item>
+                        )}
+
+                        <Form.Item
+                            label="Ảnh khóa học"
+                            name="imageFile"
+                            valuePropName="fileList"
+                            getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                        >
+                            <Upload beforeUpload={() => false} maxCount={1} listType="picture">
+                                <Button icon={<UploadOutlined />}>Chọn ảnh mới</Button>
+                            </Upload>
+                        </Form.Item>
+
+                        <Form.Item label={null}>
+                            <Button type="default" onClick={handleUploadImage} loading={imageUploading}>
+                                Cập nhật ảnh khóa học
+                            </Button>
                         </Form.Item>
                     </Form>
                 </div>
