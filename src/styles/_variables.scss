@@ -154,10 +154,12 @@ $d-color-ico-hover: #f0f0f0;
 // Usage in your CSS
 .theme-dark {
     @include theme-colors('dark');
+    width: 100% !important;
 }
 
 .theme-light {
     @include theme-colors('light');
+    width: 100% !important;
 }
 
 .max-width {
