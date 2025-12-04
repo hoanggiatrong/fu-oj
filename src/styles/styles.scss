@@ -119,7 +119,30 @@
 }
 
 html {
+    overflow-y: scroll;
     font-size: var(--base-size-16);
+
+    /* Scrollbar Chrome/Safari/Edge */
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent; // macOS sẽ không đổi màu
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-text-muted);
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--color-text-muted);
+    }
+
+    /* Scrollbar Firefox (cú pháp đúng) */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-text-muted) transparent;
 }
 
 body {
@@ -165,6 +188,7 @@ body.theme-light {
 @import url('../components/LoadingOverlay/loading-overlay.scss');
 @import url('../components/ScreenLoadingOverlay/screen-loading-overlay.scss');
 @import url('../components/CustomCalendar/custom-calendar.scss');
+@import url('../components/Tab/tab.scss');
 
 // others
 @import url('./others/drawer-content.scss');
@@ -179,6 +203,16 @@ body.theme-light {
     // background: var(--color-text-primary);
     background: var(--c-cyan);
     color: white;
+}
+
+.highlight-container {
+    display: flex;
+    gap: var(--base-size-1);
+    // white-space: nowrap;
+
+    & > mark {
+        white-space: nowrap;
+    }
 }
 
 input {

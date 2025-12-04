@@ -14,6 +14,7 @@ import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperCompon
 import * as http from '../../lib/httpRequest';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
+import Tab from '../../components/Tab/Tab';
 
 const { Meta } = Card;
 
@@ -24,6 +25,7 @@ const Groups = observer(() => {
 
     const [updateId, setUpdateId]: any = useState();
     const [loading, setLoading] = useState(false);
+    const [selectedTab, selectTab] = useState<number | string>('public-group');
     const [datas, setDatas] = useState([]);
     const [displayDatas, setDisplayDatas] = useState([]);
     const [search, setSearch] = useState('');
@@ -34,6 +36,15 @@ const Groups = observer(() => {
     });
     // const [groupCode, setGroupCode]: any = useState<string | null>(null);
     const [isJoinDialogOpen, setJoinDialogOpen]: any = useState<boolean>(false);
+
+    // Calculate paginated data
+    const getPaginatedData = () => {
+        const start = (pagination.current - 1) * pagination.pageSize;
+        const end = start + pagination.pageSize;
+        return displayDatas.slice(start, end);
+    };
+
+    const paginatedData = getPaginatedData();
 
     const onFinish: FormProps['onFinish'] = (values) => {
         console.log('Success:', values);
@@ -92,13 +103,22 @@ const Groups = observer(() => {
 
     const getGroups = () => {
         setLoading(true);
-        http.get('/groups').then((res) => {
-            setDatas(res.data);
-            setDisplayDatas(res.data);
+        http.get('/groups?pageSize=9999999').then((res) => {
+            let datas = res.data;
+
+            if (authentication.isStudent) {
+                datas = res.data.filter((d: any) => {
+                    const isMatch = selectedTab == 'joined-group' ? d.joined : d.public && !d.joined;
+                    return isMatch;
+                });
+            }
+
+            setDatas(datas);
+            setDisplayDatas(datas);
             setPagination((prev) => ({
                 ...prev,
                 current: 1,
-                total: res.data.length
+                total: datas.length
             }));
             setTimeout(() => {
                 setLoading(false);
@@ -108,7 +128,7 @@ const Groups = observer(() => {
 
     useEffect(() => {
         getGroups();
-    }, []);
+    }, [selectedTab]);
 
     useEffect(() => {
         const filtered = search
@@ -126,15 +146,6 @@ const Groups = observer(() => {
             total: filtered.length
         }));
     }, [search, datas]);
-
-    // Calculate paginated data
-    const getPaginatedData = () => {
-        const start = (pagination.current - 1) * pagination.pageSize;
-        const end = start + pagination.pageSize;
-        return displayDatas.slice(start, end);
-    };
-
-    const paginatedData = getPaginatedData();
 
     useEffect(() => {
         if (!globalStore.isDetailPopupOpen) {
@@ -165,7 +176,22 @@ const Groups = observer(() => {
                             prefix={<SearchOutlined />}
                         />
 
-                        <div className="group-create">
+                        <div className="group-create" style={{ marginRight: 0 }}>
+                            <div>
+                                <ProtectedElement acceptRoles={['STUDENT']}>
+                                    <Tab
+                                        value={selectedTab}
+                                        options={[
+                                            { label: 'Nhóm công khai', value: 'public-group' },
+                                            { label: 'Nhóm đã tham gia', value: 'joined-group' }
+                                        ]}
+                                        onClick={(value) => {
+                                            selectTab(value);
+                                            console.log('value:', value);
+                                        }}
+                                    />
+                                </ProtectedElement>
+                            </div>
                             <ProtectedElement acceptRoles={['STUDENT']}>
                                 <div className="custom-btn-ico" onClick={() => setJoinDialogOpen(true)}>
                                     <img src="/sources/icons/group-ico.svg" alt="" />
@@ -204,13 +230,20 @@ const Groups = observer(() => {
                                                 <Card
                                                     cover={
                                                         <div className="custom-card-header">
-                                                            <div className="name">
+                                                            <div className="name max-1-line">
                                                                 <Highlighter
                                                                     highlightClassName="highlight"
                                                                     searchWords={[search]}
                                                                     autoEscape={true}
                                                                     textToHighlight={item.name}
                                                                 />
+                                                            </div>
+                                                            <div
+                                                                className={classnames('is-public', {
+                                                                    no: !item.public
+                                                                })}
+                                                            >
+                                                                {item.public ? 'Công khai' : 'Riêng tư'}
                                                             </div>
                                                         </div>
                                                     }
@@ -360,9 +393,7 @@ const Groups = observer(() => {
                                         pageSize={pagination.pageSize}
                                         total={pagination.total}
                                         showSizeChanger={false}
-                                        showTotal={(total, range) =>
-                                            `${range[0]}-${range[1]} trên ${total} nhóm`
-                                        }
+                                        showTotal={(total, range) => `${range[0]}-${range[1]} trên ${total} nhóm`}
                                         onChange={(page) => {
                                             setPagination((prev) => ({
                                                 ...prev,

@@ -55,7 +55,7 @@ const Exercises = observer(() => {
     const columns = [
         {
             title: 'Mã bài tập',
-            width: 150,
+            width: 160,
             dataIndex: 'code',
             key: 'code',
             sorter: (a: any, b: any) => (a.code || '').localeCompare(b.code || ''),
@@ -83,6 +83,7 @@ const Exercises = observer(() => {
                     <div className="cell">
                         <TooltipWrapper position="right" tooltipText={title}>
                             <Highlighter
+                                className="highlight-container"
                                 highlightClassName="highlight"
                                 searchWords={[search]}
                                 autoEscape={true}
@@ -224,7 +225,7 @@ const Exercises = observer(() => {
     const studentCols = [
         {
             title: 'Mã bài tập',
-            width: 150,
+            width: 160,
             dataIndex: 'code',
             key: 'code',
             sorter: (a: any, b: any) => (a.code || '').localeCompare(b.code || ''),
@@ -260,6 +261,7 @@ const Exercises = observer(() => {
                     <div className="cell">
                         <TooltipWrapper position="right" tooltipText={title}>
                             <Highlighter
+                                className="highlight-container"
                                 highlightClassName="highlight"
                                 searchWords={[search]}
                                 autoEscape={true}
@@ -955,16 +957,24 @@ const Exercises = observer(() => {
                                         className="flex-1"
                                         label="Mã bài tập"
                                         name="code"
-                                        rules={[{ required: true, message: 'Vui lòng nhập mã bài tập!' }]}
+                                        // rules={[{ required: true, message: 'Vui lòng nhập mã bài tập!' }]}
                                     >
-                                        <Input disabled defaultValue={`EX_${new Date().getTime()}`} />
+                                        <Input
+                                            className="disabled-5"
+                                            disabled
+                                            defaultValue={`EX_${new Date().getTime()}`}
+                                        />
                                     </Form.Item>
 
                                     <Form.Item
                                         className="flex-1"
                                         label="Tiêu đề"
                                         name="title"
-                                        rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
+                                        rules={[
+                                            { required: true, message: 'Vui lòng nhập tiêu đề!' },
+                                            { min: 5, message: 'Tiêu đề phải có ít nhất 5 ký tự!' },
+                                            { max: 50, message: 'Tiêu đề tối đa 50 ký tự!' }
+                                        ]}
                                     >
                                         <Input />
                                     </Form.Item>
