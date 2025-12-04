@@ -1,29 +1,29 @@
 import {
+    AppstoreAddOutlined,
     BookOutlined,
     CalendarOutlined,
     CopyOutlined,
-    UserOutlined,
     SearchOutlined,
-    AppstoreAddOutlined
+    UserOutlined
 } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Avatar, Button, Col, Form, Row, Tabs, Input } from 'antd';
+import { Avatar, Button, Col, Form, Input, Popconfirm, Row } from 'antd';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
+import Tab from '../../components/Tab/Tab';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
+import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import ExamFormModal from '../Exams/components/ExamFormModal';
 import type { SelectOption } from '../Exams/types';
 import AddExerciseModal from './components/AddExerciseModal';
 import AddMemberModal from './components/AddMemberModal';
-import authentication from '../../shared/auth/authentication';
-import Tab from '../../components/Tab/Tab';
 
 interface DashboardData {
     totalStudents: number;
@@ -324,7 +324,7 @@ const GroupDetail = observer(() => {
                 </div>
             </div>
             <div className="body">
-                <div className="flex mb-8">
+                <div className="flex flex-space-beetween mb-8 pr-16">
                     <Tab
                         value={activeTab}
                         fontSize={14}
@@ -337,6 +337,21 @@ const GroupDetail = observer(() => {
                             navigate(`/group/${id}/${value}`);
                         }}
                     />
+                    <ProtectedElement acceptRoles={['STUDENT']}>
+                        <Popconfirm
+                            title="Bạn có thực sự muốn nhót ko?"
+                            okText="Nhót luôn"
+                            placement="left"
+                            cancelText="Không"
+                            onConfirm={() => {
+                                // Xử lý vào đây nhé thầy
+                            }}
+                        >
+                            <Button color="gold" variant="filled">
+                                Nhót
+                            </Button>
+                        </Popconfirm>
+                    </ProtectedElement>
                 </div>
                 {/* <Tabs
                     activeKey={activeTab}

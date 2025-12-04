@@ -246,11 +246,11 @@ const Courses = observer(() => {
         setCreateModalOpen(true);
     };
 
-    const openAssignModal = (course: Course) => {
-        setSelectedCourse(course);
-        assignForm.resetFields();
-        setAssignModalOpen(true);
-    };
+    // const openAssignModal = (course: Course) => {
+    //     setSelectedCourse(course);
+    //     assignForm.resetFields();
+    //     setAssignModalOpen(true);
+    // };
 
     const fetchCourseExercises = async (courseId: string) => {
         setCourseExercisesLoading(true);
@@ -285,14 +285,14 @@ const Courses = observer(() => {
         setUpdateModalOpen(true);
     };
 
-    const formatDateTime = (value?: string) => {
-        if (!value) return '-';
-        try {
-            return new Date(value).toLocaleString('vi-VN');
-        } catch {
-            return value;
-        }
-    };
+    // const formatDateTime = (value?: string) => {
+    //     if (!value) return '-';
+    //     try {
+    //         return new Date(value).toLocaleString('vi-VN');
+    //     } catch {
+    //         return value;
+    //     }
+    // };
 
     const handleRemoveExercise = async (exerciseId: string) => {
         if (!selectedCourse) return;

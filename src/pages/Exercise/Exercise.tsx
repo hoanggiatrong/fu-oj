@@ -15,10 +15,10 @@ import 'flexlayout-react/style/light.css';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import type { StepOptions } from 'shepherd.js';
 import Shepherd from 'shepherd.js';
 import 'shepherd.js/dist/css/shepherd.css';
-import globalStore from '../../components/GlobalComponent/globalStore';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import { programmingLanguages } from '../../constants/languages';
 import * as http from '../../lib/httpRequest';
@@ -29,7 +29,6 @@ import utils from '../../utils/utils';
 import AIAssistant from './components/AIAssistant';
 import Comments from './components/Comments';
 import Submissions from './components/Submissions';
-import { toast } from 'react-toastify';
 
 const json = {
     global: { tabSetEnableClose: false },

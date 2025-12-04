@@ -92,6 +92,12 @@
     align-items: center;
 }
 
+.flex-space-beetween {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .gap {
     gap: var(--base-size-8);
 }

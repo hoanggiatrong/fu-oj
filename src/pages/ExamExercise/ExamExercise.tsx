@@ -16,8 +16,8 @@ import 'flexlayout-react/style/light.css';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import AIAssistant from '../../components/AIAssistant/AIAssistant';
-import globalStore from '../../components/GlobalComponent/globalStore';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import { programmingLanguages } from '../../constants/languages';
 import * as http from '../../lib/httpRequest';
@@ -25,7 +25,6 @@ import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import ExamCountdownTimer from '../ExamDetail/components/ExamCountdownTimer';
-import { toast } from 'react-toastify';
 
 const json = {
     global: { tabSetEnableClose: false },

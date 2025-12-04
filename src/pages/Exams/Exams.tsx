@@ -245,7 +245,7 @@ const Exams = observer(() => {
                                 disabled={statusInfo.status == 'completed'}
                                 defaultChecked={isExamined}
                                 onChange={(value) => {
-                                    http.patchV2(record.id, `/exams/${record.id}/toggle-examined`, {}).then((res) => {
+                                    http.patchV2(record.id, `/exams/${record.id}/toggle-examined`, {}).then(() => {
                                         globalStore.triggerNotification(
                                             !value ? 'warning' : 'success',
                                             `Bài thi "${record?.title?.toUpperCase()}" đang ${

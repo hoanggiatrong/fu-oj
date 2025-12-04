@@ -1,5 +1,5 @@
 import { DeleteOutlined } from '@ant-design/icons';
-import { Avatar, Table, Popconfirm } from 'antd';
+import { Popconfirm, Table } from 'antd';
 import Highlighter from 'react-highlight-words';
 import ProtectedElement from '../../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../../components/TooltipWrapper/TooltipWrapperComponent';
