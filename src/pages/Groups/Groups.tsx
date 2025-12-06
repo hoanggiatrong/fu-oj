@@ -491,7 +491,10 @@ const Groups = observer(() => {
                 </Modal>
             </div>
             <div className="right">
-                <CustomCalendar dateArr={utils.getDates()} message="Nhớ kiểm tra lịch thi của hôm nay nhé!" />
+                <CustomCalendar
+                    dateArr={utils.getDates()}
+                    message={authentication.isStudent ? undefined : 'Nhớ kiểm tra lịch thi của hôm nay nhé!'}
+                />
             </div>
         </div>
     );

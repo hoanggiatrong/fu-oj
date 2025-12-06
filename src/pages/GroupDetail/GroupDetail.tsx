@@ -24,6 +24,7 @@ import ExamFormModal from '../Exams/components/ExamFormModal';
 import type { SelectOption } from '../Exams/types';
 import AddExerciseModal from './components/AddExerciseModal';
 import AddMemberModal from './components/AddMemberModal';
+import routesConfig from '../../routes/routesConfig';
 
 interface DashboardData {
     totalStudents: number;
@@ -339,16 +340,24 @@ const GroupDetail = observer(() => {
                     />
                     <ProtectedElement acceptRoles={['STUDENT']}>
                         <Popconfirm
-                            title="Bạn có thực sự muốn nhót ko?"
-                            okText="Nhót luôn"
+                            title="Bạn có thực sự muốn rời nhóm không?"
+                            description="Sau khi rời nhóm, bạn sẽ không thể xem thành viên, làm bài thi, cũng như thực hành bài tập theo định hướng của Giảng viên!"
+                            okText="Vẫn rời nhóm"
                             placement="left"
-                            cancelText="Không"
+                            cancelText="Ở lại"
                             onConfirm={() => {
-                                // Xử lý vào đây nhé thầy
+                                http.put(`/groups/out-group/${id}`, {}).then(() => {
+                                    globalStore.triggerNotification(
+                                        'success',
+                                        'Rời nhóm thành công!',
+                                        'Hãy nhớ rằng Bạn vẫn có thể tham gia lại nhóm sau này!'
+                                    );
+                                    navigate(`/${routesConfig.groups}`);
+                                });
                             }}
                         >
                             <Button color="gold" variant="filled">
-                                Nhót
+                                Rời nhóm
                             </Button>
                         </Popconfirm>
                     </ProtectedElement>
