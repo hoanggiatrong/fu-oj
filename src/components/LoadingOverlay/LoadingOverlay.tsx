@@ -1,13 +1,15 @@
 import { observer } from 'mobx-react-lite';
+import classnames from 'classnames';
 
 interface LoadingOverlayProps {
+    classNames?: string;
     loading?: boolean;
     children: React.ReactNode;
 }
 
-const LoadingOverlay = observer(({ loading = false, children }: LoadingOverlayProps) => {
+const LoadingOverlay = observer(({ classNames, loading = false, children }: LoadingOverlayProps) => {
     return (
-        <div className="loading-overlay">
+        <div className={classnames('loading-overlay', classNames)}>
             {children}
             {loading && (
                 <div className="loading-container">

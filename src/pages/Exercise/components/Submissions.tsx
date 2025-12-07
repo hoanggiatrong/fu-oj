@@ -7,10 +7,13 @@ import * as http from '../../../lib/httpRequest';
 import routesConfig from '../../../routes/routesConfig';
 import utils from '../../../utils/utils';
 import './tabset.scss';
+import authentication from '../../../shared/auth/authentication';
+import LoadingOverlay from '../../../components/LoadingOverlay/LoadingOverlay';
 
 const Submissions = observer(({ id, submissionId }: { id: string | undefined; submissionId: string | undefined }) => {
     const navigate = useNavigate();
     const [datas, setDatas] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [displayDatas, setDisplayDatas] = useState([]);
     const [filters, setFilters] = useState<any>({
         from: null,
@@ -26,10 +29,14 @@ const Submissions = observer(({ id, submissionId }: { id: string | undefined; su
     };
 
     const getExerciseCompletionListByExerciseId = () => {
-        http.get(`/submissions?exercise=${id}&pageSize=99999`).then((res) => {
-            setDatas(res.data);
-            setDisplayDatas(res.data);
-        });
+        setLoading(true);
+
+        http.get(`/submissions?exercise=${id}&student=${authentication?.account?.data?.id}&pageSize=99999`)
+            .then((res) => {
+                setDatas(res.data);
+                setDisplayDatas(res.data);
+            })
+            .finally(() => setLoading(false));
     };
 
     useEffect(() => {
@@ -61,61 +68,63 @@ const Submissions = observer(({ id, submissionId }: { id: string | undefined; su
     }, [filters]);
 
     return (
-        <div className="submissions">
-            <div className="search">
-                <DatePicker
-                    className="custom"
-                    placeholder="Từ ngày"
-                    onChange={(date) => handleFilterChange('from', date)}
-                />
-                <DatePicker
-                    className="custom"
-                    placeholder="Đến ngày"
-                    onChange={(date) => handleFilterChange('to', date)}
-                />
-                <Select
-                    className="custom"
-                    allowClear
-                    placeholder="Chọn kết quả"
-                    onChange={(value) => handleFilterChange('result', value)}
-                    options={[
-                        { value: true, label: 'Đã thông qua' },
-                        { value: false, label: 'Chưa thông qua' }
-                    ]}
-                />
-            </div>
-            <div className="container">
-                {displayDatas.map((d: any, index: number) => {
-                    return (
-                        <div
-                            className={classnames('submission', {
-                                odd: index % 2 === 0,
-                                selected: submissionId == d.id
-                            })}
-                            onClick={() => {
-                                if (id) {
-                                    navigate(
-                                        `/${routesConfig.submissionOfAStudent}`
-                                            .replace(':exerciseId', id)
-                                            .replace(':submissionId', d.id)
-                                    );
-                                }
-                            }}
-                        >
-                            <div className="submission-info">{utils.formatDateVN(d.updatedTimestamp)}</div>
-                            <div className="submission-info">
-                                {d.isAccepted ? (
-                                    <div className="color-cyan">Đã thông qua</div>
-                                ) : (
-                                    <div className="color-red">Chưa thông qua</div>
-                                )}
+        <LoadingOverlay classNames="max-height" loading={loading}>
+            <div className="submissions">
+                <div className="search">
+                    <DatePicker
+                        className="custom"
+                        placeholder="Từ ngày"
+                        onChange={(date) => handleFilterChange('from', date)}
+                    />
+                    <DatePicker
+                        className="custom"
+                        placeholder="Đến ngày"
+                        onChange={(date) => handleFilterChange('to', date)}
+                    />
+                    <Select
+                        className="custom"
+                        allowClear
+                        placeholder="Chọn kết quả"
+                        onChange={(value) => handleFilterChange('result', value)}
+                        options={[
+                            { value: true, label: 'Đã thông qua' },
+                            { value: false, label: 'Chưa thông qua' }
+                        ]}
+                    />
+                </div>
+                <div className="container">
+                    {displayDatas.map((d: any, index: number) => {
+                        return (
+                            <div
+                                className={classnames('submission', {
+                                    odd: index % 2 === 0,
+                                    selected: submissionId == d.id
+                                })}
+                                onClick={() => {
+                                    if (id) {
+                                        navigate(
+                                            `/${routesConfig.submissionOfAStudent}`
+                                                .replace(':exerciseId', id)
+                                                .replace(':submissionId', d.id)
+                                        );
+                                    }
+                                }}
+                            >
+                                <div className="submission-info">{utils.formatDateVN(d.updatedTimestamp)}</div>
+                                <div className="submission-info">
+                                    {d.isAccepted ? (
+                                        <div className="color-cyan">Đã thông qua</div>
+                                    ) : (
+                                        <div className="color-red">Chưa thông qua</div>
+                                    )}
+                                </div>
+                                <div className="submission-info">{utils.getColor(d.verdict)}</div>
                             </div>
-                            <div className="submission-info">{utils.getColor(d.verdict)}</div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
-        </div>
+        </LoadingOverlay>
     );
 });
 

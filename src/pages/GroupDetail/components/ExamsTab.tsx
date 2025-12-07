@@ -1,18 +1,25 @@
+import { AppstoreAddOutlined, SearchOutlined } from '@ant-design/icons';
+import type { FormProps } from 'antd';
+import { Form, Input } from 'antd';
+import classnames from 'classnames';
+import dayjs from 'dayjs';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import * as http from '../../../lib/httpRequest';
 import globalStore from '../../../components/GlobalComponent/globalStore';
-import authentication from '../../../shared/auth/authentication';
+import LoadingOverlay from '../../../components/LoadingOverlay/LoadingOverlay';
+import ProtectedElement from '../../../components/ProtectedElement/ProtectedElement';
+import * as http from '../../../lib/httpRequest';
 import routesConfig from '../../../routes/routesConfig';
-import { getExamStatus } from '../../Exams/utils';
+import authentication from '../../../shared/auth/authentication';
 import ConfirmStartExamModal from '../../Exams/components/ConfirmStartExamModal';
+import ExamFormModal from '../../Exams/components/ExamFormModal';
+import type { SelectOption } from '../../Exams/types';
+import { getExamStatus } from '../../Exams/utils';
+import ExamsTable from './ExamsTable';
 import SubmissionDetailModal, {
     type SubmissionResult as SubmissionSummary
 } from './GroupExamDetail/SubmissionDetailModal';
-import ExamsTable from './ExamsTable';
-import LoadingOverlay from '../../../components/LoadingOverlay/LoadingOverlay';
-import classnames from 'classnames';
 
 interface Exam {
     id: string;
@@ -68,64 +75,79 @@ const ExamsTab = observer(() => {
     const [loading, setLoading] = useState(false);
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
     const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
+    const [isExamModalOpen, setExamModalOpen] = useState(false);
     const [selectedExamRecord, setSelectedExamRecord] = useState<Exam | null>(null);
     const [isSubmissionDetailModalOpen, setSubmissionDetailModalOpen] = useState(false);
     const [submissionDetailData, setSubmissionDetailData] = useState<SubmissionSummary | null>(null);
     const [loadingSubmissionDetail, setLoadingSubmissionDetail] = useState(false);
     const [examRankingsMap, setExamRankingsMap] = useState<Map<string, ExamRankingItem>>(new Map());
+    const [examExerciseOptions, setExamExerciseOptions] = useState<SelectOption[]>([]);
+    const [examGroupOptions, setExamGroupOptions] = useState<SelectOption[]>([]);
     const currentUserId = authentication.account?.data?.id;
     const isInstructor = authentication.isInstructor;
+    const [examForm] = Form.useForm();
 
-    useEffect(() => {
-        if (!id) {
-            setExams([]);
-            return;
-        }
-
-        const url = `/group-exams?groupId=${id}`;
-        console.log('[API] GET', url, '- Fetching exams for group:', id);
-        setLoading(true);
-        http.get(url)
+    const getAllExercises = () => {
+        http.get('/exercises?pageSize=999999')
             .then((res) => {
-                const data = res.data?.filter((d: any) => !d.deletedTimestamp) || [];
-                setExams(normalizeGroupExamData(data));
+                const exercises = res.data || [];
+                setExamExerciseOptions(
+                    exercises.map((exercise: any) => ({
+                        value: exercise.id,
+                        label: exercise.title || exercise.code || '',
+                        ...exercise
+                    }))
+                );
             })
             .catch((error) => {
-                console.error('[API] GET', url, '- Error:', error);
-                setExams([]);
-            })
-            .finally(() => {
-                setLoading(false);
+                error;
+                setExamExerciseOptions([]);
             });
-    }, [id]);
+    };
 
-    useEffect(() => {
-        if (isInstructor) {
-            setExamRankingsMap(new Map());
-            return;
+    const handleCreateGroupExam = () => {
+        if (!id) return;
+        examForm.resetFields();
+        examForm.setFieldsValue({
+            groupIds: [id]
+        });
+        setExamModalOpen(true);
+    };
+
+    const handleCloseExamModal = () => {
+        examForm.resetFields();
+        setExamModalOpen(false);
+    };
+
+    const handleGroupExamSubmit: FormProps['onFinish'] = (values) => {
+        const startTime = values.startTime ? dayjs(values.startTime).utc().format('YYYY-MM-DDTHH:mm:ss[Z]') : null;
+        const endTime = values.endTime ? dayjs(values.endTime).utc().format('YYYY-MM-DDTHH:mm:ss[Z]') : null;
+        const groupIdsSet = new Set(values.groupIds || []);
+        if (id) {
+            groupIdsSet.add(id);
         }
 
-        if (!currentUserId) {
-            setExamRankingsMap(new Map());
-            return;
-        }
+        const payload = {
+            title: values.title,
+            description: values.description,
+            startTime,
+            endTime,
+            timeLimit: values.timeLimit || null,
+            status: 'DRAFT',
+            groupIds: Array.from(groupIdsSet),
+            exerciseIds: values.exerciseIds || []
+        };
 
-        http.get(`/exam-rankings?userId=${currentUserId}`)
+        http.post('/exams', payload)
             .then((res) => {
-                const map = new Map<string, ExamRankingItem>();
-                (res.data || []).forEach((rank: ExamRankingItem) => {
-                    const examId = rank?.groupExam?.examId;
-                    if (examId) {
-                        map.set(examId, rank);
-                    }
-                });
-                setExamRankingsMap(map);
+                globalStore.triggerNotification('success', res.message || 'Tạo bài thi thành công!', '');
+                getGroupExams();
+                handleCloseExamModal();
             })
             .catch((error) => {
-                console.error('Error fetching exam rankings:', error);
-                setExamRankingsMap(new Map());
+                globalStore.triggerNotification('error', error.response?.data?.message || 'Có lỗi xảy ra!', '');
             });
-    }, [isInstructor, currentUserId]);
+    };
 
     const handleConfirmStartExam = async () => {
         if (!selectedExamId) return;
@@ -256,6 +278,86 @@ const ExamsTab = observer(() => {
           )
         : undefined;
 
+    useEffect(() => {
+        getAllExercises();
+    }, []);
+
+    useEffect(() => {
+        if (!id || !isExamModalOpen) return;
+        examForm.setFieldsValue({
+            groupIds: [id]
+        });
+    }, [id, isExamModalOpen, examForm]);
+
+    useEffect(() => {
+        if (!id) return;
+
+        http.get(`/groups/${id}`).then((res) => {
+            console.log('log:', res);
+            setExamGroupOptions([
+                {
+                    value: res.data.id,
+                    label: res.data.name
+                }
+            ]);
+        });
+    }, [id]);
+
+    useEffect(() => {
+        if (!id) {
+            setExams([]);
+            return;
+        }
+
+        getGroupExams();
+    }, [id]);
+
+    const getGroupExams = () => {
+        const url = `/group-exams?groupId=${id}`;
+        console.log('[API] GET', url, '- Fetching exams for group:', id);
+        setLoading(true);
+        http.get(url)
+            .then((res) => {
+                const data = res.data?.filter((d: any) => !d.deletedTimestamp) || [];
+                setExams(normalizeGroupExamData(data));
+            })
+            .catch((error) => {
+                console.error('[API] GET', url, '- Error:', error);
+                setExams([]);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
+
+    useEffect(() => {
+        if (isInstructor) {
+            setExamRankingsMap(new Map());
+            return;
+        }
+
+        if (!currentUserId) {
+            setExamRankingsMap(new Map());
+            return;
+        }
+
+        http.get(`/exam-rankings?userId=${currentUserId}`)
+            .then((res) => {
+                const map = new Map<string, ExamRankingItem>();
+                (res.data || []).forEach((rank: ExamRankingItem) => {
+                    const examId = rank?.groupExam?.examId;
+                    if (examId) {
+                        map.set(examId, rank);
+                    }
+                });
+                setExamRankingsMap(map);
+            })
+            .catch((error) => {
+                console.error('Error fetching exam rankings:', error);
+                setExamRankingsMap(new Map());
+            });
+    }, [isInstructor, currentUserId]);
+
     return (
         <>
             <div className="leetcode mt-16">
@@ -265,6 +367,26 @@ const ExamsTab = observer(() => {
                         'pr-16': globalStore.windowSize.width > 1300
                     })}
                 >
+                    <div className="filters">
+                        <Input
+                            placeholder="Tìm kiếm bài thi"
+                            // onChange={(e) => setSearch(e.target.value)}
+                            data-tourid="search-input"
+                            prefix={<SearchOutlined />}
+                        />
+                        <div className="group-create">
+                            <ProtectedElement acceptRoles={['INSTRUCTOR']}>
+                                <div
+                                    className="custom-btn-ico"
+                                    onClick={handleCreateGroupExam}
+                                    data-tourid="create-btn"
+                                >
+                                    <AppstoreAddOutlined className="custom-ant-ico color-cyan" />
+                                    Tạo bài kiểm tra cho nhóm
+                                </div>
+                            </ProtectedElement>
+                        </div>
+                    </div>
                     <div className="body">
                         <LoadingOverlay loading={loading}>
                             <ExamsTable
@@ -297,6 +419,18 @@ const ExamsTab = observer(() => {
                 }}
                 submissionResult={submissionDetailData}
                 loading={loadingSubmissionDetail}
+            />
+            <ExamFormModal
+                open={isExamModalOpen}
+                updateId={null}
+                editingRecord={null}
+                groups={examGroupOptions}
+                exercises={examExerciseOptions}
+                onFinish={handleGroupExamSubmit}
+                form={examForm}
+                setUpdateId={(_id) => undefined}
+                setEditingRecord={(_record) => undefined}
+                onCancel={handleCloseExamModal}
             />
         </>
     );

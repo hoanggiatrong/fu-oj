@@ -1,6 +1,6 @@
 import { AppstoreAddOutlined, DeleteOutlined, EditOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Avatar, Button, Card, Checkbox, Col, Empty, Form, Input, Modal, Pagination, Popconfirm, Row } from 'antd';
+import { Avatar, Button, Card, Col, Empty, Form, Input, Modal, Pagination, Popconfirm, Radio, Row } from 'antd';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
@@ -10,11 +10,11 @@ import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 import globalStore from '../../components/GlobalComponent/globalStore';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
+import Tab from '../../components/Tab/Tab';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
-import Tab from '../../components/Tab/Tab';
 
 const { Meta } = Card;
 
@@ -25,6 +25,7 @@ const Groups = observer(() => {
 
     const [updateId, setUpdateId]: any = useState();
     const [loading, setLoading] = useState(false);
+    const [onJoinLoading, setOnJoinLoading] = useState(false);
     const [selectedTab, selectTab] = useState<number | string>('joined-group');
     const [datas, setDatas] = useState([]);
     const [displayDatas, setDisplayDatas] = useState([]);
@@ -83,15 +84,19 @@ const Groups = observer(() => {
         const code = values.joinCode;
 
         if (code) {
+            setOnJoinLoading(true);
+
             http.post(`/groups/join`, { code: code })
                 .then((res) => {
                     globalStore.triggerNotification('success', res.message, '');
+                    getGroups();
                 })
                 .catch((error) => {
                     globalStore.triggerNotification('error', error.response?.data?.message, '');
                 })
                 .finally(() => {
-                    getGroups(); // Always update enroll state
+                    // getGroups(); // Always update enroll state
+                    setOnJoinLoading(false);
                     setJoinDialogOpen(false);
                 });
         }
@@ -223,6 +228,15 @@ const Groups = observer(() => {
                                                 lg={8}
                                                 xl={8}
                                                 onClick={() => {
+                                                    if (!item.joined && authentication.isStudent) {
+                                                        globalStore.triggerNotification(
+                                                            'error',
+                                                            'Chỉ có thể xem thông tin khi đã gia nhập nhóm',
+                                                            ''
+                                                        );
+
+                                                        return;
+                                                    }
                                                     navigate(`/group/${item.id}/members`);
                                                 }}
                                             >
@@ -294,6 +308,7 @@ const Groups = observer(() => {
                                                             : [
                                                                   <div className="max-width pl-8 pr-8">
                                                                       <Button
+                                                                          loading={onJoinLoading}
                                                                           className="max-width"
                                                                           type="primary"
                                                                           disabled={item.joined}
@@ -435,7 +450,7 @@ const Groups = observer(() => {
                             </Form.Item>
 
                             <Form.Item label={null}>
-                                <Button type="primary" htmlType="submit">
+                                <Button loading={onJoinLoading} type="primary" htmlType="submit">
                                     Tham gia
                                 </Button>
                             </Form.Item>
@@ -477,8 +492,11 @@ const Groups = observer(() => {
                                 <Input.TextArea rows={4} />
                             </Form.Item>
 
-                            <Form.Item name="isPublic" valuePropName="checked">
-                                <Checkbox>Is Public?</Checkbox>
+                            <Form.Item className="mt-8" name="isPublic" label="Chế độ hiển thị">
+                                <Radio.Group className="ml-4">
+                                    <Radio value={true}>Công khai</Radio>
+                                    <Radio value={false}>Riêng tư</Radio>
+                                </Radio.Group>
                             </Form.Item>
 
                             <Form.Item label={null}>

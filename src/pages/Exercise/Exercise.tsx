@@ -29,6 +29,7 @@ import utils from '../../utils/utils';
 import AIAssistant from './components/AIAssistant';
 import Comments from './components/Comments';
 import Submissions from './components/Submissions';
+import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 
 const json = {
     global: { tabSetEnableClose: false },
@@ -149,6 +150,7 @@ const Exercise = observer(() => {
     const [theme] = useState<'light' | 'vs-dark'>('vs-dark');
     const [exercise, setExercise] = useState<any>(null);
     const [editorValue, setEditorValue]: any = useState('');
+    const [dataLoading, setDataLoading] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [response, setResponse] = useState<any>(null);
@@ -239,60 +241,64 @@ const Exercise = observer(() => {
             });
     };
 
+    const [refreshSubmissions, setRefreshSubmissions] = useState(0);
+
     const factory = (node: any) => {
         const component = node.getComponent();
         if (component === 'desc') {
             return (
-                <div className="exercise-description" data-tourid="exercise-description">
-                    <h2 className="header">{exercise?.title || 'Title'}</h2>
-                    <div className="tags">
-                        <div className="tag difficulty pointer hover-scale">
-                            {utils.capitalizeFirstLetter(exercise?.difficulty) || 'Difficulty'}
-                        </div>
-                        <div className="topics flex gap">
-                            {exercise?.topics.map((topic: any, index: any) => {
-                                const temp = exercise?.topics.map((t: any) => t.name);
+                <LoadingOverlay loading={dataLoading} classNames="max-height">
+                    <div className="exercise-description" data-tourid="exercise-description">
+                        <h2 className="header">{exercise?.title || 'Title'}</h2>
+                        <div className="tags">
+                            <div className="tag difficulty pointer hover-scale">
+                                {utils.capitalizeFirstLetter(exercise?.difficulty) || 'Difficulty'}
+                            </div>
+                            <div className="topics flex gap">
+                                {exercise?.topics.map((topic: any, index: any) => {
+                                    const temp = exercise?.topics.map((t: any) => t.name);
 
-                                if (index == 3)
-                                    return (
+                                    if (index == 3)
+                                        return (
+                                            <div key={topic.id} className="tag topic pointer hover-scale">
+                                                <TooltipWrapper tooltipText={temp.slice(3).join(', ')} position="top">
+                                                    ...
+                                                </TooltipWrapper>
+                                            </div>
+                                        );
+
+                                    return index > 2 ? (
+                                        <></>
+                                    ) : (
                                         <div key={topic.id} className="tag topic pointer hover-scale">
-                                            <TooltipWrapper tooltipText={temp.slice(3).join(', ')} position="top">
-                                                ...
-                                            </TooltipWrapper>
+                                            {topic.name}
                                         </div>
                                     );
-
-                                return index > 2 ? (
-                                    <></>
-                                ) : (
-                                    <div key={topic.id} className="tag topic pointer hover-scale">
-                                        {topic.name}
+                                }) || 'Topics'}
+                            </div>
+                        </div>
+                        <p className="description">{exercise?.description || 'Description'}</p>
+                        <div className="test-cases">
+                            {exercise?.testCases.map((testCase: any, index: any) => {
+                                return testCase.isPublic ? (
+                                    <div key={`${testCase.id}-${index}`} className="test-case">
+                                        <strong className="header">Example {index + 1}:</strong>
+                                        <div className="io">
+                                            <div className="input">
+                                                <strong>Input:</strong> {testCase.input}
+                                            </div>
+                                            <div className="input">
+                                                <strong>Output:</strong> {testCase.output}
+                                            </div>
+                                        </div>
                                     </div>
+                                ) : (
+                                    <div key={`${testCase.id}-${index}`}></div>
                                 );
-                            }) || 'Topics'}
+                            }) || 'Test Cases'}
                         </div>
                     </div>
-                    <p className="description">{exercise?.description || 'Description'}</p>
-                    <div className="test-cases">
-                        {exercise?.testCases.map((testCase: any, index: any) => {
-                            return testCase.isPublic ? (
-                                <div key={`${testCase.id}-${index}`} className="test-case">
-                                    <strong className="header">Example {index + 1}:</strong>
-                                    <div className="io">
-                                        <div className="input">
-                                            <strong>Input:</strong> {testCase.input}
-                                        </div>
-                                        <div className="input">
-                                            <strong>Output:</strong> {testCase.output}
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div key={`${testCase.id}-${index}`}></div>
-                            );
-                        }) || 'Test Cases'}
-                    </div>
-                </div>
+                </LoadingOverlay>
             );
         } else if (component === 'editor') {
             return (
@@ -453,7 +459,7 @@ const Exercise = observer(() => {
                                                 >
                                                     <img
                                                         src={
-                                                            item.passed
+                                                            item.verdict == 'ACCEPTED'
                                                                 ? '/sources/icons/green-check.svg'
                                                                 : '/sources/icons/red-xmark.svg'
                                                         }
@@ -482,7 +488,7 @@ const Exercise = observer(() => {
                                                     </div>
                                                     <div
                                                         className={classnames('actual-output wrapper', {
-                                                            match: item.passed
+                                                            match: item.verdict == 'ACCEPTED'
                                                         })}
                                                     >
                                                         <div className="label">Actual Output</div>
@@ -500,8 +506,8 @@ const Exercise = observer(() => {
             );
         } else if (component === 'submissions') {
             return (
-                <div data-tourid="submissions-tab">
-                    <Submissions id={id || exerciseId} submissionId={submissionId} />
+                <div data-tourid="submissions-tab" className="max-height">
+                    <Submissions key={refreshSubmissions} id={id || exerciseId} submissionId={submissionId} />
                 </div>
             );
         } else if (component === 'comments') {
@@ -522,9 +528,13 @@ const Exercise = observer(() => {
         window.addEventListener('resize', handleResize);
 
         // Get exercise
-        http.get(`exercises/${id || exerciseId}`).then((res) => {
-            setExercise(res.data);
-        });
+        setDataLoading(true);
+
+        http.get(`exercises/${id || exerciseId}`)
+            .then((res) => {
+                setExercise(res.data);
+            })
+            .finally(() => setDataLoading(false));
 
         return () => {
             document.body.classList.remove('independence-page');
@@ -847,7 +857,27 @@ const Exercise = observer(() => {
                     </div>
                 </div>
                 <div className="flex-layout">
-                    <FlexLayout.Layout ref={layoutRef} model={model} factory={factory} />
+                    <FlexLayout.Layout
+                        ref={layoutRef}
+                        model={model}
+                        factory={factory}
+                        onRenderTab={(node: any, renderState) => {
+                            const parent = node.getParent();
+                            const isActive = parent?.getSelectedNode?.() === node;
+
+                            if (isActive && node.getComponent() === 'submissions') {
+                                if (!node._activatedOnce) {
+                                    node._activatedOnce = true; // đánh dấu đã active
+                                    setRefreshSubmissions((prev) => prev + 1);
+                                }
+                            } else {
+                                // reset flag nếu không active (lần sau vào lại vẫn chạy)
+                                node._activatedOnce = false;
+                            }
+
+                            return renderState;
+                        }}
+                    />
                 </div>
             </div>
         </div>

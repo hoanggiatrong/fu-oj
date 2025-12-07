@@ -1,15 +1,6 @@
-import {
-    AppstoreAddOutlined,
-    BookOutlined,
-    CalendarOutlined,
-    CopyOutlined,
-    SearchOutlined,
-    UserOutlined
-} from '@ant-design/icons';
-import type { FormProps } from 'antd';
-import { Avatar, Button, Col, Form, Input, Popconfirm, Row } from 'antd';
+import { BookOutlined, CalendarOutlined, CopyOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Button, Col, Popconfirm, Row } from 'antd';
 import classnames from 'classnames';
-import dayjs from 'dayjs';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -19,12 +10,10 @@ import Tab from '../../components/Tab/Tab';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../lib/httpRequest';
 // import authentication from '../../shared/auth/authentication';
+import routesConfig from '../../routes/routesConfig';
 import utils from '../../utils/utils';
-import ExamFormModal from '../Exams/components/ExamFormModal';
-import type { SelectOption } from '../Exams/types';
 import AddExerciseModal from './components/AddExerciseModal';
 import AddMemberModal from './components/AddMemberModal';
-import routesConfig from '../../routes/routesConfig';
 
 interface DashboardData {
     totalStudents: number;
@@ -47,10 +36,6 @@ const GroupDetail = observer(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [allExercises, setAllExercises] = useState<any[]>([]);
     const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
-    const [examExerciseOptions, setExamExerciseOptions] = useState<SelectOption[]>([]);
-    const [examGroupOptions, setExamGroupOptions] = useState<SelectOption[]>([]);
-    const [isExamModalOpen, setExamModalOpen] = useState(false);
-    const [examForm] = Form.useForm();
     const [dashboardData, setDashboardData] = useState<DashboardData>({
         totalStudents: 0,
         totalGroups: 0,
@@ -66,18 +51,10 @@ const GroupDetail = observer(() => {
             .then((res) => {
                 const exercises = res.data || [];
                 setAllExercises(exercises);
-                setExamExerciseOptions(
-                    exercises.map((exercise: any) => ({
-                        value: exercise.id,
-                        label: exercise.title || exercise.code || '',
-                        ...exercise
-                    }))
-                );
             })
             .catch((error) => {
                 error;
                 setAllExercises([]);
-                setExamExerciseOptions([]);
             });
     };
 
@@ -176,64 +153,8 @@ const GroupDetail = observer(() => {
         http.get(`/groups/${id}`).then((res) => {
             console.log('log:', res);
             setGroupInfo(res.data);
-            setExamGroupOptions([
-                {
-                    value: res.data.id,
-                    label: res.data.name
-                }
-            ]);
         });
     }, [id]);
-
-    useEffect(() => {
-        if (!id || !isExamModalOpen) return;
-        examForm.setFieldsValue({
-            groupIds: [id]
-        });
-    }, [id, isExamModalOpen, examForm]);
-
-    const handleCloseExamModal = () => {
-        examForm.resetFields();
-        setExamModalOpen(false);
-    };
-
-    const handleCreateGroupExam = () => {
-        if (!id) return;
-        examForm.resetFields();
-        examForm.setFieldsValue({
-            groupIds: [id]
-        });
-        setExamModalOpen(true);
-    };
-
-    const handleGroupExamSubmit: FormProps['onFinish'] = (values) => {
-        const startTime = values.startTime ? dayjs(values.startTime).utc().format('YYYY-MM-DDTHH:mm:ss[Z]') : null;
-        const endTime = values.endTime ? dayjs(values.endTime).utc().format('YYYY-MM-DDTHH:mm:ss[Z]') : null;
-        const groupIdsSet = new Set(values.groupIds || []);
-        if (id) {
-            groupIdsSet.add(id);
-        }
-
-        const payload = {
-            title: values.title,
-            description: values.description,
-            startTime,
-            endTime,
-            timeLimit: values.timeLimit || null,
-            status: 'DRAFT',
-            groupIds: Array.from(groupIdsSet),
-            exerciseIds: values.exerciseIds || []
-        };
-
-        http.post('/exams', payload)
-            .then((res) => {
-                globalStore.triggerNotification('success', res.message || 'Tạo bài thi thành công!', '');
-                handleCloseExamModal();
-            })
-            .catch((error) => {
-                globalStore.triggerNotification('error', error.response?.data?.message || 'Có lỗi xảy ra!', '');
-            });
-    };
 
     return (
         <div className={classnames('group-detail', { 'p-24': globalStore.isBelow1300 })}>
@@ -387,28 +308,7 @@ const GroupDetail = observer(() => {
                                     location.pathname.includes('students-progress') ||
                                     /\/exams\/[^/]+/.test(location.pathname)
                             })}
-                        >
-                            <div className="filters">
-                                <Input
-                                    placeholder="Tìm kiếm bài thi"
-                                    // onChange={(e) => setSearch(e.target.value)}
-                                    data-tourid="search-input"
-                                    prefix={<SearchOutlined />}
-                                />
-                                <div className="group-create">
-                                    <ProtectedElement acceptRoles={['INSTRUCTOR']}>
-                                        <div
-                                            className="custom-btn-ico"
-                                            onClick={handleCreateGroupExam}
-                                            data-tourid="create-btn"
-                                        >
-                                            <AppstoreAddOutlined className="custom-ant-ico color-cyan" />
-                                            Tạo bài kiểm tra cho nhóm
-                                        </div>
-                                    </ProtectedElement>
-                                </div>
-                            </div>
-                        </div>
+                        ></div>
                     </div>
                 )}
                 {/* {activeTab == 'exercises' && authentication.isInstructor && (
@@ -440,18 +340,6 @@ const GroupDetail = observer(() => {
                 }}
                 groupId={id || ''}
                 allExercises={allExercises}
-            />
-            <ExamFormModal
-                open={isExamModalOpen}
-                updateId={null}
-                editingRecord={null}
-                groups={examGroupOptions}
-                exercises={examExerciseOptions}
-                onFinish={handleGroupExamSubmit}
-                form={examForm}
-                setUpdateId={(_id) => undefined}
-                setEditingRecord={(_record) => undefined}
-                onCancel={handleCloseExamModal}
             />
         </div>
     );

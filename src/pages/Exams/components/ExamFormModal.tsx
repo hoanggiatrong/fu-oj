@@ -416,6 +416,11 @@ const ExamFormModal = observer(
                                                                 <b>Mô tả: </b>
                                                                 {item.description}
                                                             </div>
+                                                            <div className="author mt-8">
+                                                                <b>Tạo bởi: </b>
+                                                                {/* {console.log('log:', item)} */}
+                                                            </div>
+                                                            <div className="color-red"># {item.code}</div>
                                                         </div>
                                                     </div>
                                                 </>
