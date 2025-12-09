@@ -1,4 +1,4 @@
-import { Card, Col, Empty, Input, Row } from 'antd';
+import { Card, Col, Empty, Input, Modal, Row } from 'antd';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
@@ -45,6 +45,8 @@ const Certificates = observer(() => {
     const [certificates, setCertificates] = useState<CertificateResponseDTO[]>([]);
     const [displayCertificates, setDisplayCertificates] = useState<CertificateResponseDTO[]>([]);
     const [search, setSearch] = useState('');
+    const [selectedCertificate, setSelectedCertificate] = useState<CertificateResponseDTO | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
     const getCertificates = () => {
         setLoading(true);
@@ -63,6 +65,7 @@ const Certificates = observer(() => {
 
     useEffect(() => {
         getCertificates();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -88,6 +91,16 @@ const Certificates = observer(() => {
             return `${user.firstName || ''} ${user.lastName || ''}`.trim();
         }
         return user.email;
+    };
+
+    const handleCertificateClick = (cert: CertificateResponseDTO) => {
+        setSelectedCertificate(cert);
+        setModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setModalOpen(false);
+        setSelectedCertificate(null);
     };
 
     return (
@@ -123,6 +136,9 @@ const Certificates = observer(() => {
                                                 xl={8}
                                             >
                                                 <Card
+                                                    onClick={() => handleCertificateClick(cert)}
+                                                    style={{ cursor: 'pointer' }}
+                                                    hoverable
                                                     cover={
                                                         <div className="custom-card-header">
                                                             <div className="name">
@@ -218,6 +234,70 @@ const Certificates = observer(() => {
             <div className="right">
                 <CustomCalendar />
             </div>
+
+            <Modal
+                open={modalOpen}
+                onCancel={handleCloseModal}
+                footer={null}
+                width={900}
+                centered
+                className="certificate-modal"
+                destroyOnClose={true}
+                maskClosable={true}
+            >
+                {selectedCertificate && (
+                    <div className="certificate-container">
+                        <div className="certificate-border">
+                            <div className="certificate-content">
+                                <div className="certificate-header">
+                                    <div className="certificate-title">CHỨNG CHỈ</div>
+                                    <div className="certificate-subtitle">HOÀN THÀNH KHÓA HỌC</div>
+                                    <div className="certificate-separator">
+                                        <div className="separator-diamond separator-diamond--blue"></div>
+                                        <div className="separator-diamond separator-diamond--gold"></div>
+                                        <div className="separator-diamond separator-diamond--blue"></div>
+                                    </div>
+                                </div>
+
+                                <div className="certificate-body">
+                                    <div className="certificate-intro">
+                                        Chứng chỉ này được trao cho
+                                    </div>
+                                    <div className="certificate-name">
+                                        {getUserDisplayName(selectedCertificate.user)}
+                                    </div>
+                                    <div className="certificate-description">
+                                        <p>
+                                            Đã hoàn thành xuất sắc khóa học <strong>{selectedCertificate.course?.title || 'Khóa học'}</strong> và
+                                            thể hiện sự tận tâm, kiên trì và nắm vững kiến thức trong lĩnh vực này.
+                                            {selectedCertificate.reason && (
+                                                <> Thành tích này phản ánh: <strong>{selectedCertificate.reason}</strong>.</>
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="certificate-seal">
+                                    <div className="seal-circle">
+                                        <div className="seal-content">
+                                            <div className="seal-top">TOP</div>
+                                            <div className="seal-center">BRAND</div>
+                                            <div className="seal-bottom">AWARD</div>
+                                        </div>
+                                    </div>
+                                    <div className="seal-ribbon"></div>
+                                </div>
+
+                                {selectedCertificate.user?.rollNumber && (
+                                    <div className="certificate-code">
+                                        Mã số chứng chỉ: <strong>{selectedCertificate.user.rollNumber}</strong>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 });

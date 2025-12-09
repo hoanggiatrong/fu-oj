@@ -7,7 +7,8 @@ import {
     RobotOutlined,
     SearchOutlined,
     SettingOutlined,
-    CheckOutlined
+    CheckOutlined,
+    ReloadOutlined
 } from '@ant-design/icons';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, InputNumber, Modal, Popconfirm, Popover, Select, Steps, Table, Tag } from 'antd';
@@ -29,6 +30,7 @@ import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import CourseSlider, { type CourseSliderItem } from './components/CourseSlider';
+import './exercises.scss';
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
@@ -865,6 +867,30 @@ const Exercises = observer(() => {
         return tour;
     }, []);
 
+    const resetTour = () => {
+        const isInstructor = authentication.isInstructor;
+        const tourKey = isInstructor ? 'exercises-instructor-tour-completed' : 'exercises-tour-completed';
+        localStorage.removeItem(tourKey);
+
+        // Cancel current tour if running
+        if (tourRef.current) {
+            tourRef.current.cancel();
+            tourRef.current = null;
+        }
+
+        // Start tour again
+        if (!loading && datas.length > 0) {
+            setTimeout(() => {
+                if (!tourRef.current) {
+                    tourRef.current = createTour();
+                    tourRef.current.start();
+                }
+            }, 500);
+        } else {
+            globalStore.triggerNotification('info', 'Tour sẽ hiển thị khi dữ liệu đã tải xong', '');
+        }
+    };
+
     // Check if tour should run (for STUDENT or INSTRUCTOR, first time only)
     useEffect(() => {
         const isInstructor = authentication.isInstructor;
@@ -1103,8 +1129,8 @@ const Exercises = observer(() => {
                     </div>
                 </Modal>
                 <div className="header">
-                    <div className="title">
-                        {authentication.isStudent ? 'Danh sách bài tập' : 'Quản lý danh sách bài tập'}
+                    <div className="title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span>{authentication.isStudent ? 'Danh sách bài tập' : 'Quản lý danh sách bài tập'}</span>
                     </div>
                     <div className="description">
                         Để bắt đầu một cách thuận lợi, bạn nên tập trung vào một lộ trình học. Ví dụ: Để đi làm với vị
@@ -1305,6 +1331,15 @@ const Exercises = observer(() => {
             </div>
             <div className="right">
                 <CustomCalendar dateArr={utils.getDates()} />
+
+                <Button
+                    type="primary"
+                    icon={<ReloadOutlined />}
+                    onClick={resetTour}
+                    className="tour-guide-button"
+                >
+                    Xem hướng dẫn
+                </Button>
             </div>
         </div>
     );

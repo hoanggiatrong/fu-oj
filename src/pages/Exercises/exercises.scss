@@ -512,3 +512,30 @@
         border-top: 1px solid #f0f0f0;
     }
 }
+
+.tour-guide-button {
+    width: 100%;
+    margin-top: var(--base-size-16);
+    background-color: #f05124 !important;
+    border-color: #f05124 !important;
+    color: #ffffff !important;
+
+    &:hover {
+        background-color: #f05124 !important;
+        border-color: #f05124 !important;
+        opacity: 0.9;
+        color: #ffffff !important;
+    }
+
+    &:focus {
+        background-color: #f05124 !important;
+        border-color: #f05124 !important;
+        color: #ffffff !important;
+    }
+
+    &:active {
+        background-color: #f05124 !important;
+        border-color: #f05124 !important;
+        color: #ffffff !important;
+    }
+}
