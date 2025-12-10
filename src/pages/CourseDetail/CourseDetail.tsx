@@ -1,15 +1,8 @@
-import {
-    BookOutlined,
-    CheckCircleOutlined,
-    FileTextOutlined,
-    LeftOutlined,
-    ReloadOutlined,
-    ShareAltOutlined,
-    CheckOutlined,
-    FireOutlined
-} from '@ant-design/icons';
+import { BookOutlined, CheckOutlined, FileTextOutlined, FireOutlined, ShareAltOutlined } from '@ant-design/icons';
 import type { ProgressProps } from 'antd';
 import { Button, Card, Empty, Progress, Typography } from 'antd';
+import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import globalStore from '../../components/GlobalComponent/globalStore';
@@ -18,8 +11,6 @@ import * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
 import utils from '../../utils/utils';
 import './course-detail.scss';
-import classnames from 'classnames';
-import { observer } from 'mobx-react-lite';
 
 const conicColors: ProgressProps['strokeColor'] = {
     '0%': '#87d068',
@@ -66,6 +57,7 @@ const CourseDetail = observer(() => {
     const [exercises, setExercises] = useState<CourseExercise[]>([]);
     const [exerciseLoading, setExerciseLoading] = useState(false);
     const [enrolling, setEnrolling] = useState(false);
+    enrolling;
 
     const handleShareCourse = () => {
         try {
