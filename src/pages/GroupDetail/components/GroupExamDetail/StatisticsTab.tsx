@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Card, Button, Row, Col, Statistic } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import * as http from '../../../../lib/httpRequest';
+import globalStore from '../../../../components/GlobalComponent/globalStore';
 
 interface StudentProgress {
     userId: string;
@@ -21,6 +22,8 @@ const StatisticsTab = observer(() => {
     const groupId = params.id || params.groupId;
     const examId = params.examId;
     const [studentsProgress, setStudentsProgress] = useState<StudentProgress[]>([]);
+    const [groupExamId, setGroupExamId] = useState<string | null>(null);
+    const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
         if (examId && groupId) {
@@ -33,6 +36,30 @@ const StatisticsTab = observer(() => {
                     console.error('[API] GET', url, '- Error:', error);
                 });
         }
+    }, [examId, groupId]);
+
+    // Lấy groupExamId từ API
+    useEffect(() => {
+        if (!groupId || !examId) {
+            setGroupExamId(null);
+            return;
+        }
+
+        const url = `/group-exams?groupId=${groupId}`;
+        http.get(url)
+            .then((res) => {
+                const groupExams = res.data || [];
+                const matchedExam = groupExams.find(
+                    (item: { groupExamId: string; id: string; exam?: { id?: string } }) =>
+                        item.groupExamId === examId || item.id === examId || item.exam?.id === examId
+                );
+                setGroupExamId(matchedExam?.groupExamId || examId);
+            })
+            .catch((error) => {
+                console.error('[API] GET', url, '- Error:', error);
+                // Fallback: dùng examId trực tiếp
+                setGroupExamId(examId);
+            });
     }, [examId, groupId]);
 
     // Tính toán thống kê
@@ -78,9 +105,58 @@ const StatisticsTab = observer(() => {
         }
     });
 
-    const handleExportExcel = () => {
-        // TODO: Implement export to Excel
-        console.log('Export to Excel');
+    const handleExportExcel = async () => {
+        if (!groupExamId) {
+            globalStore.triggerNotification('warning', 'Không tìm thấy thông tin bài thi!', '');
+            return;
+        }
+
+        setExporting(true);
+        try {
+            // Sử dụng axios trực tiếp để có responseType blob
+            const axios = (await import('axios')).default;
+            const token = localStorage.getItem('authenticationToken') || sessionStorage.getItem('authenticationToken');
+            const baseURL = import.meta.env.VITE_REACT_APP_BASE_URL;
+
+            // API export exam rankings
+            const response = await axios.get(`${baseURL}/exam-rankings/export?groupExamId=${groupExamId}`, {
+                responseType: 'blob',
+                headers: {
+                    Authorization: token ? `Bearer ${token}` : ''
+                }
+            });
+
+            // Tạo blob và download
+            const blob = new Blob([response.data], {
+                type:
+                    response.headers['content-type'] ||
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+
+            // Tạo tên file với timestamp
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download = `exam-rankings_${timestamp}.xlsx`;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            globalStore.triggerNotification('success', 'Xuất file thống kê thành công!', '');
+        } catch (error: unknown) {
+            console.error('Error exporting exam rankings:', error);
+            const err = error as { response?: { data?: { message?: string } } };
+            globalStore.triggerNotification(
+                'error',
+                err?.response?.data?.message || 'Có lỗi xảy ra khi xuất file thống kê!',
+                ''
+            );
+        } finally {
+            setExporting(false);
+        }
     };
 
     return (
@@ -153,8 +229,14 @@ const StatisticsTab = observer(() => {
             </Card>
 
             <div style={{ marginTop: '24px', textAlign: 'right' }}>
-                <Button type="primary" icon={<DownloadOutlined />} onClick={handleExportExcel}>
-                    Export Excel
+                <Button
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    onClick={handleExportExcel}
+                    loading={exporting}
+                    disabled={!groupExamId || exporting}
+                >
+                    Xuất file thống kê
                 </Button>
             </div>
         </div>
