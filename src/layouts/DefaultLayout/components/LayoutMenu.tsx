@@ -68,7 +68,7 @@ const menuItems = [
     // },
     {
         id: 'topics',
-        name: 'Topics',
+        name: 'Chủ đề',
         icon: <FundFilled />,
         to: '/topics',
         allowedRoles: ['ADMIN']
@@ -82,7 +82,7 @@ const menuItems = [
     },
     {
         id: 'accounts',
-        name: 'Accounts',
+        name: 'Tài khoản',
         icon: <UserOutlined />,
         to: '/accounts',
         allowedRoles: ['ADMIN']

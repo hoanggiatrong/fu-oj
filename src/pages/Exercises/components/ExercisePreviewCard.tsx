@@ -212,13 +212,7 @@ const ExercisePreviewCard = ({
                         ]}
                     />
                 ) : (
-                    <Tag
-                        color={
-                            exercise.visibility === 'PRIVATE'
-                                ? 'red'
-                                : 'orange'
-                        }
-                    >
+                    <Tag color={exercise.visibility === 'PRIVATE' ? 'red' : 'orange'}>
                         {exercise.visibility || 'DRAFT'}
                     </Tag>
                 )}
@@ -266,14 +260,14 @@ const ExercisePreviewCard = ({
             )}
             {exercise.solution && (
                 <div style={{ marginBottom: 12 }}>
-                    <strong>Solution:</strong>
+                    <strong>Code giải mẫu:</strong>
                     {isEditing ? (
                         <Input.TextArea
                             value={exercise.solution}
                             onChange={(e) => onUpdateExercise('solution', e.target.value)}
                             rows={8}
                             style={{ marginTop: 4, fontFamily: 'monospace', fontSize: 12 }}
-                            placeholder="Nhập solution code..."
+                            placeholder="Nhập code giải mẫu..."
                         />
                     ) : (
                         <div
@@ -296,13 +290,13 @@ const ExercisePreviewCard = ({
             )}
             {isEditing && !exercise.solution && (
                 <div style={{ marginBottom: 8 }}>
-                    <strong>Solution:</strong>
+                    <strong>Code giải mẫu:</strong>
                     <Input.TextArea
                         value={exercise.solution || ''}
                         onChange={(e) => onUpdateExercise('solution', e.target.value)}
                         rows={8}
                         style={{ marginTop: 4, fontFamily: 'monospace', fontSize: 12 }}
-                        placeholder="Nhập solution code..."
+                        placeholder="Nhập code giải mẫu..."
                     />
                 </div>
             )}
@@ -348,4 +342,3 @@ const ExercisePreviewCard = ({
 };
 
 export default ExercisePreviewCard;
-
