@@ -12,6 +12,7 @@ import ActivateAccount from './pages/Accounts/ActivateAccount';
 import ChangePasswordFirstTime from './pages/Accounts/ChangePasswordFirstTime';
 import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
+import ConfirmOtp from './pages/FogetPassword/ConfirmOtp';
 import router, { groupRoutes } from './routes/routes';
 import authentication from './shared/auth/authentication';
 import './styles/styles.scss';
@@ -50,6 +51,7 @@ function App() {
                         <Route path="/activate-account" element={<ActivateAccount />} />
                         <Route path="/auth/active-account" element={<ActivateAccount />} />
                         <Route path="/change-password" element={<ChangePasswordFirstTime />} />
+                        <Route path="/confirm-otp" element={<ConfirmOtp />} />
                     </Routes>
                 </BrowserRouter>
             </ConfigProvider>

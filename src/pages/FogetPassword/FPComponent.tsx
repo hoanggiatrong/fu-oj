@@ -4,11 +4,11 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import globalStore from '../../../components/GlobalComponent/globalStore';
-import * as http from '../../../lib/httpRequest';
-import authentication from '../../../shared/auth/authentication';
-import utils from '../../../utils/utils';
-import './lr-component.scss';
+import globalStore from '../../components/GlobalComponent/globalStore';
+import * as http from '../../lib/httpRequest';
+import authentication from '../../shared/auth/authentication';
+import utils from '../../utils/utils';
+import './FPComponent.scss';
 
 const flexSliderItems = [
     {
@@ -29,11 +29,6 @@ const flexSliderItems = [
     }
 ];
 
-// type FieldType = {
-//     username?: string;
-//     password?: string;
-//     remember?: string;
-// };
 
 const LRComponent = observer(() => {
     const navigate = useNavigate();
@@ -82,11 +77,17 @@ const LRComponent = observer(() => {
 
         setLoading(true);
         try {
-            await http.get(`/auth/forget-password?to=${encodeURIComponent(email)}`);
-            globalStore.triggerNotification('success', 'Mật khẩu mới đã được gửi về email.', '');
+            await http.post(
+                `/auth/password/otp?email=${encodeURIComponent(email)}`,
+                {}
+            );
+            globalStore.triggerNotification('success', 'Mã OTP đã được gửi về email.', '');
+            localStorage.setItem('forgotPasswordEmail', email);
             setEmail('');
+            navigate('/confirm-otp');
         } catch (error: any) {
-            const message = error?.response?.data?.message || 'Có lỗi xảy ra khi gửi email. Vui lòng thử lại sau!';
+            const message =
+                error?.response?.data?.message || 'Có lỗi xảy ra khi gửi email. Vui lòng thử lại sau!';
             globalStore.triggerNotification('error', message, '');
         } finally {
             setLoading(false);
