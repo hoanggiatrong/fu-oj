@@ -8,6 +8,7 @@ import globalStore from '../../../components/GlobalComponent/globalStore';
 import Switch from '../../../components/Switch/Switch';
 import authentication from '../../../shared/auth/authentication';
 import QuickAction from './QuickAction';
+import { roles, type Role } from '../../../constants/role';
 
 const LayoutHeader = observer(() => {
     return (
@@ -33,17 +34,13 @@ const LayoutHeader = observer(() => {
                     tooltipTextOff="Chuyển sang chế độ sáng"
                 />
 
-                {/* {globalStore.windowSize.width < 1000 ? (
-                    <SearchOutlined className="global-search-icon" />
-                ) : (
-                    <Input className="global-search" placeholder={'Tìm kiếm bất cứ thông tin gì'} />
-                )} */}
-
                 <div className="profile" onClick={() => globalStore.setDrawerKey('user')}>
                     <Avatar src={authentication.account?.data?.avatar?.url} style={{ height: 25, width: 25 }} />
                     {(authentication.account?.data?.lastName || '') +
                         ' - ' +
-                        (authentication.account?.data?.role || '') ||
+                        (authentication.account?.data?.role
+                            ? roles[authentication.account?.data?.role as Role].toLocaleUpperCase()
+                            : '') ||
                         authentication.account?.data?.role ||
                         'Bạn cần đăng nhập để tiếp tục'}
                 </div>

@@ -9,6 +9,7 @@ import authentication from '../../shared/auth/authentication';
 import globalStore from './globalStore';
 import ProtectedElement from '../ProtectedElement/ProtectedElement';
 import utils from '../../utils/utils';
+import { roles, type Role } from '../../constants/role';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -96,14 +97,7 @@ const UserDrawer = observer(() => {
             <div className="rank">
                 <div className="container">
                     <div className="level">
-                        Vai trò:{' '}
-                        <div className="data">
-                            {authentication.isInstructor
-                                ? 'Giảng viên'
-                                : authentication.isStudent
-                                ? 'Sinh viên'
-                                : 'Admin'}
-                        </div>
+                        Vai trò: <div className="data">{roles[authentication.account?.data?.role as Role]}</div>
                     </div>
                     {/* <div className="created-date">Ngày tạo: 25/10/2025</div> */}
                     <div className="updated-date">Hôm nay: {utils.formatDate(new Date(), 'DD/MM/YYYY HH:mm')}</div>

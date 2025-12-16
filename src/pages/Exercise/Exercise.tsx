@@ -1,5 +1,4 @@
 import {
-    BugOutlined,
     CloudUploadOutlined,
     HomeOutlined,
     LeftOutlined,
@@ -30,6 +29,7 @@ import AIAssistant from './components/AIAssistant';
 import Comments from './components/Comments';
 import Submissions from './components/Submissions';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
+import { difficulties, type Difficulty } from '../../constants/difficulty';
 
 const json = {
     global: { tabSetEnableClose: false },
@@ -49,19 +49,19 @@ const json = {
                     },
                     {
                         type: 'tab',
-                        name: 'Danh sách bài tập đã nộp',
+                        name: 'Danh sách bài nộp của tôi',
                         component: 'submissions',
                         icon: '/sources/icons/list-ico.svg'
                     },
                     {
                         type: 'tab',
-                        name: 'Comment',
+                        name: 'Bình luận',
                         component: 'comments',
                         icon: '/sources/icons/list-ico.svg'
                     },
                     {
                         type: 'tab',
-                        name: 'AI Assistant',
+                        name: 'Trợ lý AI',
                         component: 'ai-assistant',
                         icon: '/sources/icons/ai-assistant-ico.svg'
                     }
@@ -252,7 +252,9 @@ const Exercise = observer(() => {
                         <h2 className="header">{exercise?.title || 'Title'}</h2>
                         <div className="tags">
                             <div className="tag difficulty pointer hover-scale">
-                                {utils.capitalizeFirstLetter(exercise?.difficulty) || 'Difficulty'}
+                                {!exercise?.difficulty
+                                    ? 'Difficulty'
+                                    : difficulties[exercise?.difficulty as Difficulty].text}
                             </div>
                             <div className="topics flex gap">
                                 {exercise?.topics.map((topic: any, index: any) => {
@@ -601,7 +603,7 @@ const Exercise = observer(() => {
         const steps: StepOptions[] = [
             {
                 id: 'exercise-description',
-                text: 'Đây là phần mô tả bài tập. Bạn có thể xem đề bài, độ khó và các ví dụ test case ở đây. Bạn có thể chuyển sang các tab khác như "Danh sách bài tập đã nộp" và "AI Assistant" ở phía trên.',
+                text: 'Đây là phần mô tả bài tập. Bạn có thể xem đề bài, độ khó và các ví dụ test case ở đây. Bạn có thể chuyển sang các tab khác như "Danh sách bài nộp của tôi" và "Trợ lý AI" ở phía trên.',
                 attachTo: {
                     element: '[data-tourid="exercise-description"]',
                     on: 'right' as const
@@ -827,16 +829,14 @@ const Exercise = observer(() => {
                     </div>
                     <div className={classnames('center', { disabled: submittedData })}>
                         <div className={classnames('group-btn', { disabled: loading })}>
-                            <BugOutlined className="icon" style={{ color: '#FFA118' }} />
-                            {loading ? (
-                                <div className="icon">
-                                    <LoadingOutlined />
-                                </div>
-                            ) : (
-                                <div className="icon" onClick={testRun} data-tourid="test-run-btn">
+                            <div className="icon run-code-btn" onClick={testRun} data-tourid="test-run-btn">
+                                {loading ? (
+                                    <LoadingOutlined style={{ fontSize: 18 }} />
+                                ) : (
                                     <img src="/sources/icons/play-ico.svg" alt="" />
-                                </div>
-                            )}
+                                )}
+                                Chạy thử code
+                            </div>
                             <div className="icon submit-btn" onClick={submit} data-tourid="submit-btn">
                                 {loading ? (
                                     <LoadingOutlined style={{ fontSize: 18 }} />

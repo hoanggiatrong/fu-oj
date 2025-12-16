@@ -10,6 +10,8 @@ import type { FormProps } from 'antd';
 import * as http from '../../../lib/httpRequest';
 import classnames from 'classnames';
 import Line from '../../../components/Line/Line';
+import { difficulties } from '../../../constants/difficulty';
+import { visbilities } from '../../../constants/visibility';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -348,11 +350,10 @@ const ExamFormModal = observer(
                                 style={{ width: '100%' }}
                                 placeholder="Chọn độ khó"
                                 onChange={(value) => handleFilterChange('difficulty', value)}
-                                options={[
-                                    { value: 'EASY', label: 'EASY' },
-                                    { value: 'MEDIUM', label: 'MEDIUM' },
-                                    { value: 'HARD', label: 'HARD' }
-                                ]}
+                                options={Object.entries(difficulties).map(([value, { text: label }]) => ({
+                                    value,
+                                    label
+                                }))}
                             />
                         </Form.Item>
 
@@ -362,10 +363,12 @@ const ExamFormModal = observer(
                                 style={{ width: '100%' }}
                                 placeholder="Chọn khả năng hiển thị"
                                 onChange={(value) => handleFilterChange('visibility', value)}
-                                options={[
-                                    { value: 'PUBLIC', label: 'PUBLIC' },
-                                    { value: 'PRIVATE', label: 'PRIVATE' }
-                                ]}
+                                options={Object.entries(visbilities)
+                                    .filter(([value]) => value !== 'DRAFT')
+                                    .map(([value, { text: label }]) => ({
+                                        value,
+                                        label
+                                    }))}
                             />
                         </Form.Item>
 
@@ -374,7 +377,7 @@ const ExamFormModal = observer(
                                 allowClear
                                 mode="multiple"
                                 style={{ width: '100%' }}
-                                placeholder="Chọn chủ đề"
+                                placeholder="Chọn một hoặc nhiều chủ đề"
                                 defaultValue={[]}
                                 onChange={(value) => handleFilterChange('topicIds', value)}
                                 options={topics}

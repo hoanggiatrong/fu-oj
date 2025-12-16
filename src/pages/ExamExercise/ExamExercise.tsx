@@ -633,16 +633,14 @@ const ExamExercise = observer(() => {
                             className={classnames('group-btn', { disabled: loading })}
                             // style={{ display: 'flex', alignItems: 'center', gap: '16px' }}
                         >
-                            <BugOutlined className="icon" style={{ color: '#FFA118' }} />
-                            {loading ? (
-                                <div className="icon">
-                                    <LoadingOutlined />
-                                </div>
-                            ) : (
-                                <div className="icon" onClick={testRun}>
-                                    <img src="/sources/icons/play-ico.svg" alt="" style={{ pointerEvents: 'none' }} />
-                                </div>
-                            )}
+                            <div className="icon" onClick={testRun}>
+                                {loading ? (
+                                    <LoadingOutlined style={{ fontSize: 18 }} />
+                                ) : (
+                                    <img src="/sources/icons/play-ico.svg" alt="" />
+                                )}
+                                Chạy thử code
+                            </div>
                             <div className="icon submit-btn" onClick={submit}>
                                 {loading ? (
                                     <LoadingOutlined style={{ fontSize: 18 }} />

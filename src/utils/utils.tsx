@@ -4,6 +4,8 @@ import { message } from 'antd';
 import moment from 'moment';
 import globalDataStore from '../components/GlobalComponent/globalDataStore';
 import numeral from 'numeral';
+import { visbilities, type Visibility } from '../constants/visibility';
+import { difficulties, type Difficulty } from '../constants/difficulty';
 
 const reEmail =
     /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -20,46 +22,18 @@ class Utils {
         return date.toLocaleString('en-US', { month: 'short' }); // buộc tiếng Anh
     }
 
-    getDifficultyClass = (difficulty: string) => {
-        const formatted =
-            difficulty.length > 4
-                ? this.capitalizeFirstLetter(difficulty).slice(0, 4) + '.'
-                : this.capitalizeFirstLetter(difficulty);
+    getDifficultyClass = (val: string) => {
+        return <div className={difficulties[val as Difficulty].className}>{difficulties[val as Difficulty].text}</div>;
+    };
 
-        return difficulty == 'EASY' ? (
-            <div className="color-cyan">{formatted}</div>
-        ) : difficulty == 'MEDIUM' ? (
-            <div className="color-gold">{formatted}</div>
-        ) : (
-            <div className="color-red">{formatted}</div>
+    getDifficultyBackground = (val: string) => {
+        return (
+            <div className={difficulties[val as Difficulty].bgClassName}>{difficulties[val as Difficulty].text}</div>
         );
     };
 
-    getDifficultyBackground = (difficulty: string) => {
-        const formatted = this.capitalizeFirstLetter(difficulty);
-
-        return difficulty == 'EASY' ? (
-            <div className="bg-cyan">{formatted}</div>
-        ) : difficulty == 'MEDIUM' ? (
-            <div className="bg-gold">{formatted}</div>
-        ) : (
-            <div className="bg-red">{formatted}</div>
-        );
-    };
-
-    getVisibilityClass = (visibility: string) => {
-        const formatted =
-            visibility.length > 6
-                ? this.capitalizeFirstLetter(visibility).slice(0, 6) + '.'
-                : this.capitalizeFirstLetter(visibility);
-
-        return visibility == 'PUBLIC' ? (
-            <div className="color-cyan">{formatted}</div>
-        ) : visibility == 'DRAFT' ? (
-            <div className="color-gold">{formatted}</div>
-        ) : (
-            <div className="color-red">{formatted}</div>
-        );
+    getVisibilityClass = (val: string) => {
+        return <div className={visbilities[val as Visibility].className}>{visbilities[val as Visibility].text}</div>;
     };
 
     getColor = (str: string) => {

@@ -4,6 +4,8 @@ import * as http from '../../../lib/httpRequest';
 import globalStore from '../../../components/GlobalComponent/globalStore';
 import classnames from 'classnames';
 import { useState, useEffect } from 'react';
+import { difficulties, type Difficulty } from '../../../constants/difficulty';
+import { visbilities } from '../../../constants/visibility';
 
 interface Exercise {
     id: string;
@@ -127,11 +129,10 @@ const AddExerciseModal = ({ open, onCancel, onSuccess, groupId, allExercises }: 
                             style={{ width: '100%' }}
                             placeholder="Chọn độ khó"
                             onChange={(value) => handleFilterChange('difficulty', value)}
-                            options={[
-                                { value: 'EASY', label: 'EASY' },
-                                { value: 'MEDIUM', label: 'MEDIUM' },
-                                { value: 'HARD', label: 'HARD' }
-                            ]}
+                            options={Object.entries(difficulties).map(([value, { text: label }]) => ({
+                                value,
+                                label
+                            }))}
                         />
                     </Form.Item>
 
@@ -141,10 +142,10 @@ const AddExerciseModal = ({ open, onCancel, onSuccess, groupId, allExercises }: 
                             style={{ width: '100%' }}
                             placeholder="Chọn khả năng hiển thị"
                             onChange={(value) => handleFilterChange('visibility', value)}
-                            options={[
-                                { value: 'PUBLIC', label: 'PUBLIC' },
-                                { value: 'PRIVATE', label: 'PRIVATE' }
-                            ]}
+                            options={Object.entries(visbilities).map(([value, { text: label }]) => ({
+                                value,
+                                label
+                            }))}
                         />
                     </Form.Item>
 
@@ -183,7 +184,9 @@ const AddExerciseModal = ({ open, onCancel, onSuccess, groupId, allExercises }: 
                                                         <div className="name">
                                                             {item.label}
                                                             <span className={classnames('difficulty', item.difficulty)}>
-                                                                {item.difficulty}
+                                                                {difficulties[
+                                                                    item.difficulty as Difficulty
+                                                                ].text.toLocaleUpperCase()}
                                                             </span>
                                                         </div>
                                                         <div className="description">
@@ -191,8 +194,7 @@ const AddExerciseModal = ({ open, onCancel, onSuccess, groupId, allExercises }: 
                                                             {item.description}
                                                         </div>
                                                         <div className="author mt-8">
-                                                            <b>Tạo bởi: </b>
-                                                            {/* {console.log('log:', item)} */}
+                                                            <b>Mã bài tập: </b>
                                                         </div>
                                                         <div className="color-red"># {item.code}</div>
                                                     </div>
@@ -201,7 +203,9 @@ const AddExerciseModal = ({ open, onCancel, onSuccess, groupId, allExercises }: 
                                         }
                                         style={{ width: 500 }}
                                     >
-                                        <span>{item.label}</span>
+                                        <span>
+                                            {item.code} - {item.label}
+                                        </span>
                                     </Tooltip>
                                 ),
                                 searchText: `${item.label} ${item.description} ${item.difficulty}`

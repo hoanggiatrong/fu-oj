@@ -26,7 +26,7 @@ const TestCaseTable = ({ testCases, isEditing, onUpdateTestCase, onDeleteTestCas
             dataSource={testCases.map((tc, tcIndex) => ({ ...tc, key: tcIndex }))}
             columns={[
                 {
-                    title: 'Input',
+                    title: 'Đầu vào',
                     dataIndex: 'input',
                     key: 'input',
                     render: (text: string, record: any) => {
@@ -44,7 +44,7 @@ const TestCaseTable = ({ testCases, isEditing, onUpdateTestCase, onDeleteTestCas
                     }
                 },
                 {
-                    title: 'Output',
+                    title: 'Đầu ra',
                     dataIndex: 'output',
                     key: 'output',
                     render: (text: string, record: any) => {
@@ -62,7 +62,7 @@ const TestCaseTable = ({ testCases, isEditing, onUpdateTestCase, onDeleteTestCas
                     }
                 },
                 {
-                    title: 'Note',
+                    title: 'Ghi chú',
                     dataIndex: 'note',
                     key: 'note',
                     render: (text: string, record: any) => {
@@ -78,7 +78,7 @@ const TestCaseTable = ({ testCases, isEditing, onUpdateTestCase, onDeleteTestCas
                     }
                 },
                 {
-                    title: 'State',
+                    title: 'Hiển thị',
                     dataIndex: 'isPublic',
                     key: 'isPublic',
                     render: (isPublic: boolean, record: any) => {
@@ -89,12 +89,14 @@ const TestCaseTable = ({ testCases, isEditing, onUpdateTestCase, onDeleteTestCas
                                 onChange={(value) => onUpdateTestCase(testCaseIndex, 'isPublic', value)}
                                 style={{ width: '100%' }}
                                 options={[
-                                    { value: true, label: 'Public' },
-                                    { value: false, label: 'Hidden' }
+                                    { value: true, label: 'Công khai' },
+                                    { value: false, label: 'Ẩn' }
                                 ]}
                             />
+                        ) : isPublic ? (
+                            <Tag color="green">Công khai</Tag>
                         ) : (
-                            isPublic ? <Tag color="green">Public</Tag> : <Tag color="red">Hidden</Tag>
+                            <Tag color="red">Ẩn</Tag>
                         );
                     }
                 },
@@ -131,4 +133,3 @@ const TestCaseTable = ({ testCases, isEditing, onUpdateTestCase, onDeleteTestCas
 };
 
 export default TestCaseTable;
-

@@ -166,11 +166,11 @@ const AIGenerateExercises = observer(() => {
 
         setAILoading(true);
         setExerciseErrors(new Map());
-        
+
         const exercisesToRemove: number[] = [];
         const tempErrors = new Map<number, string>();
         let successCount = 0;
-        
+
         for (let i = aiPreviewExercises.length - 1; i >= 0; i--) {
             const exerciseData = aiPreviewExercises[i];
             try {
@@ -211,7 +211,11 @@ const AIGenerateExercises = observer(() => {
             }, 1000);
         } else if (successCount > 0) {
             // Có một số thành công, một số lỗi
-            globalStore.triggerNotification('warning', `Đã tạo ${successCount} bài tập thành công, ${tempErrors.size} bài lỗi!`, '');
+            globalStore.triggerNotification(
+                'warning',
+                `Đã tạo ${successCount} bài tập thành công, ${tempErrors.size} bài lỗi!`,
+                ''
+            );
             setAILoading(false);
         } else {
             // Tất cả đều lỗi
@@ -231,11 +235,11 @@ const AIGenerateExercises = observer(() => {
         try {
             await http.post('/exercises', buildExercisePayload(exercise));
             globalStore.triggerNotification('success', `Đã tạo bài tập "${exercise.title}" thành công!`, '');
-            
+
             // Xóa bài tập khỏi danh sách khi thành công
             const newExercises = aiPreviewExercises.filter((_, index) => index !== activeExerciseIndex);
             setAIPreviewExercises(newExercises);
-            
+
             // Xóa lỗi nếu có
             setExerciseErrors((prev) => {
                 const newMap = new Map(prev);
@@ -251,7 +255,7 @@ const AIGenerateExercises = observer(() => {
                 });
                 return updatedMap;
             });
-            
+
             // Điều chỉnh activeExerciseIndex nếu cần
             if (newExercises.length > 0) {
                 if (activeExerciseIndex >= newExercises.length) {
@@ -264,14 +268,14 @@ const AIGenerateExercises = observer(() => {
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
             const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi tạo bài tập!';
-            
+
             // Lưu lỗi vào state
             setExerciseErrors((prev) => {
                 const newMap = new Map(prev);
                 newMap.set(activeExerciseIndex, errorMessage);
                 return newMap;
             });
-            
+
             globalStore.triggerNotification('error', errorMessage, '');
         } finally {
             setSingleCreateLoading(false);
@@ -864,10 +868,7 @@ const AIGenerateExercises = observer(() => {
                 }}
             >
                 <div>
-                    <div style={{ fontSize: 12, color: '#8c8c8c', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                        Tạo câu hỏi bằng AI
-                    </div>
-                    <div style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>FPTU Online Judge</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Tạo câu hỏi bằng AI</div>
                     <div style={{ color: '#595959', maxWidth: 560 }}>{pageTitle}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>

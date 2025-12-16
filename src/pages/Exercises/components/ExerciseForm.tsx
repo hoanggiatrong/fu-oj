@@ -1,4 +1,6 @@
 import { Form, Input, InputNumber, Select, Spin } from 'antd';
+import { DIFFICULTY, difficulties } from '../../../constants/difficulty';
+import { VISIBILITY } from '../../../constants/visibility';
 
 interface ExerciseFormProps {
     form: any;
@@ -62,7 +64,7 @@ const ExerciseForm = ({
             }}
         >
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                <Form.Item name="topic" label="Topic" rules={[{ required: true, message: 'Vui lòng chọn topic!' }]}>
+                <Form.Item name="topic" label="Chủ đề" rules={[{ required: true, message: 'Vui lòng chọn topic!' }]}>
                     <Select
                         style={{ width: '100%' }}
                         placeholder="Chọn topic"
@@ -99,7 +101,7 @@ const ExerciseForm = ({
             <div className="mb-16">
                 <Form.Item
                     name="level"
-                    label="Độ khó"
+                    label={DIFFICULTY}
                     rules={[{ required: true, message: 'Vui lòng chọn ít nhất một độ khó!' }]}
                 >
                     <Select
@@ -111,11 +113,10 @@ const ExerciseForm = ({
                             setSelectedLevels(value);
                             form.setFieldsValue({ level: value });
                         }}
-                        options={[
-                            { value: 'EASY', label: 'EASY' },
-                            { value: 'MEDIUM', label: 'MEDIUM' },
-                            { value: 'HARD', label: 'HARD' }
-                        ]}
+                        options={Object.entries(difficulties).map(([value, { text: label }]) => ({
+                            value,
+                            label
+                        }))}
                     />
                 </Form.Item>
             </div>
@@ -167,8 +168,8 @@ const ExerciseForm = ({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <Form.Item
                     name="solutionLanguage"
-                    label="Ngôn ngữ solution"
-                    rules={[{ required: true, message: 'Vui lòng chọn ngôn ngữ solution!' }]}
+                    label="Ngôn ngữ cho code giải mẫu"
+                    rules={[{ required: true, message: 'Vui lòng chọn ngôn ngữ code giải mẫu!' }]}
                 >
                     <Select
                         style={{ width: '100%' }}
@@ -188,7 +189,7 @@ const ExerciseForm = ({
                 </Form.Item>
                 <Form.Item
                     name="visibility"
-                    label="Khả năng hiển thị"
+                    label={VISIBILITY}
                     rules={[{ required: true, message: 'Vui lòng chọn khả năng hiển thị!' }]}
                     initialValue="DRAFT"
                 >
@@ -201,8 +202,8 @@ const ExerciseForm = ({
                             form.setFieldsValue({ visibility: value });
                         }}
                         options={[
-                            { value: 'DRAFT', label: 'DRAFT' },
-                            { value: 'PRIVATE', label: 'PRIVATE' }
+                            { value: 'DRAFT', label: 'Bản nháp' },
+                            { value: 'PRIVATE', label: 'Riêng tư' }
                         ]}
                     />
                 </Form.Item>
@@ -232,7 +233,7 @@ const ExerciseForm = ({
             >
                 <div style={{ color: '#595959', fontSize: 13, fontWeight: 500, marginBottom: 4 }}>⚠️ Lưu ý:</div>
                 <div style={{ color: '#8c8c8c', fontSize: 12, marginBottom: 12 }}>
-                    AI tạo bài tập chỉ nên <b>THAM KHẢO</b>, vì vậy hãy double-check lại nhé!
+                    Bài tập do AI tạo ra chỉ mang tính chất <b>THAM KHẢO</b>, vì vậy hãy kiểm tra lại nhé!
                 </div>
                 <div style={{ color: '#595959', fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
                     💡 Ví dụ prompt hiệu quả:

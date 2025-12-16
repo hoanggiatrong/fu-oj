@@ -166,10 +166,10 @@ const Topics = observer(() => {
     useEffect(() => {
         const filtered = search
             ? datas.filter(
-                (data: TopicData) =>
-                    (data?.name || '').toLowerCase().includes(search.toLowerCase()) ||
-                    (data?.description || '').toLowerCase().includes(search.toLowerCase())
-            )
+                  (data: TopicData) =>
+                      (data?.name || '').toLowerCase().includes(search.toLowerCase()) ||
+                      (data?.description || '').toLowerCase().includes(search.toLowerCase())
+              )
             : datas;
         setDisplayDatas(filtered);
     }, [search, datas]);
@@ -189,9 +189,7 @@ const Topics = observer(() => {
         <ProtectedElement acceptRoles={['ADMIN']}>
             <div className={classnames('topics', { 'p-24': globalStore.isBelow1300 })}>
                 <div className="header">
-                    <div className="title">
-                        Quản lý Topics
-                    </div>
+                    <div className="title">Quản lý Chủ đề</div>
                     <div className="description">
                         Quản lý các chủ đề (topics) trong hệ thống. Chỉ admin mới có quyền truy cập trang này.
                     </div>
@@ -296,4 +294,3 @@ const Topics = observer(() => {
 });
 
 export default Topics;
-

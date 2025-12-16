@@ -32,6 +32,8 @@ import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import CourseSlider, { type CourseSliderItem } from './components/CourseSlider';
 import './exercises.scss';
+import { visbilities, VISIBILITY } from '../../constants/visibility';
+import { difficulties } from '../../constants/difficulty';
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
@@ -100,14 +102,6 @@ const Exercises = observer(() => {
                 );
             }
         },
-        // {
-        //     title: 'Mô tả',
-        //     dataIndex: 'description',
-        //     key: 'description',
-        //     render: (description: string) => {
-        //         return <div className="cell">{description}</div>;
-        //     }
-        // },
         {
             title: 'Độ khó',
             width: 80,
@@ -122,7 +116,7 @@ const Exercises = observer(() => {
             }
         },
         {
-            title: 'Trạng thái',
+            title: VISIBILITY,
             width: 100,
             dataIndex: 'visibility',
             key: 'visibility',
@@ -288,14 +282,6 @@ const Exercises = observer(() => {
                 );
             }
         },
-        // {
-        //     title: 'Mô tả',
-        //     dataIndex: 'description',
-        //     key: 'description',
-        //     render: (description: string) => {
-        //         return <div className="cell">{description}</div>;
-        //     }
-        // },
         {
             title: 'Độ khó',
             width: 80,
@@ -1088,7 +1074,7 @@ const Exercises = observer(() => {
 
                                     <Form.Item
                                         className="flex-1"
-                                        label="Bộ nhớ"
+                                        label="Giới hạn bộ nhớ (MB)"
                                         name="memory"
                                         rules={[{ required: true, message: 'Vui lòng nhập bộ nhớ!' }]}
                                     >
@@ -1103,32 +1089,29 @@ const Exercises = observer(() => {
                                     >
                                         <Select
                                             style={{ width: '100%' }}
-                                            placeholder="Select difficulty"
-                                            // defaultValue={['EASY']}
+                                            placeholder="Chọn độ khó"
                                             onChange={handleChange}
-                                            options={[
-                                                { value: 'EASY', label: 'EASY' },
-                                                { value: 'MEDIUM', label: 'MEDIUM' },
-                                                { value: 'HARD', label: 'HARD' }
-                                            ]}
+                                            options={Object.entries(difficulties).map(([value, { text: label }]) => ({
+                                                value,
+                                                label
+                                            }))}
                                         />
                                     </Form.Item>
 
                                     <Form.Item
                                         className="flex-1"
-                                        label="Khả năng hiển thị"
+                                        label="Hiển thị"
                                         name="visibility"
-                                        rules={[{ required: true, message: 'Vui lòng chọn một!' }]}
+                                        rules={[{ required: true, message: 'Vui lòng chọn một chế độ hiển thị!' }]}
                                     >
                                         <Select
                                             style={{ width: '100%' }}
-                                            placeholder="Select visibility"
+                                            placeholder="Chọn chế độ hiển thị"
                                             onChange={handleChange}
-                                            options={[
-                                                { value: 'DRAFT', label: 'DRAFT' },
-                                                { value: 'PUBLIC', label: 'PUBLIC' },
-                                                { value: 'PRIVATE', label: 'PRIVATE' }
-                                            ]}
+                                            options={Object.entries(visbilities).map(([value, { text: label }]) => ({
+                                                value,
+                                                label
+                                            }))}
                                         />
                                     </Form.Item>
                                 </div>
@@ -1142,7 +1125,7 @@ const Exercises = observer(() => {
                                     <Select
                                         mode="multiple"
                                         style={{ width: '100%' }}
-                                        placeholder="Select topics"
+                                        placeholder="Chọn một hoặc nhiều chủ đề"
                                         defaultValue={[]}
                                         onChange={handleChange}
                                         options={topics}
@@ -1190,26 +1173,27 @@ const Exercises = observer(() => {
                         autoComplete="off"
                     >
                         <Form.Item
-                            label="Trạng thái"
+                            label={VISIBILITY}
                             name="visibility"
-                            rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
+                            rules={[{ required: true, message: 'Vui lòng chọn chế độ hiển thị!' }]}
                         >
                             <Select
                                 style={{ width: '100%' }}
-                                placeholder="Chọn trạng thái"
-                                options={[
-                                    { value: 'DRAFT', label: 'DRAFT' },
-                                    { value: 'PUBLIC', label: 'PUBLIC' },
-                                    { value: 'PRIVATE', label: 'PRIVATE' }
-                                ]}
+                                placeholder="Chọn chế độ hiển thị"
+                                options={Object.entries(visbilities).map(([value, { text: label }]) => ({
+                                    value,
+                                    label
+                                }))}
                             />
                         </Form.Item>
                         <Form.Item>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                                <Button onClick={() => {
-                                    setIsUpdateVisibilityModalOpen(false);
-                                    updateVisibilityForm.resetFields();
-                                }}>
+                                <Button
+                                    onClick={() => {
+                                        setIsUpdateVisibilityModalOpen(false);
+                                        updateVisibilityForm.resetFields();
+                                    }}
+                                >
                                     Hủy
                                 </Button>
                                 <Button type="primary" htmlType="submit">
@@ -1280,11 +1264,12 @@ const Exercises = observer(() => {
                                                 style={{ width: '100%' }}
                                                 placeholder="Chọn độ khó"
                                                 onChange={(value) => handleFilterChange('difficulty', value)}
-                                                options={[
-                                                    { value: 'EASY', label: 'EASY' },
-                                                    { value: 'MEDIUM', label: 'MEDIUM' },
-                                                    { value: 'HARD', label: 'HARD' }
-                                                ]}
+                                                options={Object.entries(difficulties).map(
+                                                    ([value, { text: label }]) => ({
+                                                        value,
+                                                        label
+                                                    })
+                                                )}
                                             />
                                         </div>
                                         <div className="filter-container">
@@ -1301,18 +1286,19 @@ const Exercises = observer(() => {
                                             />
                                         </div>
                                         <div className="filter-container">
-                                            <div className="filter-name">Khả năng hiển thị</div>
+                                            <div className="filter-name">Hiển thị</div>
                                             <Select
                                                 allowClear
                                                 value={filters.visibility}
                                                 style={{ width: '100%' }}
-                                                placeholder="Chọn khả năng hiển thị"
+                                                placeholder="Chọn chế độ hiển thị"
                                                 onChange={(value) => handleFilterChange('visibility', value)}
-                                                options={[
-                                                    { value: 'DRAFT', label: 'DRAFT' },
-                                                    { value: 'PUBLIC', label: 'PUBLIC' },
-                                                    { value: 'PRIVATE', label: 'PRIVATE' }
-                                                ]}
+                                                options={Object.entries(visbilities).map(
+                                                    ([value, { text: label }]) => ({
+                                                        value,
+                                                        label
+                                                    })
+                                                )}
                                             />
                                         </div>
                                         <div className="actions">
@@ -1410,7 +1396,9 @@ const Exercises = observer(() => {
                                 }}
                                 dataSource={displayDatas}
                                 columns={authentication?.account?.data?.role == 'INSTRUCTOR' ? columns : studentCols}
-                                rowSelection={authentication?.account?.data?.role == 'INSTRUCTOR' ? rowSelection : undefined}
+                                rowSelection={
+                                    authentication?.account?.data?.role == 'INSTRUCTOR' ? rowSelection : undefined
+                                }
                                 rowClassName={(_record, index) =>
                                     index % 2 === 0 ? 'custom-row row-even' : 'custom-row row-odd'
                                 }
@@ -1444,27 +1432,27 @@ export const TestCases = ({ updateId, testCases, setTestCases }: any) => {
 
     const columns = [
         {
-            title: 'Input',
+            title: 'Đầu vào',
             dataIndex: 'input',
             key: 'input'
         },
         {
-            title: 'Output',
+            title: 'Đầu ra',
             dataIndex: 'output',
             key: 'output'
         },
         {
-            title: 'Note',
+            title: 'Ghi chú',
             dataIndex: 'note',
             key: 'note'
         },
         {
-            title: 'State',
+            title: 'Hiển thị',
             dataIndex: 'isPublic',
             key: 'isPublic',
             render: (isPublic: string) => {
                 console.log('log:', isPublic);
-                return isPublic ? <Tag color="green">Public</Tag> : <Tag color="red">Hidden</Tag>;
+                return isPublic ? <Tag color="green">Công khai</Tag> : <Tag color="red">Ẩn</Tag>;
             }
         },
         {
@@ -1475,23 +1463,9 @@ export const TestCases = ({ updateId, testCases, setTestCases }: any) => {
                 return (
                     <div className="actions-row" onClick={(e) => e.stopPropagation()}>
                         <ProtectedElement acceptRoles={['INSTRUCTOR']}>
-                            {/* <TooltipWrapper tooltipText="Chỉnh sửa" position="left">
-                                <SettingOutlined
-                                    className="action-row-btn"
-                                    onClick={() => {
-                                        setUpdateId(record.id);
-                                        globalStore.setOpenDetailPopup(true);
-                                        form.setFieldsValue({
-                                            ...record,
-                                            topicIds: record.topics.map((topic: any) => topic.id)
-                                        });
-                                    }}
-                                />
-                            </TooltipWrapper> */}
                             <TooltipWrapper tooltipText="Xóa" position="left">
                                 <Popconfirm
-                                    // title="Are you sure you want to delete this exercise?"
-                                    title="Bạn có chắc chắn muốn xóa bài tập này?"
+                                    title="Bạn có chắc chắn muốn xóa test case này?"
                                     okText="Có"
                                     cancelText="Không"
                                     onConfirm={() => {
@@ -1520,17 +1494,17 @@ export const TestCases = ({ updateId, testCases, setTestCases }: any) => {
         const payload = form.getFieldsValue();
 
         if (!payload.input) {
-            setError('Input là bắt buộc');
+            setError('Vui lòng nhập đầu vào!');
             return;
         }
 
         if (!payload.output) {
-            setError('Output là bắt buộc');
+            setError('Vui lòng nhập đầu ra!');
             return;
         }
 
         if (payload.isPublic == undefined) {
-            setError('Độ khó là bắt buộc');
+            setError('Vui lòng chọn chế độ hiển thị!');
             return;
         }
 
@@ -1590,18 +1564,18 @@ export const TestCases = ({ updateId, testCases, setTestCases }: any) => {
                         <div className="flex gap">
                             <Form.Item
                                 className="flex-1"
-                                label="Input"
+                                label="Đầu vào"
                                 name="input"
-                                rules={[{ required: true, message: 'Please input input!' }]}
+                                rules={[{ required: true, message: 'Vui lòng nhập đầu vào!' }]}
                             >
                                 <Input />
                             </Form.Item>
 
                             <Form.Item
                                 className="flex-1"
-                                label="Output"
+                                label="Đầu ra"
                                 name="output"
-                                rules={[{ required: true, message: 'Please input output!' }]}
+                                rules={[{ required: true, message: 'Vui lòng nhập đầu ra!' }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -1609,21 +1583,21 @@ export const TestCases = ({ updateId, testCases, setTestCases }: any) => {
 
                         <Form.Item
                             className="flex-1"
-                            label="State"
+                            label="Hiển thị"
                             name="isPublic"
-                            rules={[{ required: true, message: 'Please select state!' }]}
+                            rules={[{ required: true, message: 'Vui lòng chọn chế độ hiển thị!' }]}
                         >
                             <Select
                                 style={{ width: '100%' }}
-                                placeholder="Select state"
+                                placeholder="Chọn chế độ hiển thị"
                                 options={[
-                                    { value: true, label: 'Public' },
-                                    { value: false, label: 'Hide' }
+                                    { value: true, label: 'Công khai' },
+                                    { value: false, label: 'Ẩn' }
                                 ]}
                             />
                         </Form.Item>
 
-                        <Form.Item className="flex-1" label="Note" name="note">
+                        <Form.Item className="flex-1" label="Ghi chú" name="note">
                             <Input.TextArea rows={2} />
                         </Form.Item>
                     </Form>
@@ -1633,7 +1607,7 @@ export const TestCases = ({ updateId, testCases, setTestCases }: any) => {
             <div className="header">
                 <div className="left">
                     <img src="/sources/icons/code-ico.svg" alt="" />
-                    Test Cases
+                    Danh sách test case
                 </div>
             </div>
             <Table dataSource={testCases} columns={columns} />
