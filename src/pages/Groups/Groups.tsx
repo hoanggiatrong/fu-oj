@@ -1,4 +1,4 @@
-import { AppstoreAddOutlined, DeleteOutlined, EditOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons';
+import { AppstoreAddOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
 import { Avatar, Button, Card, Col, Empty, Form, Input, Modal, Pagination, Popconfirm, Radio, Row } from 'antd';
 import classnames from 'classnames';
@@ -302,8 +302,8 @@ const Groups = observer(() => {
                                                                           key="ellipsis"
                                                                           onClick={(e) => e.stopPropagation()}
                                                                       />
-                                                                  </Popconfirm>,
-                                                                  <SettingOutlined key="setting" />
+                                                                  </Popconfirm>
+                                                                  //   <SettingOutlined key="setting" />
                                                               ]
                                                             : [
                                                                   <div className="max-width pl-8 pr-8">

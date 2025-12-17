@@ -487,7 +487,7 @@ const Comments = observer(({ exerciseId }: { exerciseId: string | undefined }) =
                                 marginBottom: '0'
                             }}
                         >
-                            <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                            <div className="max-2-lines" style={{ display: 'flex', gap: '12px', width: '100%' }}>
                                 <Avatar
                                     size={40}
                                     style={{

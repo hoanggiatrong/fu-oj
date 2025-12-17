@@ -246,7 +246,7 @@ const ExercisePreviewCard = ({
                     )}
                 </div>
             )}
-            {isEditing && !exercise.prompt && (
+            {/* {isEditing && !exercise.prompt && (
                 <div style={{ marginBottom: 8 }}>
                     <strong>Prompt:</strong>
                     <Input.TextArea
@@ -257,7 +257,7 @@ const ExercisePreviewCard = ({
                         placeholder="Nhập prompt (tùy chọn)..."
                     />
                 </div>
-            )}
+            )} */}
             {exercise.solution && (
                 <div style={{ marginBottom: 12 }}>
                     <strong>Code giải mẫu:</strong>

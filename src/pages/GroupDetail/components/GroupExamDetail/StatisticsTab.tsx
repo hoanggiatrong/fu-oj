@@ -163,22 +163,22 @@ const StatisticsTab = observer(() => {
         <div>
             <Row gutter={16} style={{ marginBottom: '24px' }}>
                 <Col span={6}>
-                    <Card>
+                    <Card className="event-none-cell">
                         <Statistic title="Tổng số sinh viên" value={totalStudents} />
                     </Card>
                 </Col>
                 <Col span={6}>
-                    <Card>
+                    <Card className="event-none-cell">
                         <Statistic title="Đã tham gia" value={joinedCount} valueStyle={{ color: '#3f8600' }} />
                     </Card>
                 </Col>
                 <Col span={6}>
-                    <Card>
+                    <Card className="event-none-cell">
                         <Statistic title="Chưa tham gia" value={notJoinedCount} valueStyle={{ color: '#cf1322' }} />
                     </Card>
                 </Col>
                 <Col span={6}>
-                    <Card>
+                    <Card className="event-none-cell">
                         <Statistic title="Đã hoàn thành" value={completedCount} valueStyle={{ color: '#1890ff' }} />
                     </Card>
                 </Col>
@@ -186,7 +186,7 @@ const StatisticsTab = observer(() => {
 
             <Row gutter={16} style={{ marginBottom: '24px' }}>
                 <Col span={12}>
-                    <Card title="Tiến độ (AC/WA/Chưa tham gia)">
+                    <Card className="event-none-cell" title="Tiến độ (AC/WA/Chưa tham gia)">
                         <div style={{ padding: '16px' }}>
                             <div style={{ marginBottom: '8px' }}>
                                 <span style={{ color: '#3f8600' }}>AC (Accepted): </span>
@@ -201,12 +201,12 @@ const StatisticsTab = observer(() => {
                                 <strong>{notJoinedCount}</strong>
                             </div>
                             {/* TODO: Add chart here */}
-                            <div>[Biểu đồ tiến độ sẽ được hiển thị ở đây]</div>
+                            {/* <div>[Biểu đồ tiến độ sẽ được hiển thị ở đây]</div> */}
                         </div>
                     </Card>
                 </Col>
                 <Col span={12}>
-                    <Card title="Phân bố điểm">
+                    <Card className="event-none-cell" title="Phân bố điểm">
                         <div style={{ padding: '16px' }}>
                             {Object.entries(scoreDistribution).map(([range, count]) => (
                                 <div
@@ -218,15 +218,15 @@ const StatisticsTab = observer(() => {
                                 </div>
                             ))}
                             {/* TODO: Add chart here */}
-                            <div>[Biểu đồ phân bố điểm sẽ được hiển thị ở đây]</div>
+                            {/* <div>[Biểu đồ phân bố điểm sẽ được hiển thị ở đây]</div> */}
                         </div>
                     </Card>
                 </Col>
             </Row>
 
-            <Card title="Số lượng nộp theo thời gian">
-                <div>[Line chart số lượng nộp theo thời gian sẽ được hiển thị ở đây]</div>
-            </Card>
+            {/* <Card title="Số lượng nộp theo thời gian"> */}
+            {/* <div>[Line chart số lượng nộp theo thời gian sẽ được hiển thị ở đây]</div> */}
+            {/* </Card> */}
 
             <div style={{ marginTop: '24px', textAlign: 'right' }}>
                 <Button

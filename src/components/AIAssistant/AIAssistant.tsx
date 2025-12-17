@@ -43,60 +43,65 @@ const AIAssistant = observer(({ defaultOpen, exerciseId, autoMessage }: AIAssist
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSendMessage = useCallback(async (messageText?: string, skipUserMessage: boolean = false) => {
-        const textToSend = messageText ? messageText.trim() : inputValue.trim();
-        if (!textToSend || isTyping) return;
+    const handleSendMessage = useCallback(
+        async (messageText?: string, skipUserMessage: boolean = false) => {
+            const textToSend = messageText ? messageText.trim() : inputValue.trim();
+            if (!textToSend || isTyping) return;
 
-        if (!skipUserMessage) {
-            const userMessage: Message = {
-                id: Date.now().toString(),
-                text: textToSend,
-                isUser: true,
-                timestamp: new Date()
-            };
-            setMessages((prev) => [...prev, userMessage]);
-            setInputValue('');
-        }
-
-        setIsTyping(true);
-
-        try {
-            const requestBody: any = { message: textToSend };
-            if (exerciseId) {
-                requestBody.exerciseId = exerciseId;
+            if (!skipUserMessage) {
+                const userMessage: Message = {
+                    id: Date.now().toString(),
+                    text: textToSend,
+                    isUser: true,
+                    timestamp: new Date()
+                };
+                setMessages((prev) => [...prev, userMessage]);
+                setInputValue('');
             }
-            const response = await http.post('/chat', requestBody);
-            const aiMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                text:
-                    response?.data?.messageResponse ||
-                    response?.messageResponse ||
-                    response?.message ||
-                    'Xin lỗi, không thể xử lý yêu cầu của bạn.',
-                isUser: false,
-                timestamp: new Date()
-            };
-            setMessages((prev) => [...prev, aiMessage]);
-        } catch (error: any) {
-            const errorMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                text:
-                    error?.response?.data?.message || error?.message || 'Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau.',
-                isUser: false,
-                timestamp: new Date()
-            };
-            setMessages((prev) => [...prev, errorMessage]);
-        } finally {
-            setIsTyping(false);
-        }
-    }, [inputValue, isTyping, exerciseId]);
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-        }
-    };
+            setIsTyping(true);
+
+            try {
+                const requestBody: any = { message: textToSend };
+                if (exerciseId) {
+                    requestBody.exerciseId = exerciseId;
+                }
+                const response = await http.post('/chat', requestBody);
+                const aiMessage: Message = {
+                    id: (Date.now() + 1).toString(),
+                    text:
+                        response?.data?.messageResponse ||
+                        response?.messageResponse ||
+                        response?.message ||
+                        'Xin lỗi, không thể xử lý yêu cầu của bạn.',
+                    isUser: false,
+                    timestamp: new Date()
+                };
+                setMessages((prev) => [...prev, aiMessage]);
+            } catch (error: any) {
+                const errorMessage: Message = {
+                    id: (Date.now() + 1).toString(),
+                    text:
+                        error?.response?.data?.message ||
+                        error?.message ||
+                        'Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau.',
+                    isUser: false,
+                    timestamp: new Date()
+                };
+                setMessages((prev) => [...prev, errorMessage]);
+            } finally {
+                setIsTyping(false);
+            }
+        },
+        [inputValue, isTyping, exerciseId]
+    );
+
+    // const handleKeyPress = (e: React.KeyboardEvent) => {
+    //     if (e.key === 'Enter' && !e.shiftKey) {
+    //         e.preventDefault();
+    //         handleSendMessage();
+    //     }
+    // };
 
     useEffect(() => {
         if (defaultOpen) {
@@ -201,32 +206,30 @@ const AIAssistant = observer(({ defaultOpen, exerciseId, autoMessage }: AIAssist
                     </div>
 
                     <div className="ai-assistant-input-container">
-                        <Input
-                            className="ai-assistant-input"
-                            placeholder="Nhập câu hỏi của bạn..."
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            disabled={isTyping}
-                            style={{
-                                backgroundColor: '#333333',
-                                color: '#ffffff',
-                                borderColor: '#e8e8e8'
-                            }}
-                            suffix={
-                                <SendOutlined
-                                    className={classnames('ai-assistant-send', {
-                                        'ai-assistant-send-disabled': !inputValue.trim() || isTyping
-                                    })}
-                                    onClick={() => handleSendMessage()}
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        lineHeight: '24px'
-                                    }}
-                                />
-                            }
-                        />
+                        <div className="ai-input-wrapper overflow">
+                            <Input.TextArea
+                                className="ai-assistant-input"
+                                placeholder="Nhập câu hỏi của bạn..."
+                                value={inputValue}
+                                onChange={(e: any) => setInputValue(e.target.value)}
+                                autoSize={{ minRows: 1, maxRows: 5 }}
+                                rows={2}
+                                disabled={isTyping}
+                                onKeyDown={(e: any) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSendMessage();
+                                    }
+                                }}
+                            />
+
+                            <SendOutlined
+                                className={classnames('ai-assistant-send', {
+                                    'ai-assistant-send-disabled': !inputValue.trim() || isTyping
+                                })}
+                                onClick={() => handleSendMessage()}
+                            />
+                        </div>
                     </div>
                 </div>
             )}

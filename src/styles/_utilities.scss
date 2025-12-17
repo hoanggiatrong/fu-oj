@@ -288,6 +288,9 @@
 
 .event-none-cell {
     pointer-events: none;
+    border: 1px solid var(--color-text-muted) !important;
+    // box-shadow: 0 0 24px var(--color-border) !important;
+    box-shadow: none !important;
 
     .ant-card-body {
         padding: var(--base-size-8) var(--base-size-16) !important;

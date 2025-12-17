@@ -58,6 +58,32 @@
                     }
                 }
             }
+
+            // New
+            .ai-assistant-input-container {
+                & > .ai-input-wrapper {
+                    display: flex;
+                    gap: var(--base-size-8);
+
+                    & > textarea {
+                        border-radius: var(--borderRadius-medium) !important;
+                        border-color: #545454 !important;
+                    }
+
+                    & > .ai-assistant-send {
+                        color: var(--color-link);
+                    }
+
+                    & > .ai-assistant-send-disabled {
+                        color: #545454;
+                    }
+                }
+            }
+
+            // New
+            .ai-assistant-input:focus {
+                box-shadow: none !important;
+            }
         }
     }
 }

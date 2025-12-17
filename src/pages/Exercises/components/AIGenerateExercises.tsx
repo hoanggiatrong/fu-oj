@@ -654,21 +654,23 @@ const AIGenerateExercises = observer(() => {
                         }}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                            <div style={{ fontWeight: 600 }}>Test case #{result.index + 1}</div>
+                            <div className="mb-4" style={{ fontWeight: 600, fontSize: 20 }}>
+                                Test case #{result.index + 1}
+                            </div>
                             <Tag color={result.isPassed ? 'green' : 'red'}>
                                 {result.status?.description || (result.isPassed ? 'Accepted' : 'Failed')}
                             </Tag>
                         </div>
-                        <div style={{ fontSize: 12, color: '#cbd5f5', marginBottom: 4 }}>
-                            Thời gian: {result.time ?? 'N/A'}s
-                        </div>
-                        <div style={{ fontSize: 12, color: '#cbd5f5' }}>
+                        <div style={{ marginBottom: 4 }}>Thời gian: {result.time ?? 'N/A'}s</div>
+                        <div style={{}}>
                             <div>
-                                🎯 Expected: <span style={{ color: '#f8fafc' }}>{result.expected || '""'}</span>
+                                <b>🎯 Đầu vào:</b> <span style={{}}>{result.input || '""'}</span>
                             </div>
                             <div>
-                                📤 Output:{' '}
-                                <span style={{ color: '#f8fafc' }}>{(result.stdout || '').trim() || '""'}</span>
+                                <b>🎯 Đầu ra mong muốn:</b> <span style={{}}>{result.expected || '""'}</span>
+                            </div>
+                            <div>
+                                <b>📤 Đầu ra thực tế:</b> <span style={{}}>{(result.stdout || '').trim() || '""'}</span>
                             </div>
                             {result.stderr && (
                                 <div>
@@ -816,8 +818,8 @@ const AIGenerateExercises = observer(() => {
                                 style={{
                                     border: '1px solid #ebeef5',
                                     borderRadius: 12,
-                                    padding: 20,
-                                    color: '#e2e8f0'
+                                    padding: 20
+                                    // color: '#e2e8f0'
                                 }}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -841,8 +843,8 @@ const AIGenerateExercises = observer(() => {
                                         borderRadius: 8,
                                         padding: 16,
                                         minHeight: 140,
-                                        fontFamily: 'monospace',
-                                        fontSize: 13
+                                        fontFamily: 'monospace'
+                                        // fontSize: 13
                                     }}
                                 >
                                     <div style={{ color: '#94a3b8', marginBottom: 8 }}>Kết quả</div>

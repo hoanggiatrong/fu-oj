@@ -372,7 +372,10 @@ const Profile = observer(() => {
                                 Xin chào,{' '}
                                 {authentication.account?.data?.firstName + ' ' + authentication.account?.data?.lastName}
                             </div>
-                            <div className="date">Mã số sinh viên: {authentication.account?.data?.rollNumber}</div>
+                            <div className="date">
+                                {authentication.isInstructor ? 'Mã giảng viên' : 'Mã số sinh viên'}:{' '}
+                                {authentication.account?.data?.rollNumber}
+                            </div>
                         </div>
                         <div className="block good-bg" />
                         <div className="steps">
@@ -460,11 +463,17 @@ const Profile = observer(() => {
                                         </div>
 
                                         <Form.Item
-                                            label="Mã số sinh viên"
+                                            label={authentication.isInstructor ? 'Mã giảng viên' : 'Mã số sinh viên'}
                                             name="rollNumber"
                                             style={{ margin: 0, padding: 0, marginTop: 8 }}
                                         >
-                                            <Input placeholder="Nhập Mã số sinh viên" />
+                                            <Input
+                                                placeholder={
+                                                    authentication.isInstructor
+                                                        ? 'Nhập Mã giảng viên'
+                                                        : 'Nhập Mã số sinh viên'
+                                                }
+                                            />
                                         </Form.Item>
 
                                         <Form.Item label={''}>

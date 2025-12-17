@@ -104,7 +104,7 @@ const Exercises = observer(() => {
         },
         {
             title: 'Độ khó',
-            width: 80,
+            width: 100,
             dataIndex: 'difficulty',
             key: 'difficulty',
             sorter: (a: any, b: any) => {
@@ -284,7 +284,7 @@ const Exercises = observer(() => {
         },
         {
             title: 'Độ khó',
-            width: 80,
+            width: 100,
             dataIndex: 'difficulty',
             key: 'difficulty',
             sorter: (a: any, b: any) => {
