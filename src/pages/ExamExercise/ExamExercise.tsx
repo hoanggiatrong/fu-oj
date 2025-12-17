@@ -1,5 +1,4 @@
 import {
-    BugOutlined,
     CloudUploadOutlined,
     ExclamationCircleOutlined,
     HomeOutlined,

@@ -1,4 +1,9 @@
+import { Navigate, Route } from 'react-router-dom';
 import ProtectedElementRoute from '../components/ProtectedElementRoute/ProtectedElementRoute';
+import Accounts from '../pages/Accounts/Accounts';
+import Certificates from '../pages/Certificates/Certificates';
+import CourseDetail from '../pages/CourseDetail/CourseDetail';
+import Courses from '../pages/Courses/Courses';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import ExamDetail from '../pages/ExamDetail/ExamDetail';
 import ExamExercise from '../pages/ExamExercise/ExamExercise';
@@ -9,28 +14,22 @@ import ExerciseCompletionList from '../pages/ExerciseCompletionList/ExerciseComp
 import Exercises from '../pages/Exercises/Exercises';
 import AIGenerateExercises from '../pages/Exercises/components/AIGenerateExercises';
 import GroupDetail from '../pages/GroupDetail/GroupDetail';
+import ExamsTab from '../pages/GroupDetail/components/ExamsTab';
+import ExercisesTab from '../pages/GroupDetail/components/ExercisesTab';
+import GroupExamDetail from '../pages/GroupDetail/components/GroupExamDetail';
+import OverviewTab from '../pages/GroupDetail/components/GroupExamDetail/OverviewTab';
+import StatisticsTab from '../pages/GroupDetail/components/GroupExamDetail/StatisticsTab';
+import StudentsProgressTab from '../pages/GroupDetail/components/GroupExamDetail/StudentsProgressTab';
+import GroupExamSubmissionsTab from '../pages/GroupDetail/components/GroupExamDetail/SubmissionsTab';
+import GroupExamsTab from '../pages/GroupDetail/components/GroupExamsTab';
+import MembersTab from '../pages/GroupDetail/components/MembersTab';
+import SubmissionsTab from '../pages/GroupDetail/components/SubmissionsTab';
 import Groups from '../pages/Groups/Groups';
 import Home from '../pages/Home/Home';
 import Profile from '../pages/Profile/Profile';
 import Ranking from '../pages/Ranking/Ranking';
 import Topics from '../pages/Topics/Topics';
-import ChangePassword from '../pages/ChangePassword/ChangePassword';
 import routesConfig from './routesConfig';
-import Accounts from '../pages/Accounts/Accounts';
-import Courses from '../pages/Courses/Courses';
-import CourseDetail from '../pages/CourseDetail/CourseDetail';
-import Certificates from '../pages/Certificates/Certificates';
-import { Route, Navigate } from 'react-router-dom';
-import MembersTab from '../pages/GroupDetail/components/MembersTab';
-import ExamsTab from '../pages/GroupDetail/components/ExamsTab';
-import SubmissionsTab from '../pages/GroupDetail/components/SubmissionsTab';
-import ExercisesTab from '../pages/GroupDetail/components/ExercisesTab';
-import GroupExamsTab from '../pages/GroupDetail/components/GroupExamsTab';
-import GroupExamDetail from '../pages/GroupDetail/components/GroupExamDetail';
-import OverviewTab from '../pages/GroupDetail/components/GroupExamDetail/OverviewTab';
-import StudentsProgressTab from '../pages/GroupDetail/components/GroupExamDetail/StudentsProgressTab';
-import GroupExamSubmissionsTab from '../pages/GroupDetail/components/GroupExamDetail/SubmissionsTab';
-import StatisticsTab from '../pages/GroupDetail/components/GroupExamDetail/StatisticsTab';
 
 const router: {
     path: string;
@@ -160,14 +159,14 @@ const router: {
         path: routesConfig.profile,
         element: <Profile />
     },
-    {
-        path: routesConfig.changePassword,
-        element: (
-            <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
-                <ChangePassword />
-            </ProtectedElementRoute>
-        )
-    },
+    // {
+    //     path: routesConfig.changePassword,
+    //     element: (
+    //         <ProtectedElementRoute allowedRoles={['STUDENT', 'INSTRUCTOR', 'ADMIN']} allowedPermissions={[]}>
+    //             <ChangePassword />
+    //         </ProtectedElementRoute>
+    //     )
+    // },
     {
         path: routesConfig.accounts,
         element: (
