@@ -186,7 +186,7 @@ const StatisticsTab = observer(() => {
 
             <Row gutter={16} style={{ marginBottom: '24px' }}>
                 <Col span={12}>
-                    <Card title="Tiến độ (AC/WA/Chưa tham gia)">
+                    <Card title="Tiến độ (AC/WA/Chưa tham gia)" style={{ height: '100%' }}>
                         <div style={{ padding: '16px' }}>
                             <div style={{ marginBottom: '8px' }}>
                                 <span style={{ color: '#3f8600' }}>AC (Accepted): </span>
@@ -206,7 +206,7 @@ const StatisticsTab = observer(() => {
                     </Card>
                 </Col>
                 <Col span={12}>
-                    <Card title="Phân bố điểm">
+                    <Card title="Phân bố điểm" style={{ height: '100%' }}>
                         <div style={{ padding: '16px' }}>
                             {Object.entries(scoreDistribution).map(([range, count]) => (
                                 <div

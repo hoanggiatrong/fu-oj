@@ -10,7 +10,7 @@ import type { FormProps } from 'antd';
 import * as http from '../../../lib/httpRequest';
 import classnames from 'classnames';
 import Line from '../../../components/Line/Line';
-import { difficulties } from '../../../constants/difficulty';
+import { difficulties, type Difficulty } from '../../../constants/difficulty';
 import { visbilities } from '../../../constants/visibility';
 
 dayjs.extend(utc);
@@ -412,7 +412,7 @@ const ExamFormModal = observer(
                                                                         item.difficulty
                                                                     )}
                                                                 >
-                                                                    {item.difficulty}
+                                                                    {difficulties[item.difficulty as Difficulty].text}
                                                                 </span>
                                                             </div>
                                                             <div className="description">
@@ -420,7 +420,7 @@ const ExamFormModal = observer(
                                                                 {item.description}
                                                             </div>
                                                             <div className="author mt-8">
-                                                                <b>Tạo bởi: </b>
+                                                                <b>Mã bài tập: </b>
                                                                 {/* {console.log('log:', item)} */}
                                                             </div>
                                                             <div className="color-red"># {item.code}</div>
@@ -430,7 +430,9 @@ const ExamFormModal = observer(
                                             }
                                             style={{ width: 500 }}
                                         >
-                                            <span>{item.label}</span>
+                                            <span>
+                                                {item.code} - {item.label}
+                                            </span>
                                         </Tooltip>
                                     ),
                                     searchText: `${item.label} ${item.description} ${item.difficulty}`

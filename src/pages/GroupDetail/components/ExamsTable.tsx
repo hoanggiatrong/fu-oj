@@ -9,6 +9,7 @@ import globalStore from '../../../components/GlobalComponent/globalStore';
 import TooltipWrapper from '../../../components/TooltipWrapper/TooltipWrapperComponent';
 import * as http from '../../../lib/httpRequest';
 import authentication from '../../../shared/auth/authentication';
+import { useState } from 'react';
 
 interface Exam {
     id: string;
@@ -187,33 +188,9 @@ const ExamsTable = ({
             dataIndex: 'isExamined',
             key: 'isExamined',
             width: 120,
-            render: (isExamined: boolean, record: any) => {
-                const statusInfo = getExamStatus(record.startTime, record.endTime);
-
-                return (
-                    <div className="cell flex flex-end pr-16">
-                        <Switch
-                            disabled={statusInfo.status == 'completed'}
-                            defaultChecked={isExamined}
-                            onChange={(value) => {
-                                http.patchV2(
-                                    record.groupExamId,
-                                    `/group-exams/${record.groupExamId}/toggle-examined`,
-                                    {}
-                                ).then(() => {
-                                    globalStore.triggerNotification(
-                                        !value ? 'warning' : 'success',
-                                        `Bài thi "${record?.title?.toUpperCase()}" đang ${
-                                            !value ? 'không diễn ra' : 'diễn ra'
-                                        }`,
-                                        ''
-                                    );
-                                });
-                            }}
-                        />
-                    </div>
-                );
-            }
+            render: (isExamined: boolean, record: any) => (
+                <ExamActivationSwitch isExamined={isExamined} record={record} />
+            )
         });
     }
 
@@ -316,6 +293,35 @@ const ExamsTable = ({
                 };
             }}
         />
+    );
+};
+
+const ExamActivationSwitch = ({ isExamined, record }: { isExamined: boolean; record: any }) => {
+    const [isSwitching, setIsSwitching] = useState(false);
+    const statusInfo = getExamStatus(record.startTime, record.endTime);
+
+    return (
+        <div className="cell flex flex-end pr-16">
+            <Switch
+                disabled={isSwitching || statusInfo.status == 'completed'}
+                defaultChecked={isExamined}
+                onChange={(value) => {
+                    setIsSwitching(true);
+                    http.patchV2(record.groupExamId, `/group-exams/${record.groupExamId}/toggle-examined`, {}).then(
+                        () => {
+                            setIsSwitching(false);
+                            globalStore.triggerNotification(
+                                !value ? 'warning' : 'success',
+                                `Bài thi "${record?.title?.toUpperCase()}" đang ${
+                                    !value ? 'không diễn ra' : 'diễn ra'
+                                }`,
+                                ''
+                            );
+                        }
+                    );
+                }}
+            />
+        </div>
     );
 };
 

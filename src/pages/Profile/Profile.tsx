@@ -50,24 +50,6 @@ const Profile = observer(() => {
 
         setLoading(true);
 
-        // Phần này dùng Cloudinary
-        // const url = await globalStore.uploadImageToCloudinary(selectedFile);
-
-        // if (url) {
-        //     setImageUrl(url); // cập nhật url chính thức
-
-        //     http.patchV2(updateId, '/me/profile', { avatar: { url: url } })
-        //         .then((res) => {
-        //             globalStore.triggerNotification('success', res.message, '');
-        //             globalStore.setOpenDetailPopup(false);
-        //             authentication.getAccount();
-        //         })
-        //         .catch((error) => {
-        //             globalStore.triggerNotification('error', error.response?.data?.message, '');
-        //         });
-        // }
-        // Phần này dùng Cloudinary
-
         const formData = new FormData();
         formData.append('file', selectedFile!); // ! đảm bảo selectedFile không null
 
@@ -268,12 +250,12 @@ const Profile = observer(() => {
                                                     <Input placeholder="Nhập Mã số sinh viên" />
                                                 </Form.Item>
 
-                                                <Form.Item label={'´꒳`'}>
+                                                <Form.Item wrapperCol={{ span: 24 }}>
                                                     <Button
                                                         className="max-width"
                                                         type="primary"
                                                         htmlType="submit"
-                                                        style={{ padding: 0, width: 100, height: 28 }}
+                                                        style={{ padding: 0, height: 28 }}
                                                     >
                                                         Cập nhật
                                                     </Button>

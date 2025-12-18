@@ -1067,18 +1067,18 @@ const Exercises = observer(() => {
                                         className="flex-1"
                                         label="Giới hạn thời gian"
                                         name="timeLimit"
-                                        rules={[{ required: true, message: 'Vui lòng nhập giới hạn!' }]}
+                                        rules={[{ required: true, message: 'Vui lòng nhập giới hạn thời gian!' }]}
                                     >
-                                        <InputNumber className="max-width" />
+                                        <InputNumber className="max-width" addonAfter="s" />
                                     </Form.Item>
 
                                     <Form.Item
                                         className="flex-1"
-                                        label="Giới hạn bộ nhớ (MB)"
+                                        label="Giới hạn bộ nhớ"
                                         name="memory"
-                                        rules={[{ required: true, message: 'Vui lòng nhập bộ nhớ!' }]}
+                                        rules={[{ required: true, message: 'Vui lòng nhập giới hạn bộ nhớ!' }]}
                                     >
-                                        <InputNumber className="max-width" />
+                                        <InputNumber className="max-width" addonAfter="bytes" />
                                     </Form.Item>
 
                                     <Form.Item
@@ -1137,7 +1137,7 @@ const Exercises = observer(() => {
                                     name="description"
                                     rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
                                 >
-                                    <Input.TextArea rows={4} />
+                                    <Input.TextArea rows={4} style={{ resize: 'none' }} />
                                 </Form.Item>
                             </div>
 

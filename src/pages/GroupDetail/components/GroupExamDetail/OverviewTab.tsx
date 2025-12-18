@@ -6,6 +6,7 @@ import { FileTextOutlined, UserOutlined, CheckCircleOutlined, EyeOutlined } from
 import * as http from '../../../../lib/httpRequest';
 import globalStore from '../../../../components/GlobalComponent/globalStore';
 import TooltipWrapper from '../../../../components/TooltipWrapper/TooltipWrapperComponent';
+import { difficulties, type Difficulty } from '../../../../constants/difficulty';
 
 interface Exercise {
     id: string;
@@ -252,15 +253,15 @@ const OverviewTab = observer(() => {
                             <div style={{ fontWeight: 'bold' }}>Độ khó:</div>
                             <div>
                                 <Tag color={getDifficultyColor(exerciseDetail.difficulty)}>
-                                    {exerciseDetail.difficulty}
+                                    {difficulties[exerciseDetail.difficulty as Difficulty].text}
                                 </Tag>
                             </div>
 
-                            <div style={{ fontWeight: 'bold' }}>Thời gian:</div>
+                            <div style={{ fontWeight: 'bold' }}>Giới hạn thời gian:</div>
                             <div>{exerciseDetail.timeLimit} giây</div>
 
-                            <div style={{ fontWeight: 'bold' }}>Bộ nhớ:</div>
-                            <div>{exerciseDetail.memory} MB</div>
+                            <div style={{ fontWeight: 'bold' }}>Giới hạn bộ nhớ:</div>
+                            <div>{exerciseDetail.memory} bytes</div>
 
                             <div style={{ fontWeight: 'bold' }}>Số test case:</div>
                             <div>{exerciseDetail.testCasesCount}</div>
