@@ -53,8 +53,7 @@ const GroupExamDetail = observer(() => {
     const navigate = useNavigate();
     const location = useLocation();
     const [exam, setExam] = useState<Exam | null>(null);
-    const [group, setGroup] = useState<Group | null>(null);
-    group;
+    const [_, setGroup] = useState<Group | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -116,18 +115,10 @@ const GroupExamDetail = observer(() => {
             key: 'students-progress',
             label: (
                 <NavLink to={`/group/${groupId}/exams/${examId}/students-progress`} style={{ textDecoration: 'none' }}>
-                    Tiến độ học sinh
+                    Tiến độ sinh viên
                 </NavLink>
             )
         },
-        // {
-        //     key: 'submissions',
-        //     label: (
-        //         <NavLink to={`/group/${groupId}/exams/${examId}/submissions`} style={{ textDecoration: 'none' }}>
-        //             Bài nộp
-        //         </NavLink>
-        //     )
-        // },
         {
             key: 'statistics',
             label: (

@@ -137,4 +137,12 @@
             }
         }
     }
+
+    & .exercise-expanded-table .ant-table {
+        margin: 0 !important;
+    }
+
+    & .ant-table-cell:has(> .exercise-expanded-table) {
+        padding: 0 !important;
+    }
 }

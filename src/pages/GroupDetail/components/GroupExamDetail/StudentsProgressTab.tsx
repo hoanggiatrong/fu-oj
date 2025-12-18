@@ -255,6 +255,7 @@ const StudentsProgressTab = observer(() => {
                         ];
                         return (
                             <Table
+                                className="exercise-expanded-table"
                                 dataSource={record.submissionExercises}
                                 columns={exerciseColumns}
                                 pagination={false}
