@@ -26,7 +26,9 @@ const ExamTable = observer(
         const tableColumns = [
             ...columns,
             {
-                title: '',
+                title: 'Hành động',
+                width: 110,
+                align: 'right',
                 dataIndex: 'actions',
                 key: 'actions',
                 render: (_: unknown, record: ExamData) => {

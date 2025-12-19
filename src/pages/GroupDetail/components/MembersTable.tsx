@@ -4,6 +4,8 @@ import Highlighter from 'react-highlight-words';
 import ProtectedElement from '../../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../../components/TooltipWrapper/TooltipWrapperComponent';
 import authentication from '../../../shared/auth/authentication';
+import * as http from '../../../lib/httpRequest';
+import globalStore from '../../../components/GlobalComponent/globalStore';
 
 interface Member {
     id: string;
@@ -15,12 +17,14 @@ interface Member {
 }
 
 interface MembersTableProps {
+    groupId: any;
+    loadData: any;
     dataSource: Member[];
     search: string;
     onRowClick?: (record: Member) => void;
 }
 
-const MembersTable = ({ dataSource, search, onRowClick }: MembersTableProps) => {
+const MembersTable = ({ groupId, loadData, dataSource, search, onRowClick }: MembersTableProps) => {
     const columns = [
         // {
         //     title: 'ID Photo',
@@ -88,7 +92,8 @@ const MembersTable = ({ dataSource, search, onRowClick }: MembersTableProps) => 
             title: '',
             dataIndex: 'actions',
             key: 'actions',
-            render: () => {
+            render: (_: any, record: any) => {
+                console.warn('unused: _ - from MembersTable.tsx', _);
                 return (
                     <div className="actions-row cell" onClick={(e) => e.stopPropagation()}>
                         <ProtectedElement acceptRoles={['INSTRUCTOR']}>
@@ -100,6 +105,10 @@ const MembersTable = ({ dataSource, search, onRowClick }: MembersTableProps) => 
                                     cancelText="Không"
                                     onConfirm={() => {
                                         // TODO: Implement delete functionality
+                                        http.deleteCcc(`/groups/${groupId}/students`, [record.id]).then((res) => {
+                                            globalStore.triggerNotification('success', res.message, '');
+                                            loadData();
+                                        });
                                     }}
                                 >
                                     <DeleteOutlined className="action-row-btn" />

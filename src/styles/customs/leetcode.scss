@@ -159,6 +159,8 @@
 
                         .custom-row.row-odd {
                             td {
+                                background: var(--color-tooltip-bg) !important;
+
                                 .cell {
                                     background: var(--color-tooltip-bg) !important;
                                 }

@@ -155,4 +155,10 @@ export const deleteCc = async (path: string, exerciseIds: string[]) => {
     return res.data;
 };
 
+// ?????????????? :D ??????????????
+export const deleteCcc = async (path: string, studentIds: string[]) => {
+    const res = await httpRequest.delete(`${path}`, { data: { studentIds } });
+    return res.data;
+};
+
 export default httpRequest;

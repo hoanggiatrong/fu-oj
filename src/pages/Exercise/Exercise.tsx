@@ -146,7 +146,7 @@ const Exercise = observer(() => {
     const [model] = useState(FlexLayout.Model.fromJson(json));
     const layoutRef = useRef<FlexLayout.Layout | null>(null);
 
-    const [language, setLanguage] = useState<number>(45);
+    const [language, setLanguage] = useState<number>(62);
     const [theme] = useState<'light' | 'vs-dark'>('vs-dark');
     const [exercise, setExercise] = useState<any>(null);
     const [editorValue, setEditorValue]: any = useState('');

@@ -16,9 +16,13 @@ const MembersTab = observer(() => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
+        loadData();
+    }, [id]);
 
+    const loadData = () => {
         if (id) {
+            setLoading(true);
+
             const url = `/groups/${id}/students`;
             console.log('[API] GET', url, '- Fetching students for group:', id);
             http.get(url)
@@ -33,7 +37,7 @@ const MembersTab = observer(() => {
                     setLoading(false);
                 });
         }
-    }, [id]);
+    };
 
     return (
         <div className="leetcode">
@@ -54,6 +58,8 @@ const MembersTab = observer(() => {
                 <div className="body">
                     <LoadingOverlay loading={loading}>
                         <MembersTable
+                            groupId={id}
+                            loadData={loadData}
                             dataSource={displayDatas}
                             search={search}
                             onRowClick={(record) => {

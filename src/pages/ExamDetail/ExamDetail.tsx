@@ -382,8 +382,10 @@ const ExamDetail = observer(() => {
         return colorMap[difficulty] || 'default';
     };
 
+    const [timeIsUp, setTimeIsUp] = useState(false);
+
     return (
-        <div className={classnames('exam-detail', { 'p-24': globalStore.isBelow1300 })}>
+        <div className={classnames('exam-detail', { 'p-24': globalStore.isBelow1300, 'disabled-5': timeIsUp })}>
             <LoadingOverlay loading={loading}>
                 {examData && (
                     <div className="exam-detail-wrapper">
@@ -455,17 +457,17 @@ const ExamDetail = observer(() => {
                                                 </div>
                                                 <h1 className="exercise-title">{selectedExercise.title}</h1>
                                             </div>
-                                            {!authentication.isInstructor && groupExamId && (
-                                                <div style={{ marginLeft: 16, minWidth: '200px' }}>
-                                                    <ExamCountdownTimer examId={groupExamId} />
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
-                                    <Card className="exercise-info-card">
-                                        <div className="exercise-description">
-                                            <h3>Mô tả</h3>
-                                            <p>{selectedExercise.description}</p>
+                                    <Card className="exercise-info-card event-none-cell" style={{ padding: 16 }}>
+                                        <div className="exercise-description flex gap flex-space-beetween align-flex-start">
+                                            <div className="flex-1">
+                                                <h3>Mô tả</h3>
+                                                <p>{selectedExercise.description}</p>
+                                            </div>
+                                            {!authentication.isInstructor && groupExamId && (
+                                                <ExamCountdownTimer examId={groupExamId} setTimeIsUp={setTimeIsUp} />
+                                            )}
                                         </div>
                                         <div className="exercise-details">
                                             <div className="detail-item">
@@ -506,11 +508,22 @@ const ExamDetail = observer(() => {
                                                     const isCompleted = !!submission;
 
                                                     if (isCompleted) {
-                                                        return <Tag color="blue">Đã làm</Tag>;
+                                                        return (
+                                                            <Button
+                                                                className="good-btn disabled-8 mt-8"
+                                                                type="primary"
+                                                                size="large"
+                                                                onClick={handleStartExercise}
+                                                                disabled={isTimeExpired}
+                                                            >
+                                                                Đã hoàn thành
+                                                            </Button>
+                                                        );
                                                     }
 
                                                     return (
                                                         <Button
+                                                            className="good-btn mt-8"
                                                             type="primary"
                                                             size="large"
                                                             onClick={handleStartExercise}
@@ -531,9 +544,6 @@ const ExamDetail = observer(() => {
                     </div>
                 )}
             </LoadingOverlay>
-            <ProtectedElement acceptRoles={['STUDENT']}>
-                <AIAssistant />
-            </ProtectedElement>
         </div>
     );
 });

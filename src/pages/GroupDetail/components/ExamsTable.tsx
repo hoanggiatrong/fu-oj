@@ -138,6 +138,16 @@ const ExamsTable = ({
             )
         },
         {
+            title: 'Thời lượng',
+            align: 'right',
+            dataIndex: 'timeLimit',
+            key: 'timeLimit',
+            sorter: (a: any, b: any) => a.timeLimit - b.timeLimit,
+            render: (timeLimit: string | null | undefined) => (
+                <div className="cell flex flex-center pr-16">{timeLimit} phút</div>
+            )
+        },
+        {
             title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',

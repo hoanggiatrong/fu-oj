@@ -96,7 +96,7 @@ const ExamExercise = observer(() => {
     const [model] = useState(FlexLayout.Model.fromJson(json));
     const layoutRef = useRef<FlexLayout.Layout | null>(null);
 
-    const [language, setLanguage] = useState<number>(45);
+    const [language, setLanguage] = useState<number>(62);
     const [theme] = useState<'light' | 'vs-dark'>('vs-dark');
     const [exercise, setExercise] = useState<any>(null);
     const [editorValue, setEditorValue]: any = useState('');
@@ -632,7 +632,7 @@ const ExamExercise = observer(() => {
                             className={classnames('group-btn', { disabled: loading })}
                             // style={{ display: 'flex', alignItems: 'center', gap: '16px' }}
                         >
-                            <div className="icon" onClick={testRun}>
+                            <div className="icon run-code-btn" onClick={testRun}>
                                 {loading ? (
                                     <LoadingOutlined style={{ fontSize: 18 }} />
                                 ) : (

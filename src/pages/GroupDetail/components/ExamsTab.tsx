@@ -90,7 +90,10 @@ const ExamsTab = observer(() => {
     const getAllExercises = () => {
         http.get('/exercises?pageSize=999999')
             .then((res) => {
-                const exercises = res.data || [];
+                let exercises = res.data || [];
+
+                exercises = exercises.filter((e: any) => !(e.visibility == 'DRAFT') && e?.testCases?.length > 0);
+
                 setExamExerciseOptions(
                     exercises.map((exercise: any) => ({
                         value: exercise.id,

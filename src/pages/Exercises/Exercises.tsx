@@ -8,7 +8,8 @@ import {
     SearchOutlined,
     SettingOutlined,
     CheckOutlined,
-    ReloadOutlined
+    ReloadOutlined,
+    WarningFilled
 } from '@ant-design/icons';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, InputNumber, Modal, Popconfirm, Popover, Select, Steps, Table, Tag } from 'antd';
@@ -63,11 +64,11 @@ const Exercises = observer(() => {
     const columns = [
         {
             title: 'Mã bài tập',
-            width: 160,
+            width: 200,
             dataIndex: 'code',
             key: 'code',
             sorter: (a: any, b: any) => (a.code || '').localeCompare(b.code || ''),
-            render: (code: string) => {
+            render: (code: string, record: any) => {
                 return (
                     <div className="cell">
                         <Highlighter
@@ -76,6 +77,15 @@ const Exercises = observer(() => {
                             autoEscape={true}
                             textToHighlight={code}
                         />
+                        {record?.testCases && record?.testCases?.length <= 0 ? (
+                            <div className="ml-8">
+                                <TooltipWrapper tooltipText={'Chưa có test case'} position="right">
+                                    <div className="unsolved">{<WarningFilled className="color-gold" />}</div>
+                                </TooltipWrapper>
+                            </div>
+                        ) : (
+                            <></>
+                        )}
                     </div>
                 );
             }

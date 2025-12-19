@@ -150,25 +150,25 @@ const Exams = observer(() => {
                     );
                 }
             },
+            // {
+            //     title: 'Mô tả',
+            //     dataIndex: 'description',
+            //     key: 'description',
+            //     render: (description: string) => {
+            //         return (
+            //             <div className="cell">
+            //                 <Highlighter
+            //                     highlightClassName="highlight"
+            //                     searchWords={[search]}
+            //                     autoEscape={true}
+            //                     textToHighlight={description || ''}
+            //                 />
+            //             </div>
+            //         );
+            //     }
+            // },
             {
-                title: 'Mô tả',
-                dataIndex: 'description',
-                key: 'description',
-                render: (description: string) => {
-                    return (
-                        <div className="cell">
-                            <Highlighter
-                                highlightClassName="highlight"
-                                searchWords={[search]}
-                                autoEscape={true}
-                                textToHighlight={description || ''}
-                            />
-                        </div>
-                    );
-                }
-            },
-            {
-                title: 'Thời gian bắt đầu',
+                title: 'Bắt đầu',
                 dataIndex: 'startTime',
                 key: 'startTime',
                 sorter: (a: any, b: any) => {
@@ -181,7 +181,7 @@ const Exams = observer(() => {
                 }
             },
             {
-                title: 'Thời gian kết thúc',
+                title: 'Kết thúc',
                 dataIndex: 'endTime',
                 key: 'endTime',
                 sorter: (a: any, b: any) => {
@@ -192,6 +192,16 @@ const Exams = observer(() => {
                 render: (endTime: string) => {
                     return <div className="cell">{endTime ? dayjs(endTime).format('DD/MM/YYYY HH:mm') : '-'}</div>;
                 }
+            },
+            {
+                title: 'Thời lượng',
+                align: 'right',
+                dataIndex: 'timeLimit',
+                key: 'timeLimit',
+                sorter: (a: any, b: any) => a.timeLimit - b.timeLimit,
+                render: (timeLimit: string | null | undefined) => (
+                    <div className="cell flex flex-center pr-16">{timeLimit} phút</div>
+                )
             },
             {
                 title: 'Trạng thái',
@@ -316,7 +326,7 @@ const Exams = observer(() => {
             .then((res) => {
                 let exercises = res.data;
 
-                exercises = exercises.filter((e: any) => !(e.visibility == 'DRAFT'));
+                exercises = exercises.filter((e: any) => !(e.visibility == 'DRAFT') && e?.testCases?.length > 0);
 
                 setExercises(
                     exercises.map((exercise: any) => ({
