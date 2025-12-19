@@ -632,7 +632,7 @@ const ExamExercise = observer(() => {
                             className={classnames('group-btn', { disabled: loading })}
                             // style={{ display: 'flex', alignItems: 'center', gap: '16px' }}
                         >
-                            <div className="icon" onClick={testRun}>
+                            <div className="icon run-code-btn" onClick={testRun}>
                                 {loading ? (
                                     <LoadingOutlined style={{ fontSize: 18 }} />
                                 ) : (
