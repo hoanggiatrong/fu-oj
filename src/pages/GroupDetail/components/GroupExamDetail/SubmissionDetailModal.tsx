@@ -288,7 +288,7 @@ const SubmissionDetailModal = ({ open, onCancel, submissionResult, loading }: Su
                                                                 }
                                                             },
                                                             {
-                                                                title: 'Expected',
+                                                                title: 'Expected Output',
                                                                 key: 'expected',
                                                                 render: (_: unknown, __: unknown, index: number) => {
                                                                     const testCase = data.exercise.testCases[index];
@@ -308,7 +308,7 @@ const SubmissionDetailModal = ({ open, onCancel, submissionResult, loading }: Su
                                                                 }
                                                             },
                                                             {
-                                                                title: 'Actual',
+                                                                title: 'Actual Output',
                                                                 key: 'actual',
                                                                 render: (_: unknown, record) => (
                                                                     <pre
@@ -368,7 +368,17 @@ const SubmissionDetailModal = ({ open, onCancel, submissionResult, loading }: Su
                                         key: 'score',
                                         width: 100,
                                         align: 'center' as const,
-                                        render: (score: number) => <strong>{score.toFixed(1)}</strong>
+                                        render: (_: unknown, record: SubmissionDetail) => (
+                                            // <strong>{score.toFixed(1)}</strong>
+                                            <strong>
+                                                {(
+                                                    (record.passedTestCases /
+                                                        record.totalTestCases /
+                                                        submissionResult.totalExercises) *
+                                                    100
+                                                ).toFixed(1)}
+                                            </strong>
+                                        )
                                     },
                                     {
                                         title: 'Test case',
