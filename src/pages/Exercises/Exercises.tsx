@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     AppstoreAddOutlined,
+    CheckOutlined,
     DeleteOutlined,
     FilterOutlined,
     LineOutlined,
+    ReloadOutlined,
     RobotOutlined,
     SearchOutlined,
     SettingOutlined,
-    CheckOutlined,
-    ReloadOutlined,
     WarningFilled
 } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Button, Form, Input, InputNumber, Modal, Popconfirm, Popover, Select, Steps, Table, Tag } from 'antd';
+import { Button, Form, Input, Modal, Popconfirm, Popover, Select, Steps, Table, Tag } from 'antd';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -26,15 +26,14 @@ import globalStore from '../../components/GlobalComponent/globalStore';
 import LoadingOverlay from '../../components/LoadingOverlay/LoadingOverlay';
 import ProtectedElement from '../../components/ProtectedElement/ProtectedElement';
 import TooltipWrapper from '../../components/TooltipWrapper/TooltipWrapperComponent';
-import * as http from '../../lib/httpRequest';
-import httpRequest from '../../lib/httpRequest';
+import { difficulties } from '../../constants/difficulty';
+import { VISIBILITY, visbilities } from '../../constants/visibility';
+import httpRequest, * as http from '../../lib/httpRequest';
 import routesConfig from '../../routes/routesConfig';
 import authentication from '../../shared/auth/authentication';
 import utils from '../../utils/utils';
 import CourseSlider, { type CourseSliderItem } from './components/CourseSlider';
 import './exercises.scss';
-import { visbilities, VISIBILITY } from '../../constants/visibility';
-import { difficulties } from '../../constants/difficulty';
 
 const Exercises = observer(() => {
     const navigate = useNavigate();
@@ -423,7 +422,13 @@ const Exercises = observer(() => {
         console.log('Success:', values);
 
         if (updateId) {
-            http.putaaa(updateId, '/exercises', { ...values, testCases: [], maxSubmissions: 99999 })
+            http.putaaa(updateId, '/exercises', {
+                ...values,
+                testCases: [],
+                maxSubmissions: 99999,
+                timeLimit: 0.2,
+                memory: 65000
+            })
                 .then((res) => {
                     globalStore.triggerNotification('success', res.message, '');
                     getExercises();
@@ -437,7 +442,9 @@ const Exercises = observer(() => {
                 ...values,
                 code: `EX_${new Date().getTime()}`,
                 testCases: [],
-                maxSubmissions: 99999
+                maxSubmissions: 99999,
+                timeLimit: 0.2,
+                memory: 65000
             })
                 .then((res) => {
                     globalStore.triggerNotification('success', res.message, '');
@@ -1073,7 +1080,7 @@ const Exercises = observer(() => {
                             </Form.Item> */}
 
                                 <div className="flex gap">
-                                    <Form.Item
+                                    {/* <Form.Item
                                         className="flex-1"
                                         label="Giới hạn thời gian"
                                         name="timeLimit"
@@ -1089,7 +1096,7 @@ const Exercises = observer(() => {
                                         rules={[{ required: true, message: 'Vui lòng nhập giới hạn bộ nhớ!' }]}
                                     >
                                         <InputNumber className="max-width" addonAfter="bytes" />
-                                    </Form.Item>
+                                    </Form.Item> */}
 
                                     <Form.Item
                                         className="flex-1"
