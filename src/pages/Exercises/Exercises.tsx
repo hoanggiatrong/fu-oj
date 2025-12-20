@@ -423,7 +423,13 @@ const Exercises = observer(() => {
         console.log('Success:', values);
 
         if (updateId) {
-            http.putaaa(updateId, '/exercises', { ...values, testCases: [], maxSubmissions: 99999 })
+            http.putaaa(updateId, '/exercises', {
+                ...values,
+                testCases: [],
+                maxSubmissions: 99999,
+                timeLimit: 0.2,
+                memory: 65000
+            })
                 .then((res) => {
                     globalStore.triggerNotification('success', res.message, '');
                     getExercises();
@@ -437,7 +443,9 @@ const Exercises = observer(() => {
                 ...values,
                 code: `EX_${new Date().getTime()}`,
                 testCases: [],
-                maxSubmissions: 99999
+                maxSubmissions: 99999,
+                timeLimit: 0.2,
+                memory: 65000
             })
                 .then((res) => {
                     globalStore.triggerNotification('success', res.message, '');
@@ -1073,7 +1081,7 @@ const Exercises = observer(() => {
                             </Form.Item> */}
 
                                 <div className="flex gap">
-                                    <Form.Item
+                                    {/* <Form.Item
                                         className="flex-1"
                                         label="Giới hạn thời gian"
                                         name="timeLimit"
@@ -1089,7 +1097,7 @@ const Exercises = observer(() => {
                                         rules={[{ required: true, message: 'Vui lòng nhập giới hạn bộ nhớ!' }]}
                                     >
                                         <InputNumber className="max-width" addonAfter="bytes" />
-                                    </Form.Item>
+                                    </Form.Item> */}
 
                                     <Form.Item
                                         className="flex-1"
