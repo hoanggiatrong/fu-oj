@@ -1149,6 +1149,14 @@ const Exercises = observer(() => {
                                 >
                                     <Input.TextArea rows={4} style={{ resize: 'none' }} />
                                 </Form.Item>
+
+                                <Form.Item
+                                    label="Lời giải mẫu"
+                                    name="solution"
+                                    // rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+                                >
+                                    <Input.TextArea rows={4} />
+                                </Form.Item>
                             </div>
 
                             <div className={classnames({ hide: step != 1 })}>

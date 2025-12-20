@@ -184,7 +184,11 @@ const LRComponent = observer(() => {
                                     />
                                 </div>
                                 <div className="actions">
-                                    <Checkbox value={remember} onChange={(e) => setRemember(e.target.checked)}>
+                                    <Checkbox
+                                        checked={remember}
+                                        value={remember}
+                                        onChange={(e) => setRemember(e.target.checked)}
+                                    >
                                         Duy trì đăng nhập
                                     </Checkbox>
                                     <div
